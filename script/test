@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+docker build -t whalebrew .
+exec docker run --rm whalebrew go test ./...
