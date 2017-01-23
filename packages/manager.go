@@ -27,9 +27,6 @@ func NewPackageManager(path string) *PackageManager {
 
 // Install installs a package
 func (pm *PackageManager) Install(imageName, packageName string) error {
-	if !strings.Contains(imageName, "/") {
-		imageName = "whalebrew/" + imageName
-	}
 	packagePath := path.Join(pm.InstallPath, packageName)
 
 	pkg := &Package{Image: imageName}
