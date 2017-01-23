@@ -15,8 +15,14 @@ func init() {
 var uninstallCommand = &cobra.Command{
 	Use:   "uninstall PACKAGENAME",
 	Short: "Uninstall a package",
-	Long:  `Uninstall a package`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return cmd.Help()
+		}
+		if len(args) > 1 {
+			return fmt.Errorf("Only one image can be uninstalled at a time")
+		}
+
 		pm := packages.NewPackageManager("/usr/local/bin")
 		packageName := args[0]
 

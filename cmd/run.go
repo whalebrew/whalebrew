@@ -19,6 +19,10 @@ var runCommand = &cobra.Command{
 	Short:              "Run a package",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return cmd.Help()
+		}
+
 		pkg, err := packages.LoadPackageFromPath(args[0])
 		if err != nil {
 			return err

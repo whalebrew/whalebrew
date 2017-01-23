@@ -20,6 +20,13 @@ var installCommand = &cobra.Command{
 	Use:   "install IMAGENAME",
 	Short: "Install a package",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return cmd.Help()
+		}
+		if len(args) > 1 {
+			return fmt.Errorf("Only one image can be installed at a time")
+		}
+
 		imageName := args[0]
 
 		cli, err := client.NewEnvClient()

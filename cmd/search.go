@@ -16,6 +16,13 @@ var searchCommand = &cobra.Command{
 	Use:   "search TERM",
 	Short: "Search for packages on Docker Hub",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return cmd.Help()
+		}
+		if len(args) > 1 {
+			return fmt.Errorf("Only one search term is supported")
+		}
+
 		cli, err := client.NewEnvClient()
 		if err != nil {
 			return err
