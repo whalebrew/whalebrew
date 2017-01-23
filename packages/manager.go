@@ -101,6 +101,10 @@ func (pm *PackageManager) Uninstall(packageName string) error {
 func IsPackage(path string) (bool, error) {
 	f, err := os.Open(path)
 	if err != nil {
+		// dead symlink
+		if os.IsNotExist(err) {
+			return false, nil
+		}
 		return false, err
 	}
 	defer f.Close()
