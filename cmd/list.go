@@ -23,7 +23,7 @@ var listCommand = &cobra.Command{
 			return err
 		}
 
-		packageNames := make([]string, len(packages))
+		packageNames := make([]string, 0, len(packages))
 		for k := range packages {
 			packageNames = append(packageNames, k)
 		}
