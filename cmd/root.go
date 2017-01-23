@@ -5,6 +5,8 @@ import (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "whalebrew",
-	Short: "Install Docker images as native commands",
+	Use:           "whalebrew",
+	Short:         "Install Docker images as native commands",
+	SilenceUsage:  true,
+	SilenceErrors: true,
 }
