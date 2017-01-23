@@ -59,7 +59,13 @@ The images in the `whalebrew` organization are a set of images that are known to
 
 ### Upgrade packages
 
-    $ whalebrew upgrade wget
+Upgrade all packages:
+
+    $ whalebrew upgrade
+
+To upgrade a single package, just pull its image:
+
+    $ docker pull whalebrew/wget
 
 ### Upgrade Whalebrew
 
