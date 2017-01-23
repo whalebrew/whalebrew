@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/whalebrew/whalebrew/packages"
 	"os"
@@ -21,10 +22,16 @@ var runCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
 		dockerArgs := []string{
 			"run",
 			"--interactive",
 			"--tty",
+			"--workdir", "/workdir",
+			"-v", fmt.Sprintf("%s:/workdir", cwd),
 			pkg.Image,
 		}
 		dockerArgs = append(dockerArgs, args[1:]...)
