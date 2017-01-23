@@ -13,6 +13,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	installPath, err := ioutil.TempDir("", "whalebrewtest")
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
+
 	err = pm.Install("whalebrew/whalesay", "whalesay")
 	assert.Nil(t, err)
 	packagePath := path.Join(installPath, "whalesay")
@@ -22,6 +23,12 @@ func TestPackageManagerInstall(t *testing.T) {
 	fi, err := os.Stat(packagePath)
 	assert.Nil(t, err)
 	assert.Equal(t, int(fi.Mode()), 0755)
+
+	err = ioutil.WriteFile(path.Join(installPath, "whalesay"), []byte("not a whalebrew package"), 0755)
+	assert.Nil(t, err)
+	err = pm.Install("whalebrew/whalesay", "whalesay")
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "already exists")
 }
 
 func TestPackageManagerList(t *testing.T) {

@@ -42,6 +42,10 @@ func NewPackageManager(path string) *PackageManager {
 func (pm *PackageManager) Install(imageName, packageName string) error {
 	packagePath := path.Join(pm.InstallPath, packageName)
 
+	if _, err := os.Stat(packagePath); err == nil {
+		return fmt.Errorf("'%s' already exists", packagePath)
+	}
+
 	pkg := &Package{Image: imageName}
 	d, err := yaml.Marshal(&pkg)
 	if err != nil {
