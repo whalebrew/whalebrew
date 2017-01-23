@@ -73,6 +73,12 @@ To upgrade a single package, just pull its image:
 
 (Did I mention Whalebrew is a Whalebrew package?)
 
+## Configuration
+
+Whalebrew is configured with environment variables, which you can either provide at runtime or put in your `~/.bashrc` file (or whatever shell you use).
+
+ - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/bin/local`)
+
 ## How it works
 
 Whalebrew is very simple, and leans as much as possible on native Docker features:

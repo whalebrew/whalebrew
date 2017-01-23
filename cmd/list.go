@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/whalebrew/whalebrew/packages"
 	"os"
 	"sort"
@@ -17,7 +18,7 @@ var listCommand = &cobra.Command{
 	Use:   "list",
 	Short: "List installed packages",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		pm := packages.NewPackageManager("/usr/local/bin")
+		pm := packages.NewPackageManager(viper.GetString("install_path"))
 		packages, err := pm.List()
 		if err != nil {
 			return err

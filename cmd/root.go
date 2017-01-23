@@ -2,7 +2,14 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+func init() {
+	viper.SetEnvPrefix("whalebrew")
+	viper.SetDefault("install_path", "/usr/local/bin")
+	viper.BindEnv("install_path")
+}
 
 var RootCmd = &cobra.Command{
 	Use:           "whalebrew",

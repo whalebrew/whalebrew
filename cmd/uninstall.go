@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Songmu/prompter"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/whalebrew/whalebrew/packages"
 	"path"
 )
@@ -23,7 +24,7 @@ var uninstallCommand = &cobra.Command{
 			return fmt.Errorf("Only one image can be uninstalled at a time")
 		}
 
-		pm := packages.NewPackageManager("/usr/local/bin")
+		pm := packages.NewPackageManager(viper.GetString("install_path"))
 		packageName := args[0]
 
 		path := path.Join(pm.InstallPath, packageName)

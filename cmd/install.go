@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/whalebrew/whalebrew/packages"
 	"os"
 	"os/exec"
@@ -53,7 +54,7 @@ var installCommand = &cobra.Command{
 			return fmt.Errorf("The image '%s' is not compatible with Whalebrew: it does not have an entrypoint.", imageName)
 		}
 
-		pm := packages.NewPackageManager("/usr/local/bin")
+		pm := packages.NewPackageManager(viper.GetString("install_path"))
 		packageName := imageName
 		if strings.Contains(packageName, "/") {
 			packageName = strings.SplitN(packageName, "/", 2)[1]
