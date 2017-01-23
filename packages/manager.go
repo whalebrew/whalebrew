@@ -20,6 +20,19 @@ type Package struct {
 	Image string `yaml:"image"`
 }
 
+// LoadPackage reads a package from the given path
+func LoadPackageFromPath(path string) (*Package, error) {
+	d, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	pkg := &Package{}
+	if err = yaml.Unmarshal(d, pkg); err != nil {
+		return pkg, err
+	}
+	return pkg, nil
+}
+
 // NewPackageManager creates a new PackageManager
 func NewPackageManager(path string) *PackageManager {
 	return &PackageManager{InstallPath: path}
@@ -64,15 +77,7 @@ func (pm *PackageManager) List() (map[string]*Package, error) {
 
 // Load returns an installed package given its package name
 func (pm *PackageManager) Load(name string) (*Package, error) {
-	d, err := ioutil.ReadFile(path.Join(pm.InstallPath, name))
-	if err != nil {
-		return nil, err
-	}
-	pkg := &Package{}
-	if err = yaml.Unmarshal(d, pkg); err != nil {
-		return pkg, err
-	}
-	return pkg, nil
+	return LoadPackageFromPath(path.Join(pm.InstallPath, name))
 }
 
 // Uninstall uninstalls a package
