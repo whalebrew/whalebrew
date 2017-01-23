@@ -41,6 +41,12 @@ The images in the `whalebrew` organization are a set of images that are known to
 
 ### Find packages
 
+    $ whalebrew search
+    whalebrew/ack
+    whalebrew/httpie
+    whalebrew/jq
+    ...
+
     $ whalebrew search wget
     whalebrew/wget
 
