@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/whalebrew/whalebrew/packages"
+	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"os/exec"
 )
@@ -28,11 +29,15 @@ var runCommand = &cobra.Command{
 		dockerArgs := []string{
 			"run",
 			"--interactive",
-			"--tty",
 			"--workdir", "/workdir",
 			"-v", fmt.Sprintf("%s:/workdir", cwd),
-			pkg.Image,
 		}
+
+		if terminal.IsTerminal(int(os.Stdin.Fd())) {
+			dockerArgs = append(dockerArgs, "--tty")
+		}
+
+		dockerArgs = append(dockerArgs, pkg.Image)
 		dockerArgs = append(dockerArgs, args[1:]...)
 		c := exec.Command("docker", dockerArgs...)
 		c.Stdin = os.Stdin
