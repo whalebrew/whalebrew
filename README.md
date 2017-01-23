@@ -3,6 +3,15 @@
 Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but with Docker images.
 
     $ whalebrew install whalebrew/whalesay
+    Unable to find image 'whalebrew/whalesay' locally
+    Using default tag: latest
+    latest: Pulling from whalebrew/whalesay
+    c60055a51d74: Pull complete
+    755da0cdb7d2: Pull complete
+    969d017f67e6: Pull complete
+    Digest: sha256:5f3a2782b400b2b23774709e0685d65b4493c6cbdb62fff6bbbd2a6bd393845b
+    Status: Downloaded newer image for whalebrew/whalesay:latest
+    🐳  Installed whalebrew/whalesay to /usr/local/bin/whalesay
     $ whalesay cool
      ______
     < cool >
