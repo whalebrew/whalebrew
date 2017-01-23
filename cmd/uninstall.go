@@ -13,7 +13,7 @@ func init() {
 }
 
 var uninstallCommand = &cobra.Command{
-	Use:   "uninstall [package name]",
+	Use:   "uninstall PACKAGENAME",
 	Short: "Uninstall a package",
 	Long:  `Uninstall a package`,
 	RunE: func(cmd *cobra.Command, args []string) error {

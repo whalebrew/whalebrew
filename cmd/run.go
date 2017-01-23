@@ -13,9 +13,8 @@ func init() {
 }
 
 var runCommand = &cobra.Command{
-	Use:                "run [path to package] [args ...]",
+	Use:                "run PACKAGEPATH [ARGS ...]",
 	Short:              "Run a package",
-	Long:               `Run a package`,
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pkg, err := packages.LoadPackageFromPath(args[0])

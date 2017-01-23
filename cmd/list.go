@@ -16,7 +16,6 @@ func init() {
 var listCommand = &cobra.Command{
 	Use:   "list",
 	Short: "List installed packages",
-	Long:  `List installed packages`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pm := packages.NewPackageManager("/usr/local/bin")
 		packages, err := pm.List()

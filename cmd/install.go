@@ -17,9 +17,8 @@ func init() {
 }
 
 var installCommand = &cobra.Command{
-	Use:   "install [image name]",
+	Use:   "install IMAGENAME",
 	Short: "Install a package",
-	Long:  `install a Docker image as a Whalebrew package in your install path.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		imageName := args[0]
 
