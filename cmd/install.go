@@ -13,7 +13,11 @@ import (
 	"strings"
 )
 
+var packageName string
+
 func init() {
+	installCommand.Flags().StringVarP(&packageName, "name", "n", "", "Name to give installed package. Defaults to image name.")
+
 	RootCmd.AddCommand(installCommand)
 }
 
@@ -29,6 +33,13 @@ var installCommand = &cobra.Command{
 		}
 
 		imageName := args[0]
+		if packageName == "" {
+			packageName = imageName
+			if strings.Contains(packageName, "/") {
+				packageName = strings.SplitN(packageName, "/", 2)[1]
+			}
+		}
+		// TODO (bfirsh): validate names
 
 		cli, err := client.NewEnvClient()
 		if err != nil {
@@ -55,10 +66,6 @@ var installCommand = &cobra.Command{
 		}
 
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
-		packageName := imageName
-		if strings.Contains(packageName, "/") {
-			packageName = strings.SplitN(packageName, "/", 2)[1]
-		}
 		err = pm.Install(imageName, packageName)
 		if err != nil {
 			return err
