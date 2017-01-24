@@ -84,7 +84,7 @@ To upgrade a single package, just pull its image:
 
 ### Upgrade Whalebrew
 
-    $ whalebrew upgrade whalebrew
+    $ docker pull whalebrew/whalebrew
 
 (Did I mention Whalebrew is a Whalebrew package?)
 
