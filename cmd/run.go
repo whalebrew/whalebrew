@@ -7,6 +7,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"os/exec"
+	"os/user"
+	"strings"
 	"syscall"
 )
 
@@ -46,6 +48,18 @@ var runCommand = &cobra.Command{
 		}
 		if terminal.IsTerminal(int(os.Stdin.Fd())) {
 			dockerArgs = append(dockerArgs, "--tty")
+		}
+		for _, volume := range pkg.Volumes {
+			// special case expanding home directory
+			if strings.HasPrefix(volume, "~/") {
+				user, err := user.Current()
+				if err != nil {
+					return err
+				}
+				volume = user.HomeDir + volume[1:]
+			}
+			dockerArgs = append(dockerArgs, "-v")
+			dockerArgs = append(dockerArgs, volume)
 		}
 		dockerArgs = append(dockerArgs, pkg.Image)
 		dockerArgs = append(dockerArgs, args[1:]...)

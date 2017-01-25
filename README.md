@@ -118,7 +118,13 @@ Packages are Docker images published on Docker Hub. The requirements to make the
 
 That's it. So long as your image is set up to work that way, it'll work with Whalebrew.
 
-We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and Docker Hub. If you want to add a package to this, open an issue.
+There are also some labels you can use to configure how Whalebrew installs your image:
+
+* `io.whalebrew.config.volumes`: A list of volumes to mount when the command is run. For example, putting this in your images Dockerfile will mount `~/.docker` as `/root/.docker` in read-only mode:
+
+        LABEL io.whalebrew.config.volumes '["~/.docker:/root/.docker:ro"]'
+
+We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and [Docker Hub](https://hub.docker.com/u/whalebrew/). If you want to add a package to this, open an issue.
 
 ## Thanks
 

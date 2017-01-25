@@ -2,7 +2,10 @@ package packages
 
 import (
 	"bufio"
+	"context"
 	"fmt"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
@@ -16,11 +19,41 @@ type PackageManager struct {
 	InstallPath string
 }
 
+// Package represents a Whalebrew package
 type Package struct {
-	Image string `yaml:"image"`
+	Image   string   `yaml:"image"`
+	Volumes []string `yaml:"volumes,omitempty"`
 }
 
-// LoadPackage reads a package from the given path
+// NewPackageFromImageName creates a package from a given image name,
+// inspecting the image to fetch the package configuration
+func NewPackageFromImageName(image string) (*Package, error) {
+	pkg := &Package{Image: image}
+	img, err := pkg.ImageInspect()
+	if err != nil {
+		return pkg, err
+	}
+
+	if volumesStr, ok := img.ContainerConfig.Labels["io.whalebrew.config.volumes"]; ok {
+		if err := yaml.Unmarshal([]byte(volumesStr), &pkg.Volumes); err != nil {
+			return pkg, err
+		}
+	}
+
+	return pkg, nil
+}
+
+// ImageInspect inspects the image associated with this package
+func (pkg *Package) ImageInspect() (*types.ImageInspect, error) {
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		return nil, err
+	}
+	img, _, err := cli.ImageInspectWithRaw(context.Background(), pkg.Image)
+	return &img, err
+}
+
+// LoadPackageFromPath reads a package from the given path
 func LoadPackageFromPath(path string) (*Package, error) {
 	d, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -46,7 +79,10 @@ func (pm *PackageManager) Install(imageName, packageName string) error {
 		return fmt.Errorf("'%s' already exists", packagePath)
 	}
 
-	pkg := &Package{Image: imageName}
+	pkg, err := NewPackageFromImageName(imageName)
+	if err != nil {
+		return err
+	}
 	d, err := yaml.Marshal(&pkg)
 	if err != nil {
 		return err
