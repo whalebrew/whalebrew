@@ -21,9 +21,10 @@ type PackageManager struct {
 
 // Package represents a Whalebrew package
 type Package struct {
-	Name    string   `yaml:"-"`
-	Image   string   `yaml:"image"`
-	Volumes []string `yaml:"volumes,omitempty"`
+	Name        string   `yaml:"-"`
+	Environment []string `yaml:"environment,omitempty"`
+	Image       string   `yaml:"image"`
+	Volumes     []string `yaml:"volumes,omitempty"`
 }
 
 // NewPackageFromImageName creates a package from a given image name,
@@ -46,6 +47,12 @@ func NewPackageFromImageName(image string) (*Package, error) {
 
 	if name, ok := labels["io.whalebrew.name"]; ok {
 		pkg.Name = name
+	}
+
+	if env, ok := labels["io.whalebrew.config.environment"]; ok {
+		if err := yaml.Unmarshal([]byte(env), &pkg.Environment); err != nil {
+			return pkg, err
+		}
 	}
 
 	if volumesStr, ok := labels["io.whalebrew.config.volumes"]; ok {

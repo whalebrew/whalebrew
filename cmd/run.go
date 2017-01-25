@@ -61,6 +61,10 @@ var runCommand = &cobra.Command{
 			dockerArgs = append(dockerArgs, "-v")
 			dockerArgs = append(dockerArgs, volume)
 		}
+		for _, envvar := range pkg.Environment {
+			dockerArgs = append(dockerArgs, "-e")
+			dockerArgs = append(dockerArgs, envvar)
+		}
 		dockerArgs = append(dockerArgs, pkg.Image)
 		dockerArgs = append(dockerArgs, args[1:]...)
 
