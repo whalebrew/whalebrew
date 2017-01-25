@@ -122,6 +122,7 @@ That's it. So long as your image is set up to work that way, it'll work with Wha
 
 There are some labels you can use to configure how Whalebrew installs your image:
 
+* `io.whalebrew.name`: The name to give the command. Defaults to the name of the image.
 * `io.whalebrew.config.volumes`: A list of volumes to mount when the command is run. For example, putting this in your images Dockerfile will mount `~/.docker` as `/root/.docker` in read-only mode:
 
         LABEL io.whalebrew.config.volumes '["~/.docker:/root/.docker:ro"]'

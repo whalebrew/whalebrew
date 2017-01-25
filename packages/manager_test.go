@@ -14,7 +14,9 @@ func TestPackageManagerInstall(t *testing.T) {
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
 
-	err = pm.Install("whalebrew/whalesay", "whalesay")
+	pkg, err := NewPackageFromImageName("whalebrew/whalesay")
+	assert.Nil(t, err)
+	err = pm.Install(pkg)
 	assert.Nil(t, err)
 	packagePath := path.Join(installPath, "whalesay")
 	contents, err := ioutil.ReadFile(packagePath)
@@ -24,9 +26,24 @@ func TestPackageManagerInstall(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, int(fi.Mode()), 0755)
 
-	err = ioutil.WriteFile(path.Join(installPath, "whalesay"), []byte("not a whalebrew package"), 0755)
+	// custom install path
+	pkg, err = NewPackageFromImageName("whalebrew/whalesay")
 	assert.Nil(t, err)
-	err = pm.Install("whalebrew/whalesay", "whalesay")
+	pkg.Name = "whalesay2"
+	err = pm.Install(pkg)
+	assert.Nil(t, err)
+	packagePath = path.Join(installPath, "whalesay2")
+	contents, err = ioutil.ReadFile(packagePath)
+	assert.Nil(t, err)
+	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew run\nimage: whalebrew/whalesay")
+
+	// file already exists
+	err = ioutil.WriteFile(path.Join(installPath, "alreadyexists"), []byte("not a whalebrew package"), 0755)
+	assert.Nil(t, err)
+	pkg, err = NewPackageFromImageName("whalebrew/whalesay")
+	assert.Nil(t, err)
+	pkg.Name = "alreadyexists"
+	err = pm.Install(pkg)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "already exists")
 }
@@ -37,7 +54,9 @@ func TestPackageManagerList(t *testing.T) {
 	err = ioutil.WriteFile(path.Join(installPath, "notapackage"), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
-	err = pm.Install("whalebrew/whalesay", "whalesay")
+	pkg, err := NewPackageFromImageName("whalebrew/whalesay")
+	assert.Nil(t, err)
+	err = pm.Install(pkg)
 	assert.Nil(t, err)
 	packages, err := pm.List()
 	assert.Nil(t, err)
@@ -50,7 +69,9 @@ func TestPackageManagerUninstall(t *testing.T) {
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
 
-	err = pm.Install("whalebrew/whalesay", "whalesay")
+	pkg, err := NewPackageFromImageName("whalebrew/whalesay")
+	assert.Nil(t, err)
+	err = pm.Install(pkg)
 	assert.Nil(t, err)
 	_, err = os.Stat(path.Join(installPath, "whalesay"))
 	assert.Nil(t, err)

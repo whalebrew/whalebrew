@@ -21,6 +21,7 @@ type PackageManager struct {
 
 // Package represents a Whalebrew package
 type Package struct {
+	Name    string   `yaml:"-"`
 	Image   string   `yaml:"image"`
 	Volumes []string `yaml:"volumes,omitempty"`
 }
@@ -28,13 +29,26 @@ type Package struct {
 // NewPackageFromImageName creates a package from a given image name,
 // inspecting the image to fetch the package configuration
 func NewPackageFromImageName(image string) (*Package, error) {
-	pkg := &Package{Image: image}
+	name := image
+	if strings.Contains(name, "/") {
+		name = strings.SplitN(name, "/", 2)[1]
+	}
+	pkg := &Package{
+		Name:  name,
+		Image: image,
+	}
 	img, err := pkg.ImageInspect()
 	if err != nil {
 		return pkg, err
 	}
 
-	if volumesStr, ok := img.ContainerConfig.Labels["io.whalebrew.config.volumes"]; ok {
+	labels := img.ContainerConfig.Labels
+
+	if name, ok := labels["io.whalebrew.name"]; ok {
+		pkg.Name = name
+	}
+
+	if volumesStr, ok := labels["io.whalebrew.config.volumes"]; ok {
 		if err := yaml.Unmarshal([]byte(volumesStr), &pkg.Volumes); err != nil {
 			return pkg, err
 		}
@@ -72,20 +86,16 @@ func NewPackageManager(path string) *PackageManager {
 }
 
 // Install installs a package
-func (pm *PackageManager) Install(imageName, packageName string) error {
-	packagePath := path.Join(pm.InstallPath, packageName)
-
-	if _, err := os.Stat(packagePath); err == nil {
-		return fmt.Errorf("'%s' already exists", packagePath)
-	}
-
-	pkg, err := NewPackageFromImageName(imageName)
-	if err != nil {
-		return err
-	}
+func (pm *PackageManager) Install(pkg *Package) error {
 	d, err := yaml.Marshal(&pkg)
 	if err != nil {
 		return err
+	}
+
+	packagePath := path.Join(pm.InstallPath, pkg.Name)
+
+	if _, err := os.Stat(packagePath); err == nil {
+		return fmt.Errorf("'%s' already exists", packagePath)
 	}
 
 	d = append([]byte("#!/usr/bin/env whalebrew run\n"), d...)

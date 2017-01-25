@@ -10,13 +10,12 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strings"
 )
 
-var packageName string
+var customPackageName string
 
 func init() {
-	installCommand.Flags().StringVarP(&packageName, "name", "n", "", "Name to give installed package. Defaults to image name.")
+	installCommand.Flags().StringVarP(&customPackageName, "name", "n", "", "Name to give installed package. Defaults to image name.")
 
 	RootCmd.AddCommand(installCommand)
 }
@@ -33,13 +32,6 @@ var installCommand = &cobra.Command{
 		}
 
 		imageName := args[0]
-		if packageName == "" {
-			packageName = imageName
-			if strings.Contains(packageName, "/") {
-				packageName = strings.SplitN(packageName, "/", 2)[1]
-			}
-		}
-		// TODO (bfirsh): validate names
 
 		cli, err := client.NewEnvClient()
 		if err != nil {
@@ -65,12 +57,19 @@ var installCommand = &cobra.Command{
 			return fmt.Errorf("The image '%s' is not compatible with Whalebrew: it does not have an entrypoint.", imageName)
 		}
 
-		pm := packages.NewPackageManager(viper.GetString("install_path"))
-		err = pm.Install(imageName, packageName)
+		pkg, err := packages.NewPackageFromImageName(imageName)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("🐳  Installed %s to %s\n", imageName, path.Join(pm.InstallPath, packageName))
+		if customPackageName != "" {
+			pkg.Name = customPackageName
+		}
+		pm := packages.NewPackageManager(viper.GetString("install_path"))
+		err = pm.Install(pkg)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("🐳  Installed %s to %s\n", imageName, path.Join(pm.InstallPath, pkg.Name))
 		return nil
 	},
 }
