@@ -46,6 +46,12 @@ func TestPackageManagerInstall(t *testing.T) {
 	err = pm.Install(pkg)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "already exists")
+
+	// with tag
+	pkg, err = NewPackageFromImageName("whalebrew/foo:bar")
+	assert.Nil(t, err)
+	assert.Equal(t, pkg.Name, "foo")
+	assert.Equal(t, pkg.Image, "whalebrew/foo:bar")
 }
 
 func TestPackageManagerList(t *testing.T) {

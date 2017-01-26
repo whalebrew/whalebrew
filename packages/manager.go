@@ -34,6 +34,9 @@ func NewPackageFromImageName(image string) (*Package, error) {
 	if strings.Contains(name, "/") {
 		name = strings.SplitN(name, "/", 2)[1]
 	}
+	if strings.Contains(name, ":") {
+		name = strings.SplitN(name, ":", 2)[0]
+	}
 	pkg := &Package{
 		Name:  name,
 		Image: image,
