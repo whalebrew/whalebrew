@@ -1,6 +1,7 @@
 package packages
 
 import (
+	"github.com/docker/docker/api/types"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
@@ -14,7 +15,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
 
-	pkg, err := NewPackageFromImageName("whalebrew/whalesay")
+	pkg, err := NewPackageFromImageName("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
 	err = pm.Install(pkg)
 	assert.Nil(t, err)
@@ -27,7 +28,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	assert.Equal(t, int(fi.Mode()), 0755)
 
 	// custom install path
-	pkg, err = NewPackageFromImageName("whalebrew/whalesay")
+	pkg, err = NewPackageFromImageName("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
 	pkg.Name = "whalesay2"
 	err = pm.Install(pkg)
@@ -40,7 +41,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	// file already exists
 	err = ioutil.WriteFile(path.Join(installPath, "alreadyexists"), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
-	pkg, err = NewPackageFromImageName("whalebrew/whalesay")
+	pkg, err = NewPackageFromImageName("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
 	pkg.Name = "alreadyexists"
 	err = pm.Install(pkg)
@@ -48,7 +49,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	assert.Contains(t, err.Error(), "already exists")
 
 	// with tag
-	pkg, err = NewPackageFromImageName("whalebrew/foo:bar")
+	pkg, err = NewPackageFromImageName("whalebrew/foo:bar", types.ImageInspect{})
 	assert.Nil(t, err)
 	assert.Equal(t, pkg.Name, "foo")
 	assert.Equal(t, pkg.Image, "whalebrew/foo:bar")
@@ -60,7 +61,7 @@ func TestPackageManagerList(t *testing.T) {
 	err = ioutil.WriteFile(path.Join(installPath, "notapackage"), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
-	pkg, err := NewPackageFromImageName("whalebrew/whalesay")
+	pkg, err := NewPackageFromImageName("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
 	err = pm.Install(pkg)
 	assert.Nil(t, err)
@@ -75,7 +76,7 @@ func TestPackageManagerUninstall(t *testing.T) {
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
 
-	pkg, err := NewPackageFromImageName("whalebrew/whalesay")
+	pkg, err := NewPackageFromImageName("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
 	err = pm.Install(pkg)
 	assert.Nil(t, err)

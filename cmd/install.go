@@ -37,7 +37,7 @@ var installCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		img, _, err := cli.ImageInspectWithRaw(context.Background(), imageName)
+		imageInspect, _, err := cli.ImageInspectWithRaw(context.Background(), imageName)
 		if err != nil {
 			if client.IsErrNotFound(err) {
 				fmt.Printf("Unable to find image '%s' locally\n", imageName)
@@ -45,7 +45,7 @@ var installCommand = &cobra.Command{
 					return err
 				}
 				// retry
-				img, _, err = cli.ImageInspectWithRaw(context.Background(), imageName)
+				imageInspect, _, err = cli.ImageInspectWithRaw(context.Background(), imageName)
 				if err != nil {
 					return err
 				}
@@ -53,11 +53,11 @@ var installCommand = &cobra.Command{
 				return err
 			}
 		}
-		if img.ContainerConfig.Entrypoint == nil {
+		if imageInspect.ContainerConfig.Entrypoint == nil {
 			return fmt.Errorf("The image '%s' is not compatible with Whalebrew: it does not have an entrypoint.", imageName)
 		}
 
-		pkg, err := packages.NewPackageFromImageName(imageName)
+		pkg, err := packages.NewPackageFromImageName(imageName, imageInspect)
 		if err != nil {
 			return err
 		}

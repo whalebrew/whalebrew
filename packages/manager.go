@@ -29,7 +29,7 @@ type Package struct {
 
 // NewPackageFromImageName creates a package from a given image name,
 // inspecting the image to fetch the package configuration
-func NewPackageFromImageName(image string) (*Package, error) {
+func NewPackageFromImageName(image string, imageInspect types.ImageInspect) (*Package, error) {
 	name := image
 	if strings.Contains(name, "/") {
 		name = strings.SplitN(name, "/", 2)[1]
@@ -41,26 +41,24 @@ func NewPackageFromImageName(image string) (*Package, error) {
 		Name:  name,
 		Image: image,
 	}
-	img, err := pkg.ImageInspect()
-	if err != nil {
-		return pkg, err
-	}
 
-	labels := img.ContainerConfig.Labels
+	if imageInspect.ContainerConfig != nil && imageInspect.ContainerConfig.Labels != nil {
+		labels := imageInspect.ContainerConfig.Labels
 
-	if name, ok := labels["io.whalebrew.name"]; ok {
-		pkg.Name = name
-	}
-
-	if env, ok := labels["io.whalebrew.config.environment"]; ok {
-		if err := yaml.Unmarshal([]byte(env), &pkg.Environment); err != nil {
-			return pkg, err
+		if name, ok := labels["io.whalebrew.name"]; ok {
+			pkg.Name = name
 		}
-	}
 
-	if volumesStr, ok := labels["io.whalebrew.config.volumes"]; ok {
-		if err := yaml.Unmarshal([]byte(volumesStr), &pkg.Volumes); err != nil {
-			return pkg, err
+		if env, ok := labels["io.whalebrew.config.environment"]; ok {
+			if err := yaml.Unmarshal([]byte(env), &pkg.Environment); err != nil {
+				return pkg, err
+			}
+		}
+
+		if volumesStr, ok := labels["io.whalebrew.config.volumes"]; ok {
+			if err := yaml.Unmarshal([]byte(volumesStr), &pkg.Volumes); err != nil {
+				return pkg, err
+			}
 		}
 	}
 
