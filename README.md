@@ -1,6 +1,6 @@
 # Whalebrew
 
-Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but with Docker images.
+Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but everything you install is cleanly packaged up in a Docker image.
 
 Docker works really well for packaging up development environments, but there are lots of tools that aren't tied to a particular project: `wget` for downloading files, `jq` for parsing JSON, `awscli` for managing your AWS account, `ffmpeg` for converting video, and so on. Whalebrew makes those things work with Docker, too.
 
@@ -35,7 +35,7 @@ Docker works really well for packaging up development environments, but there ar
 
 On macOS and Linux:
 
-    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.1/whalebrew" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
+    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.1/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
 
 Windows support is theoretically possible, but not implemented yet.
 
