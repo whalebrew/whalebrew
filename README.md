@@ -2,6 +2,8 @@
 
 Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but with Docker images.
 
+Docker works really well for packaging up development environments, but there are lots of tools that aren't tied to a particular project: `wget` for downloading files, `jq` for parsing JSON, `awscli` for managing your AWS account, `ffmpeg` for converting video, and so on. Whalebrew makes those things work with Docker, too.
+
     $ whalebrew install whalebrew/whalesay
     Unable to find image 'whalebrew/whalesay' locally
     Using default tag: latest
@@ -28,6 +30,7 @@ Whalebrew creates aliases for Docker images so you can run them as if they were 
            \    \        __/
              \____\______/
 
+
 ## Install
 
 On macOS and Linux:
@@ -52,8 +55,10 @@ The images in the `whalebrew` organization are a set of images that are known to
 
     $ whalebrew search
     whalebrew/ack
-    whalebrew/httpie
-    whalebrew/jq
+    whalebrew/awscli
+    whalebrew/docker-cloud
+    whalebrew/ffmpeg
+    whalebrew/gnupg
     ...
 
     $ whalebrew search wget
@@ -133,7 +138,7 @@ There are some labels you can use to configure how Whalebrew installs your image
 
 ### Whalebrew images
 
-We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and [Docker Hub](https://hub.docker.com/u/whalebrew/). If you want to add a package to this, open an issue.
+We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and [Docker Hub](https://hub.docker.com/u/whalebrew/). If you want to add a package to this, open a pull request against [whalebrew-packages](https://github.com/whalebrew/whalebrew-packages).
 
 ## Thanks
 
