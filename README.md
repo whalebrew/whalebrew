@@ -105,7 +105,7 @@ Whalebrew is very simple, and leans as much as possible on native Docker feature
 
 * Packages are installed as files in `/usr/local/bin` (or a directory that you configure) with a [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) to make them executable. The content of the file is YAML that describes the options to pass to `docker run`, similar to a Compose service. For example:
 
-        #!/usr/bin/env whalebrew run
+        #!/usr/bin/env whalebrew
         image: whalebrew/whalesay
 
 * When a package is executed, Whalebrew will run the specified image with Docker, mount the current working directory in `/workdir`, and pass through all of the arguments.

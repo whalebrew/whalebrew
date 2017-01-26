@@ -23,7 +23,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	packagePath := path.Join(installPath, "whalesay")
 	contents, err := ioutil.ReadFile(packagePath)
 	assert.Nil(t, err)
-	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew run\nimage: whalebrew/whalesay")
+	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay")
 	fi, err := os.Stat(packagePath)
 	assert.Nil(t, err)
 	assert.Equal(t, int(fi.Mode()), 0755)
@@ -37,7 +37,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	packagePath = path.Join(installPath, "whalesay2")
 	contents, err = ioutil.ReadFile(packagePath)
 	assert.Nil(t, err)
-	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew run\nimage: whalebrew/whalesay")
+	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay")
 
 	// file already exists
 	err = ioutil.WriteFile(path.Join(installPath, "alreadyexists"), []byte("not a whalebrew package"), 0755)
@@ -125,7 +125,7 @@ func TestIsPackage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.False(t, isPackage)
 
-	err = ioutil.WriteFile(path.Join(dir, "workingpackage"), []byte("#!/usr/bin/env whalebrew run\nimage: something"), 0755)
+	err = ioutil.WriteFile(path.Join(dir, "workingpackage"), []byte("#!/usr/bin/env whalebrew\nimage: something"), 0755)
 	assert.Nil(t, err)
 	isPackage, err = IsPackage(path.Join(dir, "workingpackage"))
 	assert.Nil(t, err)

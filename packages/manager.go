@@ -106,7 +106,7 @@ func (pm *PackageManager) Install(pkg *Package) error {
 		return fmt.Errorf("'%s' already exists", packagePath)
 	}
 
-	d = append([]byte("#!/usr/bin/env whalebrew run\n"), d...)
+	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
 	return ioutil.WriteFile(packagePath, d, 0755)
 }
 
@@ -177,7 +177,7 @@ func IsPackage(path string) (bool, error) {
 		} else if err != nil {
 			return false, err
 		}
-		if strings.HasPrefix(string(line), "/usr/bin/env whalebrew run") {
+		if strings.HasPrefix(string(line), "/usr/bin/env whalebrew") {
 			return true, nil
 		}
 	}
