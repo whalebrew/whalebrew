@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/whalebrew/whalebrew/cmd"
+	"github.com/bfirsh/whalebrew/cmd"
 )
 
 func main() {

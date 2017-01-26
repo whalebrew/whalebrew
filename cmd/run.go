@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/whalebrew/whalebrew/packages"
+	"github.com/bfirsh/whalebrew/packages"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"os/exec"

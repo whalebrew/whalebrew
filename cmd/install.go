@@ -6,7 +6,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/whalebrew/whalebrew/packages"
+	"github.com/bfirsh/whalebrew/packages"
 	"os"
 	"os/exec"
 	"path"

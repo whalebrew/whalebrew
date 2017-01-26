@@ -35,7 +35,7 @@ Docker works really well for packaging up development environments, but there ar
 
 On macOS and Linux:
 
-    curl -L "https://github.com/whalebrew/whalebrew/releases/download/0.0.1/whalebrew" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
+    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.1/whalebrew" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
 
 Windows support is theoretically possible, but not implemented yet.
 
@@ -138,7 +138,7 @@ There are some labels you can use to configure how Whalebrew installs your image
 
 ### Whalebrew images
 
-We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and [Docker Hub](https://hub.docker.com/u/whalebrew/). If you want to add a package to this, open a pull request against [whalebrew-packages](https://github.com/whalebrew/whalebrew-packages).
+We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and [Docker Hub](https://hub.docker.com/u/whalebrew/). If you want to add a package to this, open a pull request against [whalebrew-packages](https://github.com/bfirsh/whalebrew-packages).
 
 ## Thanks
 
