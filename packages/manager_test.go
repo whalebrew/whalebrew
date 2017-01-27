@@ -62,6 +62,7 @@ func TestPackageManagerInstall(t *testing.T) {
 				"io.whalebrew.name":               "ws",
 				"io.whalebrew.config.environment": "[\"SOME_CONFIG_OPTION\"]",
 				"io.whalebrew.config.volumes":     "[\"/somesource:/somedest\"]",
+				"io.whalebrew.config.ports":       "[\"8100:8100\"]",
 			},
 		},
 	})
@@ -70,6 +71,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	assert.Equal(t, pkg.Image, "whalebrew/whalesay")
 	assert.Equal(t, pkg.Environment, []string{"SOME_CONFIG_OPTION"})
 	assert.Equal(t, pkg.Volumes, []string{"/somesource:/somedest"})
+	assert.Equal(t, pkg.Ports, []string{"8100:8100"})
 
 }
 
