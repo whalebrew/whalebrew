@@ -1,14 +1,15 @@
 package packages
 
 import (
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPackageManagerInstall(t *testing.T) {
