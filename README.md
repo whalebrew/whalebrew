@@ -126,6 +126,10 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.volumes '["~/.docker:/root/.docker:ro"]'
 
+* `io.whalebrew.config.ports`: A list of host port to container port mappings to create when the command is run. For example, putting this in your images `Dockerfile` will map container port 8100 to host port 8100:
+
+        LABEL io.whalebrew.config.volumes '["8100:8100"]'
+
 ### Whalebrew images
 
 We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and [Docker Hub](https://hub.docker.com/u/whalebrew/). If you want to add a package to this, open a pull request against [whalebrew-packages](https://github.com/whalebrew/whalebrew-packages).
