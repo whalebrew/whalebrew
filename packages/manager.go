@@ -162,6 +162,17 @@ func IsPackage(path string) (bool, error) {
 		return false, err
 	}
 	defer f.Close()
+
+	info, err := f.Stat()
+
+	if err != nil {
+		return false, err
+	}
+
+	if info.IsDir() {
+		return false, nil
+	}
+
 	reader := bufio.NewReader(f)
 	firstTwoBytes := make([]byte, 2)
 	_, err = reader.Read(firstTwoBytes)

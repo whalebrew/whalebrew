@@ -76,6 +76,8 @@ func TestPackageManagerInstall(t *testing.T) {
 func TestPackageManagerList(t *testing.T) {
 	installPath, err := ioutil.TempDir("", "whalebrewtest")
 	assert.Nil(t, err)
+	_, err = ioutil.TempDir(installPath, "sample-folder")
+	assert.Nil(t, err)
 	err = ioutil.WriteFile(path.Join(installPath, "notapackage"), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
