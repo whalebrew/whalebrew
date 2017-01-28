@@ -11,6 +11,7 @@ func init() {
 	viper.BindEnv("install_path")
 }
 
+// RootCmd is the root CLI command
 var RootCmd = &cobra.Command{
 	Use:           "whalebrew",
 	Short:         "Install Docker images as native commands",
