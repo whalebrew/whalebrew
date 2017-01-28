@@ -2,7 +2,9 @@
 
 Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but everything you install is cleanly packaged up in a Docker image.
 
-Docker works really well for packaging up development environments, but there are lots of tools that aren't tied to a particular project: `wget` for downloading files, `jq` for parsing JSON, `awscli` for managing your AWS account, `ffmpeg` for converting video, and so on. Whalebrew makes those things work with Docker, too.
+Docker works really well for packaging up development environments, but there are lots of tools that aren't tied to a particular project: `awscli` for managing your AWS account, `ffmpeg` for converting video, `wget` for downloading files, and so on. Whalebrew makes those things work with Docker, too.
+
+In theory, you can install pretty much any CLI tool with Whalebrew, but it is particularly useful for things with complex dependencies which you don't want to install on your machine.
 
     $ whalebrew install whalebrew/whalesay
     Unable to find image 'whalebrew/whalesay' locally
