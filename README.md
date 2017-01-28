@@ -37,7 +37,7 @@ In theory, you can install pretty much any CLI tool with Whalebrew, but it is pa
 
 On macOS and Linux:
 
-    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.1/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
+    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.2/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
 
 Windows support is theoretically possible, but not implemented yet.
 
