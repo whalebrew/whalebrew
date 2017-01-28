@@ -3,10 +3,10 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/bfirsh/whalebrew/packages"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/bfirsh/whalebrew/packages"
 	"os"
 	"os/exec"
 	"path"
