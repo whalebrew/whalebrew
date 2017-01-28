@@ -1,14 +1,15 @@
 package packages
 
 import (
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPackageManagerInstall(t *testing.T) {
@@ -77,6 +78,8 @@ func TestPackageManagerInstall(t *testing.T) {
 
 func TestPackageManagerList(t *testing.T) {
 	installPath, err := ioutil.TempDir("", "whalebrewtest")
+	assert.Nil(t, err)
+	_, err = ioutil.TempDir(installPath, "sample-folder")
 	assert.Nil(t, err)
 	err = ioutil.WriteFile(path.Join(installPath, "notapackage"), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)

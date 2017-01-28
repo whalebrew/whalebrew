@@ -4,14 +4,15 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
-	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
+	"gopkg.in/yaml.v2"
 )
 
 // PackageManager manages packages at a given path
@@ -169,24 +170,44 @@ func IsPackage(path string) (bool, error) {
 		return false, err
 	}
 	defer f.Close()
+
+	info, err := f.Stat()
+
+	if err != nil {
+		return false, err
+	}
+
+	if info.IsDir() {
+		return false, nil
+	}
+
 	reader := bufio.NewReader(f)
 	firstTwoBytes := make([]byte, 2)
 	_, err = reader.Read(firstTwoBytes)
+
 	if err == io.EOF {
 		return false, nil
-	} else if err != nil {
+	}
+
+	if err != nil {
 		return false, err
 	}
-	if string(firstTwoBytes) == "#!" {
-		line, _, err := reader.ReadLine()
-		if err == io.EOF {
-			return false, nil
-		} else if err != nil {
-			return false, err
-		}
-		if strings.HasPrefix(string(line), "/usr/bin/env whalebrew") {
-			return true, nil
-		}
+
+	if string(firstTwoBytes) != "#!" {
+		return false, nil
 	}
+
+	line, _, err := reader.ReadLine()
+
+	if err == io.EOF {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	if strings.HasPrefix(string(line), "/usr/bin/env whalebrew") {
+		return true, nil
+	}
+
 	return false, nil
 }
