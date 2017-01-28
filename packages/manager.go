@@ -148,15 +148,15 @@ func (pm *PackageManager) Load(name string) (*Package, error) {
 
 // Uninstall uninstalls a package
 func (pm *PackageManager) Uninstall(packageName string) error {
-	path := path.Join(pm.InstallPath, packageName)
-	isPackage, err := IsPackage(path)
+	p := path.Join(pm.InstallPath, packageName)
+	isPackage, err := IsPackage(p)
 	if err != nil {
 		return err
 	}
 	if !isPackage {
-		return fmt.Errorf("%s is not a Whalebrew package", path)
+		return fmt.Errorf("%s is not a Whalebrew package", p)
 	}
-	return os.Remove(path)
+	return os.Remove(p)
 }
 
 // IsPackage returns true if the given path is a whalebrew package
