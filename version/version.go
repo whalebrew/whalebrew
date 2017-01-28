@@ -1,6 +1,4 @@
 package version
 
-var (
-	// Version is the current Whalebrew version
-	Version = "0.0.2"
-)
+// Version is the current Whalebrew version
+const Version = "0.0.2"
