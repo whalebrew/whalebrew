@@ -65,6 +65,10 @@ var runCommand = &cobra.Command{
 			dockerArgs = append(dockerArgs, "-e")
 			dockerArgs = append(dockerArgs, envvar)
 		}
+		for _, portmap := range pkg.Ports {
+			dockerArgs = append(dockerArgs, "-p")
+			dockerArgs = append(dockerArgs, portmap)
+		}
 		dockerArgs = append(dockerArgs, pkg.Image)
 		dockerArgs = append(dockerArgs, args[1:]...)
 
