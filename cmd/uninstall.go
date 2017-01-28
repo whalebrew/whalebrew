@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/Songmu/prompter"
+	"github.com/bfirsh/whalebrew/packages"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/bfirsh/whalebrew/packages"
 	"path"
 )
 
