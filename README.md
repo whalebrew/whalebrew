@@ -124,13 +124,13 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.environment '["TERM", "FOOBAR_NAME"]'
 
-* `io.whalebrew.config.volumes`: A list of volumes to mount when the command is run. For example, putting this in your images `Dockerfile` will mount `~/.docker` as `/root/.docker` in read-only mode:
+* `io.whalebrew.config.volumes`: A list of volumes to mount when the command is run. For example, putting this in your image's `Dockerfile` will mount `~/.docker` as `/root/.docker` in read-only mode:
 
         LABEL io.whalebrew.config.volumes '["~/.docker:/root/.docker:ro"]'
 
-* `io.whalebrew.config.ports`: A list of host port to container port mappings to create when the command is run. For example, putting this in your images `Dockerfile` will map container port 8100 to host port 8100:
+* `io.whalebrew.config.ports`: A list of host port to container port mappings to create when the command is run. For example, putting this in your image's `Dockerfile` will map container port 8100 to host port 8100:
 
-        LABEL io.whalebrew.config.volumes '["8100:8100"]'
+        LABEL io.whalebrew.config.ports '["8100:8100"]'
 
 ### Whalebrew images
 
