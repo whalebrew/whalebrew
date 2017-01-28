@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/exec"
+	"path"
+
 	"github.com/bfirsh/whalebrew/packages"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
-	"os/exec"
-	"path"
 )
 
 var customPackageName string
@@ -50,7 +51,7 @@ var installCommand = &cobra.Command{
 					return err
 				}
 			} else {
-				return err
+				return fmt.Errorf("failed to inspect docker image: %v", err)
 			}
 		}
 		if imageInspect.ContainerConfig.Entrypoint == nil {
