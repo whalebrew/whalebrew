@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/bfirsh/whalebrew/packages"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 	"sort"
 	"text/tabwriter"
+
+	"github.com/bfirsh/whalebrew/packages"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func init() {
