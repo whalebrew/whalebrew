@@ -93,7 +93,7 @@ Whalebrew is configured with environment variables, which you can either provide
 
 ## How it works
 
-Whalebrew is very simple, and leans as much as possible on native Docker features:
+Whalebrew is simple, and leans as much as possible on native Docker features:
 
 * Packages are installed as files in `/usr/local/bin` (or a directory that you configure) with a [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) to make them executable. The content of the file is YAML that describes the options to pass to `docker run`, similar to a Compose service. For example:
 
