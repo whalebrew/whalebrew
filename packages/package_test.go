@@ -8,15 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewPackageFromPackageName(t *testing.T) {
+func TestNewPackageFromImage(t *testing.T) {
 	// with tag
-	pkg, err := NewPackageFromImageName("whalebrew/foo:bar", types.ImageInspect{})
+	pkg, err := NewPackageFromImage("whalebrew/foo:bar", types.ImageInspect{})
 	assert.Nil(t, err)
 	assert.Equal(t, pkg.Name, "foo")
 	assert.Equal(t, pkg.Image, "whalebrew/foo:bar")
 
 	// test labels
-	pkg, err = NewPackageFromImageName("whalebrew/whalesay", types.ImageInspect{
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{
 		ContainerConfig: &container.Config{
 			Labels: map[string]string{
 				"io.whalebrew.name":               "ws",

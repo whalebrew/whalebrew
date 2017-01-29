@@ -58,7 +58,7 @@ var installCommand = &cobra.Command{
 			return fmt.Errorf("the image '%s' is not compatible with Whalebrew: it does not have an entrypoint", imageName)
 		}
 
-		pkg, err := packages.NewPackageFromImageName(imageName, imageInspect)
+		pkg, err := packages.NewPackageFromImage(imageName, imageInspect)
 		if err != nil {
 			return err
 		}

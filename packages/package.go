@@ -19,9 +19,9 @@ type Package struct {
 	Ports       []string `yaml:"ports,omitempty"`
 }
 
-// NewPackageFromImageName creates a package from a given image name,
+// NewPackageFromImage creates a package from a given image name,
 // inspecting the image to fetch the package configuration
-func NewPackageFromImageName(image string, imageInspect types.ImageInspect) (*Package, error) {
+func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Package, error) {
 	name := image
 	if strings.Contains(name, "/") {
 		name = strings.SplitN(name, "/", 2)[1]
