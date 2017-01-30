@@ -89,7 +89,7 @@ To upgrade a single package, just pull its image:
 
 Whalebrew is configured with environment variables, which you can either provide at runtime or put in your `~/.bashrc` file (or whatever shell you use).
 
- - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/bin/local`)
+ - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/local/bin`)
 
 ## How it works
 
