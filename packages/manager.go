@@ -49,11 +49,18 @@ func (pm *PackageManager) List() (map[string]*Package, error) {
 	for _, file := range files {
 		isPackage, err := IsPackage(path.Join(pm.InstallPath, file.Name()))
 		if err != nil {
-			// Permission denied, so ignore file. This is here rather than in
-			// IsPackage so it doesn't unexpectedly swallow errors.
+			// Check for various file errors here rather than in IsPackage so it
+			// does not swallow errors when checking individual files.
+
+			// permission denied
 			if os.IsPermission(err) {
 				continue
 			}
+			// dead symlink
+			if os.IsNotExist(err) {
+				continue
+			}
+
 			return packages, err
 		}
 		if isPackage {
@@ -89,10 +96,6 @@ func (pm *PackageManager) Uninstall(packageName string) error {
 func IsPackage(path string) (bool, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		// dead symlink
-		if os.IsNotExist(err) {
-			return false, nil
-		}
 		return false, err
 	}
 	defer f.Close()

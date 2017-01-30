@@ -65,6 +65,10 @@ func TestPackageManagerList(t *testing.T) {
 	err = ioutil.WriteFile(path.Join(installPath, "nopermissions"), []byte("blah blah blah"), 0000)
 	assert.Nil(t, err)
 
+	// dead symlink
+	err = os.Symlink("/doesnotexist", path.Join(installPath, "deadsymlink"))
+	assert.Nil(t, err)
+
 	pm := NewPackageManager(installPath)
 	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
