@@ -1,10 +1,8 @@
 # Whalebrew
 
-Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but everything you install is cleanly packaged up in a Docker image.
+Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but with Docker images.
 
-Docker works really well for packaging up development environments, but there are lots of tools that aren't tied to a particular project: `awscli` for managing your AWS account, `ffmpeg` for converting video, `wget` for downloading files, and so on. Whalebrew makes those things work with Docker, too.
-
-In theory, you can install pretty much any CLI tool with Whalebrew, but it is particularly useful for things with complex dependencies which you don't want to install on your machine.
+Docker works well for packaging up development environments, but there are lots of tools that aren't tied to a particular project: `awscli` for managing your AWS account, `ffmpeg` for converting video, `wget` for downloading files, and so on. Whalebrew makes those things work with Docker, too.
 
     $ whalebrew install whalebrew/whalesay
     Unable to find image 'whalebrew/whalesay' locally
@@ -32,6 +30,11 @@ In theory, you can install pretty much any CLI tool with Whalebrew, but it is pa
            \    \        __/
              \____\______/
 
+
+Whalebrew can run almost any CLI tool, but you might find it doesn't work well for everything (e.g. where speed is essential). It works particularly well for:
+
+* **Complex dependencies.** For example, a Python app that requires C libraries, specific package versions, and other CLI tools that you don't want to clutter up your machine with.
+* **Cross-platform portability.** Package managers tend to be very closely tied to the system they are running on. Whalebrew packages work on any version of macOS, Linux, and Windows (coming soon).
 
 ## Install
 
