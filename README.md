@@ -31,7 +31,7 @@ Docker works well for packaging up development environments, but there are lots 
              \____\______/
 
 
-Whalebrew can run almost any CLI tool, but you might find it doesn't work well for everything (e.g. where speed is essential). It works particularly well for:
+Whalebrew can run almost any CLI tool, but it isn't for everything (e.g. where commands must start instantly). It works particularly well for:
 
 * **Complex dependencies.** For example, a Python app that requires C libraries, specific package versions, and other CLI tools that you don't want to clutter up your machine with.
 * **Cross-platform portability.** Package managers tend to be very closely tied to the system they are running on. Whalebrew packages work on any modern version of macOS, Linux, and Windows (coming soon).
