@@ -35,7 +35,9 @@ In theory, you can install pretty much any CLI tool with Whalebrew, but it is pa
 
 ## Install
 
-On macOS and Linux:
+First, [install Docker](https://docs.docker.com/engine/installation/). The easiest way to do this on macOS is by installing [Docker for Mac](https://docs.docker.com/docker-for-mac/).
+
+Next, on macOS and Linux:
 
     curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.3/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
 
