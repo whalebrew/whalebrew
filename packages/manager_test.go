@@ -56,8 +56,15 @@ func TestPackageManagerList(t *testing.T) {
 	assert.Nil(t, err)
 	_, err = ioutil.TempDir(installPath, "sample-folder")
 	assert.Nil(t, err)
+
+	// file which isn't a package
 	err = ioutil.WriteFile(path.Join(installPath, "notapackage"), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
+
+	// no permissions to read file
+	err = ioutil.WriteFile(path.Join(installPath, "nopermissions"), []byte("blah blah blah"), 0000)
+	assert.Nil(t, err)
+
 	pm := NewPackageManager(installPath)
 	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)

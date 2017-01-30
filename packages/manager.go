@@ -49,6 +49,11 @@ func (pm *PackageManager) List() (map[string]*Package, error) {
 	for _, file := range files {
 		isPackage, err := IsPackage(path.Join(pm.InstallPath, file.Name()))
 		if err != nil {
+			// Permission denied, so ignore file. This is here rather than in
+			// IsPackage so it doesn't unexpectedly swallow errors.
+			if os.IsPermission(err) {
+				continue
+			}
 			return packages, err
 		}
 		if isPackage {
