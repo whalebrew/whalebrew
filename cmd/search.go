@@ -3,10 +3,11 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"sort"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
-	"sort"
 )
 
 func init() {

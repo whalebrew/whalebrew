@@ -1,10 +1,8 @@
 # Whalebrew
 
-Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but everything you install is cleanly packaged up in a Docker image.
+Whalebrew creates aliases for Docker images so you can run them as if they were native commands. It's like Homebrew, but with Docker images.
 
-Docker works really well for packaging up development environments, but there are lots of tools that aren't tied to a particular project: `awscli` for managing your AWS account, `ffmpeg` for converting video, `wget` for downloading files, and so on. Whalebrew makes those things work with Docker, too.
-
-In theory, you can install pretty much any CLI tool with Whalebrew, but it is particularly useful for things with complex dependencies which you don't want to install on your machine.
+Docker works well for packaging up development environments, but there are lots of tools that aren't tied to a particular project: `awscli` for managing your AWS account, `ffmpeg` for converting video, `wget` for downloading files, and so on. Whalebrew makes those things work with Docker, too.
 
     $ whalebrew install whalebrew/whalesay
     Unable to find image 'whalebrew/whalesay' locally
@@ -33,11 +31,18 @@ In theory, you can install pretty much any CLI tool with Whalebrew, but it is pa
              \____\______/
 
 
+Whalebrew can run almost any CLI tool, but it isn't for everything (e.g. where commands must start instantly). It works particularly well for:
+
+* **Complex dependencies.** For example, a Python app that requires C libraries, specific package versions, and other CLI tools that you don't want to clutter up your machine with.
+* **Cross-platform portability.** Package managers tend to be very closely tied to the system they are running on. Whalebrew packages work on any modern version of macOS, Linux, and Windows (coming soon).
+
 ## Install
 
-On macOS and Linux:
+First, [install Docker](https://docs.docker.com/engine/installation/). The easiest way to do this on macOS is by installing [Docker for Mac](https://docs.docker.com/docker-for-mac/).
 
-    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.2/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
+Next, on macOS and Linux:
+
+    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.3/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
 
 Windows support is theoretically possible, but not implemented yet.
 
@@ -89,11 +94,11 @@ To upgrade a single package, just pull its image:
 
 Whalebrew is configured with environment variables, which you can either provide at runtime or put in your `~/.bashrc` file (or whatever shell you use).
 
- - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/bin/local`)
+ - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/local/bin`)
 
 ## How it works
 
-Whalebrew is very simple, and leans as much as possible on native Docker features:
+Whalebrew is simple, and leans as much as possible on native Docker features:
 
 * Packages are installed as files in `/usr/local/bin` (or a directory that you configure) with a [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) to make them executable. The content of the file is YAML that describes the options to pass to `docker run`, similar to a Compose service. For example:
 
