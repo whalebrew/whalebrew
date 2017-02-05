@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/Songmu/prompter"
 	"github.com/bfirsh/whalebrew/packages"
+	"github.com/Songmu/prompter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

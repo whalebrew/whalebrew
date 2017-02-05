@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"runtime"
 	"strings"
 	"syscall"
 
@@ -40,7 +41,7 @@ var runCommand = &cobra.Command{
 			return err
 		}
 		dockerArgs := []string{
-			dockerPath,
+			// dockerPath,
 			"run",
 			"--interactive",
 			"--rm",
@@ -73,6 +74,13 @@ var runCommand = &cobra.Command{
 		dockerArgs = append(dockerArgs, pkg.Image)
 		dockerArgs = append(dockerArgs, args[1:]...)
 
+		if runtime.GOOS == "windows" {
+			command := exec.Command(dockerPath, dockerArgs...)
+			command.Stdin = os.Stdin
+			command.Stdout = os.Stdout
+			command.Stderr = os.Stderr
+			return command.Run()
+		}
 		return syscall.Exec(dockerPath, dockerArgs, os.Environ())
 	},
 }

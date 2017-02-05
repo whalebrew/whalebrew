@@ -1,9 +1,9 @@
 default: build
 build:
 	go get github.com/mitchellh/gox
-	go get github.com/bfirsh/whalebrew/cmd
 	go get github.com/inconshreveable/mousetrap
 	go get golang.org/x/sys/unix
+	go get github.com/stretchr/testify/assert
 	mkdir -p build
 	cd build; gox -osarch="linux/amd64" -osarch="darwin/amd64" -osarch="windows/amd64" ../; \
 	mv whalebrew_linux_amd64 whalebrew-Linux-x86_64; \
