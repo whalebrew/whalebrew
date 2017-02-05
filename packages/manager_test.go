@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -21,12 +22,27 @@ func TestPackageManagerInstall(t *testing.T) {
 	err = pm.Install(pkg)
 	assert.Nil(t, err)
 	packagePath := path.Join(installPath, "whalesay")
+	if runtime.GOOS == "windows" {
+		packagePath += ".cmd"
+	}
 	contents, err := ioutil.ReadFile(packagePath)
 	assert.Nil(t, err)
-	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay")
+	var expectedContents string
+	if runtime.GOOS == "windows" {
+		expectedContents = "@echo off\r\nwhalebrew %~f0 %*\r\nexit\r\nimage: whalebrew/whalesay"
+	} else {
+		expectedContents = "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay"
+	}
+	assert.Equal(t, expectedContents, strings.TrimSpace(string(contents)))
 	fi, err := os.Stat(packagePath)
 	assert.Nil(t, err)
-	assert.Equal(t, int(fi.Mode()), 0755)
+	var expectedFilemode int
+	if runtime.GOOS == "windows" {
+		expectedFilemode = 0666
+	} else {
+		expectedFilemode = 0755
+	}
+	assert.Equal(t, expectedFilemode, int(fi.Mode()))
 
 	// custom install path
 	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
@@ -35,12 +51,19 @@ func TestPackageManagerInstall(t *testing.T) {
 	err = pm.Install(pkg)
 	assert.Nil(t, err)
 	packagePath = path.Join(installPath, "whalesay2")
+	if runtime.GOOS == "windows" {
+		packagePath += ".cmd"
+	}
 	contents, err = ioutil.ReadFile(packagePath)
 	assert.Nil(t, err)
-	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay")
+	assert.Equal(t, expectedContents, strings.TrimSpace(string(contents)))
 
 	// file already exists
-	err = ioutil.WriteFile(path.Join(installPath, "alreadyexists"), []byte("not a whalebrew package"), 0755)
+	fileAlreadyExistsPath := path.Join(installPath, "alreadyexists")
+	if runtime.GOOS == "windows" {
+		fileAlreadyExistsPath += ".cmd"
+	}
+	err = ioutil.WriteFile(fileAlreadyExistsPath, []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
 	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
@@ -66,8 +89,10 @@ func TestPackageManagerList(t *testing.T) {
 	assert.Nil(t, err)
 
 	// dead symlink
-	err = os.Symlink("/doesnotexist", path.Join(installPath, "deadsymlink"))
-	assert.Nil(t, err)
+	if runtime.GOOS != "windows" {
+		err = os.Symlink("/doesnotexist", path.Join(installPath, "deadsymlink"))
+		assert.Nil(t, err)
+	}
 
 	pm := NewPackageManager(installPath)
 	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
@@ -77,7 +102,11 @@ func TestPackageManagerList(t *testing.T) {
 	packages, err := pm.List()
 	assert.Nil(t, err)
 	assert.Equal(t, len(packages), 1)
-	assert.Equal(t, packages["whalesay"].Image, "whalebrew/whalesay")
+	fileName := "whalesay"
+	if runtime.GOOS == "windows" {
+		fileName += ".cmd"
+	}
+	assert.Equal(t, "whalebrew/whalesay", packages[fileName].Image)
 }
 
 func TestPackageManagerUninstall(t *testing.T) {
@@ -89,15 +118,23 @@ func TestPackageManagerUninstall(t *testing.T) {
 	assert.Nil(t, err)
 	err = pm.Install(pkg)
 	assert.Nil(t, err)
-	_, err = os.Stat(path.Join(installPath, "whalesay"))
+	fileName := "whalesay"
+	if runtime.GOOS == "windows" {
+		fileName += ".cmd"
+	}
+	_, err = os.Stat(path.Join(installPath, fileName))
 	assert.Nil(t, err)
 	err = pm.Uninstall("whalesay")
 	assert.Nil(t, err)
 
-	err = ioutil.WriteFile(path.Join(installPath, "notapackage"), []byte("not a whalebrew package"), 0755)
+	notAPackage := "notapackage"
+	if runtime.GOOS == "windows" {
+		notAPackage += ".cmd"
+	}
+	err = ioutil.WriteFile(path.Join(installPath, notAPackage), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
 	err = pm.Uninstall("notapackage")
-	assert.Contains(t, err.Error(), "/notapackage is not a Whalebrew package")
+	assert.Contains(t, err.Error(), notAPackage+" is not a Whalebrew package")
 }
 
 func TestIsPackage(t *testing.T) {

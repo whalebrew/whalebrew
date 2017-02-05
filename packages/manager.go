@@ -92,7 +92,7 @@ func (pm *PackageManager) Load(name string) (*Package, error) {
 func (pm *PackageManager) Uninstall(packageName string) error {
 	p := path.Join(pm.InstallPath, packageName)
 	if runtime.GOOS == "windows" {
-		p = p + ".cmd"
+		p += ".cmd"
 	}
 	isPackage, err := IsPackage(p)
 	if err != nil {
