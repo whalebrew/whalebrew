@@ -42,7 +42,7 @@ First, [install Docker](https://docs.docker.com/engine/installation/). The easie
 
 Next, on macOS and Linux:
 
-    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.3/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
+    curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.0.4/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
 
 Windows support is theoretically possible, but not implemented yet.
 
