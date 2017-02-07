@@ -7,8 +7,9 @@ import (
 	"os/exec"
 	"path"
 
+	"github.com/bfirsh/whalebrew/client"
 	"github.com/bfirsh/whalebrew/packages"
-	"github.com/docker/docker/client"
+	dockerClient "github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -34,13 +35,13 @@ var installCommand = &cobra.Command{
 
 		imageName := args[0]
 
-		cli, err := client.NewEnvClient()
+		cli, err := client.NewClient()
 		if err != nil {
 			return err
 		}
 		imageInspect, _, err := cli.ImageInspectWithRaw(context.Background(), imageName)
 		if err != nil {
-			if client.IsErrNotFound(err) {
+			if dockerClient.IsErrNotFound(err) {
 				fmt.Printf("Unable to find image '%s' locally\n", imageName)
 				if err = pullImage(imageName); err != nil {
 					return err
