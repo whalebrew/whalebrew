@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/bfirsh/whalebrew/client"
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,7 @@ var searchCommand = &cobra.Command{
 			return fmt.Errorf("Only one search term is supported")
 		}
 
-		cli, err := client.NewEnvClient()
+		cli, err := client.NewClient()
 		if err != nil {
 			return err
 		}
