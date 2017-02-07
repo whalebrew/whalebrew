@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 	"os/exec"
-	"syscall"
 	"path"
+	"syscall"
 
 	"github.com/bfirsh/whalebrew/packages"
 	"github.com/spf13/cobra"
@@ -16,8 +16,9 @@ func init() {
 }
 
 var editCommand = &cobra.Command{
-	Use:                "edit PACKAGEPATH",
-	Short:              "Edit a package executable",
+	Use:                "edit PACKAGENAME",
+	Short:              "Edit a package file",
+	Long:               "Edit a package file using your default editor ($EDITOR).",
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
