@@ -1,6 +1,8 @@
 engines:
  gofmt:
    enabled: true
+ golint:
+   enabled: true
 
 ratings:
  paths:
