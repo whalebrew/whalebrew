@@ -19,7 +19,6 @@ var editCommand = &cobra.Command{
 	Use:                "edit PACKAGENAME",
 	Short:              "Edit a package file",
 	Long:               "Edit a package file using your default editor ($EDITOR).",
-	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return cmd.Help()
