@@ -12,11 +12,12 @@ import (
 
 // Package represents a Whalebrew package
 type Package struct {
-	Name        string   `yaml:"-"`
-	Environment []string `yaml:"environment,omitempty"`
-	Image       string   `yaml:"image"`
-	Volumes     []string `yaml:"volumes,omitempty"`
-	Ports       []string `yaml:"ports,omitempty"`
+	Name               string   `yaml:"-"`
+	Environment        []string `yaml:"environment,omitempty"`
+	Image              string   `yaml:"image"`
+	Volumes            []string `yaml:"volumes,omitempty"`
+	Ports              []string `yaml:"ports,omitempty"`
+	PostInstallMessage string   `yaml:"post-install-message,omitempty"`
 }
 
 // NewPackageFromImage creates a package from a given image name,
@@ -57,6 +58,10 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 			if err := yaml.Unmarshal([]byte(ports), &pkg.Ports); err != nil {
 				return pkg, err
 			}
+		}
+
+		if postInstallMessage, ok := labels["io.whalebrew.post-install-message"]; ok {
+			pkg.PostInstallMessage = postInstallMessage
 		}
 	}
 

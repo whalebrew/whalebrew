@@ -137,6 +137,10 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.ports '["8100:8100"]'
 
+* `io.whalebrew.post-install-message`: A message to display to the user after the package has been installed:
+
+		LABEL io.whalebrew.post-install-message "This package requires a directory called '.package' in your home directory."
+
 ### Whalebrew images
 
 We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and [Docker Hub](https://hub.docker.com/u/whalebrew/). If you want to add a package to this, open a pull request against [whalebrew-packages](https://github.com/whalebrew/whalebrew-packages).

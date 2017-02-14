@@ -72,6 +72,9 @@ var installCommand = &cobra.Command{
 			return err
 		}
 		fmt.Printf("🐳  Installed %s to %s\n", imageName, path.Join(pm.InstallPath, pkg.Name))
+		if pkg.PostInstallMessage != "" {
+			fmt.Printf("%s\n", pkg.PostInstallMessage)
+		}
 		return nil
 	},
 }
