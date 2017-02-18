@@ -39,6 +39,19 @@ func (pm *PackageManager) Install(pkg *Package) error {
 	return ioutil.WriteFile(packagePath, d, 0755)
 }
 
+// ForceInstall installs a package
+func (pm *PackageManager) ForceInstall(pkg *Package) error {
+	d, err := yaml.Marshal(&pkg)
+	if err != nil {
+		return err
+	}
+
+	packagePath := path.Join(pm.InstallPath, pkg.Name)
+
+	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
+	return ioutil.WriteFile(packagePath, d, 0755)
+}
+
 // List lists installed packages
 func (pm *PackageManager) List() (map[string]*Package, error) {
 	packages := make(map[string]*Package)
