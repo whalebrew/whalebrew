@@ -17,6 +17,7 @@ type Package struct {
 	Image       string   `yaml:"image"`
 	Volumes     []string `yaml:"volumes,omitempty"`
 	Ports       []string `yaml:"ports,omitempty"`
+	Networks    []string `yaml:"networks,omitempty"`
 }
 
 // NewPackageFromImage creates a package from a given image name,
@@ -55,6 +56,12 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 
 		if ports, ok := labels["io.whalebrew.config.ports"]; ok {
 			if err := yaml.Unmarshal([]byte(ports), &pkg.Ports); err != nil {
+				return pkg, err
+			}
+		}
+
+		if networks, ok := labels["io.whalebrew.config.networks"]; ok {
+			if err := yaml.Unmarshal([]byte(networks), &pkg.Networks); err != nil {
 				return pkg, err
 			}
 		}
