@@ -1,22 +1,10 @@
 #!/bin/bash
 
-make_build_dir() {
-  mkdir -p build && cd build
-}
+set -e
 
-build_project() {
-  gox -osarch="linux/amd64" -osarch="darwin/amd64" ../
-}
+mkdir -p build
+cd build
+gox -osarch="linux/amd64" -osarch="darwin/amd64" ../
 
-rename_binaries() {
-  mv whalebrew_linux_amd64 whalebrew-Linux-x86_64 && \
-    mv whalebrew_darwin_amd64 whalebrew-Darwin-x86_64
-}
-
-main() {
-  make_build_dir \
-  && build_project \
-  && rename_binaries
-}
-
-main "$@"
+mv whalebrew_linux_amd64 whalebrew-Linux-x86_64
+mv whalebrew_darwin_amd64 whalebrew-Darwin-x86_64
