@@ -70,7 +70,11 @@ var runCommand = &cobra.Command{
 			dockerArgs = append(dockerArgs, "-p")
 			dockerArgs = append(dockerArgs, portmap)
 		}
-		
+		for _, network := range pkg.Networks {
+			dockerArgs = append(dockerArgs, "--net")
+			dockerArgs = append(dockerArgs, network)
+		}
+
 		user, err := user.Current()
 		if err != nil {
 			return err

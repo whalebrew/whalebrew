@@ -137,6 +137,10 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.ports '["8100:8100"]'
 
+* `io.whalebrew.config.networks`: A list of networks to connect on the container.
+
+        LABEL io.whalebrew.config.networks '["host"]'
+
 ### Whalebrew images
 
 We maintain a set of packages which are known to follow these requirements under the `whalebrew` organization on [GitHub](https://github.com/whalebrew) and [Docker Hub](https://hub.docker.com/u/whalebrew/). If you want to add a package to this, open a pull request against [whalebrew-packages](https://github.com/whalebrew/whalebrew-packages).
