@@ -23,6 +23,7 @@ func TestNewPackageFromImage(t *testing.T) {
 				"io.whalebrew.config.environment":  "[\"SOME_CONFIG_OPTION\"]",
 				"io.whalebrew.config.volumes":      "[\"/somesource:/somedest\"]",
 				"io.whalebrew.config.ports":        "[\"8100:8100\"]",
+				"io.whalebrew.config.networks":     "[\"host\"]",
 				"io.whalebrew.post-install-message":"Some message to display after install",
 			},
 		},
@@ -33,6 +34,7 @@ func TestNewPackageFromImage(t *testing.T) {
 	assert.Equal(t, []string{"SOME_CONFIG_OPTION"}, pkg.Environment)
 	assert.Equal(t, []string{"/somesource:/somedest"}, pkg.Volumes)
 	assert.Equal(t, []string{"8100:8100"}, pkg.Ports )
+	assert.Equal(t, pkg.Networks, []string{"host"})
 	assert.Equal(t, "Some message to display after install", pkg.PostInstallMessage)
 
 }
