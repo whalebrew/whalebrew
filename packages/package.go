@@ -2,6 +2,7 @@ package packages
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -91,4 +92,34 @@ func (pkg *Package) ImageInspect() (*types.ImageInspect, error) {
 	}
 	img, _, err := cli.ImageInspectWithRaw(context.Background(), pkg.Image)
 	return &img, err
+}
+
+// DisplayPreinstallMessage displays the preinstall message of the package
+func (pkg *Package) DisplayPreinstallMessage() bool {
+	if len(pkg.Environment) == 0 && len(pkg.Volumes) == 0 && len(pkg.Ports) == 0 {
+		return false
+	}
+
+	fmt.Println("This package needs additional access to your system:")
+	if len(pkg.Environment) > 0 {
+		fmt.Println("Environment Variables:")
+		for _, env := range pkg.Environment {
+			fmt.Printf("  * %s\n", env)
+		}
+	}
+
+	if len(pkg.Volumes) > 0 {
+		fmt.Println("Mounts:")
+		for _, vol := range pkg.Volumes {
+			fmt.Printf("  * %s\n", vol)
+		}
+	}
+
+	if len(pkg.Ports) > 0 {
+		fmt.Println("Ports:")
+		for _, port := range pkg.Ports {
+			fmt.Printf("  * %s\n", port)
+		}
+	}
+	return true
 }

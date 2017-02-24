@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path"
 
+	"github.com/Songmu/prompter"
 	"github.com/bfirsh/whalebrew/client"
 	"github.com/bfirsh/whalebrew/packages"
 	dockerClient "github.com/docker/docker/client"
@@ -66,6 +67,17 @@ var installCommand = &cobra.Command{
 		if customPackageName != "" {
 			pkg.Name = customPackageName
 		}
+
+		if pkg.DisplayPreinstallMessage() {
+			if !prompter.YN("Is this okay?", true) {
+				if prompter.YN(fmt.Sprintf("Remove %s image?", imageName), true) {
+					if err = removeImage(imageName); err != nil {
+						return err
+					}
+				}
+				return nil
+			}
+		}
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
 		err = pm.Install(pkg)
 		if err != nil {
@@ -78,6 +90,13 @@ var installCommand = &cobra.Command{
 
 func pullImage(image string) error {
 	c := exec.Command("docker", "pull", image)
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stderr
+	return c.Run()
+}
+
+func removeImage(image string) error {
+	c := exec.Command("docker", "rmi", image)
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 	return c.Run()
