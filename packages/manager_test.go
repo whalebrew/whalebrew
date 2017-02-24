@@ -18,7 +18,7 @@ func TestPackageManagerInstall(t *testing.T) {
 
 	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
-	err = pm.Install(pkg)
+	err = pm.Install(pkg, false)
 	assert.Nil(t, err)
 	packagePath := path.Join(installPath, "whalesay")
 	contents, err := ioutil.ReadFile(packagePath)
@@ -32,7 +32,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
 	pkg.Name = "whalesay2"
-	err = pm.Install(pkg)
+	err = pm.Install(pkg, false)
 	assert.Nil(t, err)
 	packagePath = path.Join(installPath, "whalesay2")
 	contents, err = ioutil.ReadFile(packagePath)
@@ -45,9 +45,19 @@ func TestPackageManagerInstall(t *testing.T) {
 	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
 	pkg.Name = "alreadyexists"
-	err = pm.Install(pkg)
+	err = pm.Install(pkg, false)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "already exists")
+
+	// file already exists (use -u flag)
+	err = ioutil.WriteFile(path.Join(installPath, "alreadyexists"), []byte("not a whalebrew package"), 0755)
+	assert.Nil(t, err)
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	assert.Nil(t, err)
+	pkg.Name = "update"
+	err = pm.Install(pkg, true)
+	assert.Nil(t, err)
+	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay")
 
 }
 
@@ -72,7 +82,7 @@ func TestPackageManagerList(t *testing.T) {
 	pm := NewPackageManager(installPath)
 	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
-	err = pm.Install(pkg)
+	err = pm.Install(pkg, false)
 	assert.Nil(t, err)
 	packages, err := pm.List()
 	assert.Nil(t, err)
@@ -87,7 +97,7 @@ func TestPackageManagerUninstall(t *testing.T) {
 
 	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
 	assert.Nil(t, err)
-	err = pm.Install(pkg)
+	err = pm.Install(pkg, false)
 	assert.Nil(t, err)
 	_, err = os.Stat(path.Join(installPath, "whalesay"))
 	assert.Nil(t, err)

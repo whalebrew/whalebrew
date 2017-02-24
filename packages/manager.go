@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	"github.com/go-yaml/yaml"
 )
 
 // PackageManager manages packages at a given path
@@ -23,7 +23,7 @@ func NewPackageManager(path string) *PackageManager {
 }
 
 // Install installs a package
-func (pm *PackageManager) Install(pkg *Package) error {
+func (pm *PackageManager) Install(pkg *Package, uip bool) error {
 	d, err := yaml.Marshal(&pkg)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (pm *PackageManager) Install(pkg *Package) error {
 
 	packagePath := path.Join(pm.InstallPath, pkg.Name)
 
-	if _, err := os.Stat(packagePath); err == nil {
+	if _, err := os.Stat(packagePath); err == nil && uip == false {
 		return fmt.Errorf("'%s' already exists", packagePath)
 	}
 
