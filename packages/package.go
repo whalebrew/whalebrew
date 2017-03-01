@@ -19,6 +19,7 @@ type Package struct {
 	Volumes     []string `yaml:"volumes,omitempty"`
 	Ports       []string `yaml:"ports,omitempty"`
 	Networks    []string `yaml:"networks,omitempty"`
+	WorkingDir  string   `yaml:"workingdir,omitempty"`
 }
 
 // NewPackageFromImage creates a package from a given image name,
@@ -36,34 +37,45 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 		Image: image,
 	}
 
-	if imageInspect.ContainerConfig != nil && imageInspect.ContainerConfig.Labels != nil {
-		labels := imageInspect.ContainerConfig.Labels
+	if imageInspect.ContainerConfig != nil {
 
-		if name, ok := labels["io.whalebrew.name"]; ok {
-			pkg.Name = name
+		if imageInspect.ContainerConfig.WorkingDir != "" {
+			pkg.WorkingDir = imageInspect.ContainerConfig.WorkingDir
 		}
 
-		if env, ok := labels["io.whalebrew.config.environment"]; ok {
-			if err := yaml.Unmarshal([]byte(env), &pkg.Environment); err != nil {
-				return pkg, err
+		if imageInspect.ContainerConfig.Labels != nil {
+			labels := imageInspect.ContainerConfig.Labels
+
+			if name, ok := labels["io.whalebrew.name"]; ok {
+				pkg.Name = name
 			}
-		}
 
-		if volumesStr, ok := labels["io.whalebrew.config.volumes"]; ok {
-			if err := yaml.Unmarshal([]byte(volumesStr), &pkg.Volumes); err != nil {
-				return pkg, err
+			if workingDir, ok := labels["io.whalebrew.config.working_dir"]; ok {
+				pkg.WorkingDir = workingDir
 			}
-		}
 
-		if ports, ok := labels["io.whalebrew.config.ports"]; ok {
-			if err := yaml.Unmarshal([]byte(ports), &pkg.Ports); err != nil {
-				return pkg, err
+			if env, ok := labels["io.whalebrew.config.environment"]; ok {
+				if err := yaml.Unmarshal([]byte(env), &pkg.Environment); err != nil {
+					return pkg, err
+				}
 			}
-		}
 
-		if networks, ok := labels["io.whalebrew.config.networks"]; ok {
-			if err := yaml.Unmarshal([]byte(networks), &pkg.Networks); err != nil {
-				return pkg, err
+			if volumesStr, ok := labels["io.whalebrew.config.volumes"]; ok {
+				if err := yaml.Unmarshal([]byte(volumesStr), &pkg.Volumes); err != nil {
+					return pkg, err
+				}
+			}
+
+			if ports, ok := labels["io.whalebrew.config.ports"]; ok {
+				if err := yaml.Unmarshal([]byte(ports), &pkg.Ports); err != nil {
+					return pkg, err
+				}
+			}
+
+			if networks, ok := labels["io.whalebrew.config.networks"]; ok {
+				if err := yaml.Unmarshal([]byte(networks), &pkg.Networks); err != nil {
+					return pkg, err
+				}
 			}
 		}
 	}
@@ -77,7 +89,9 @@ func LoadPackageFromPath(path string) (*Package, error) {
 	if err != nil {
 		return nil, err
 	}
-	pkg := &Package{}
+	pkg := &Package{
+		WorkingDir: "/workdir",
+	}
 	if err = yaml.Unmarshal(d, pkg); err != nil {
 		return pkg, err
 	}
