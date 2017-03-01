@@ -60,11 +60,11 @@ var runCommand = &cobra.Command{
 				volume = user.HomeDir + volume[1:]
 			}
 			dockerArgs = append(dockerArgs, "-v")
-			dockerArgs = append(dockerArgs, volume)
+			dockerArgs = append(dockerArgs, os.ExpandEnv(volume))
 		}
 		for _, envvar := range pkg.Environment {
 			dockerArgs = append(dockerArgs, "-e")
-			dockerArgs = append(dockerArgs, envvar)
+			dockerArgs = append(dockerArgs, os.ExpandEnv(envvar))
 		}
 		for _, portmap := range pkg.Ports {
 			dockerArgs = append(dockerArgs, "-p")
