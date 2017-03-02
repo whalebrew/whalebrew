@@ -48,7 +48,48 @@ func TestPackageManagerInstall(t *testing.T) {
 	err = pm.Install(pkg)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "already exists")
+}
 
+func TestPackageManagerForceInstall(t *testing.T) {
+	installPath, err := ioutil.TempDir("", "whalebrewtest")
+	assert.Nil(t, err)
+	pm := NewPackageManager(installPath)
+
+	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	assert.Nil(t, err)
+	err = pm.ForceInstall(pkg)
+	assert.Nil(t, err)
+	packagePath := path.Join(installPath, "whalesay")
+	contents, err := ioutil.ReadFile(packagePath)
+	assert.Nil(t, err)
+	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay")
+	fi, err := os.Stat(packagePath)
+	assert.Nil(t, err)
+	assert.Equal(t, int(fi.Mode()), 0755)
+
+	// custom install path
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	assert.Nil(t, err)
+	pkg.Name = "whalesay2"
+	err = pm.ForceInstall(pkg)
+	assert.Nil(t, err)
+	packagePath = path.Join(installPath, "whalesay2")
+	contents, err = ioutil.ReadFile(packagePath)
+	assert.Nil(t, err)
+	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay")
+
+	// file already exists
+	err = ioutil.WriteFile(path.Join(installPath, "alreadyexists"), []byte("not a whalebrew package"), 0755)
+	assert.Nil(t, err)
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	assert.Nil(t, err)
+	pkg.Name = "alreadyexists"
+	err = pm.ForceInstall(pkg)
+	assert.Nil(t, err)
+	packagePath = path.Join(installPath, "alreadyexists")
+	contents, err = ioutil.ReadFile(packagePath)
+	assert.Nil(t, err)
+	assert.Equal(t, strings.TrimSpace(string(contents)), "#!/usr/bin/env whalebrew\nimage: whalebrew/whalesay")
 }
 
 func TestPackageManagerList(t *testing.T) {

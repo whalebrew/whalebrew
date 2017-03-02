@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 mkdir -p build
 cd build
 gox -osarch="linux/amd64" -osarch="darwin/amd64" ../

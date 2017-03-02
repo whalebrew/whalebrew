@@ -15,9 +15,11 @@ import (
 )
 
 var customPackageName string
+var forceInstall bool
 
 func init() {
 	installCommand.Flags().StringVarP(&customPackageName, "name", "n", "", "Name to give installed package. Defaults to image name.")
+	installCommand.Flags().BoolVarP(&forceInstall, "force", "f", false, "Replace existing package if already exists. Defaults to false.")
 
 	RootCmd.AddCommand(installCommand)
 }
@@ -67,7 +69,11 @@ var installCommand = &cobra.Command{
 			pkg.Name = customPackageName
 		}
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
-		err = pm.Install(pkg)
+		if forceInstall {
+			err = pm.ForceInstall(pkg)
+		} else {
+			err = pm.Install(pkg)
+		}
 		if err != nil {
 			return err
 		}
