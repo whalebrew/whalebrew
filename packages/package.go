@@ -2,6 +2,7 @@ package packages
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -91,4 +92,40 @@ func (pkg *Package) ImageInspect() (*types.ImageInspect, error) {
 	}
 	img, _, err := cli.ImageInspectWithRaw(context.Background(), pkg.Image)
 	return &img, err
+}
+
+// PreinstallMessage returns the preinstall message for the package
+func (pkg *Package) PreinstallMessage() string {
+	if len(pkg.Environment) == 0 && len(pkg.Volumes) == 0 && len(pkg.Ports) == 0 {
+		return ""
+	}
+
+	out := []string{"This package needs additional access to your system. It wants to:", ""}
+	for _, env := range pkg.Environment {
+		out = append(out, fmt.Sprintf("* Read the environment variable %s", env))
+	}
+
+	if len(pkg.Ports) > 0 {
+		for _, port := range pkg.Ports {
+			// no support for interfaces (e.g. 127.0.0.1:80:80)
+			portNumber := strings.Split(port, ":")[0]
+			proto := "TCP"
+			if strings.HasSuffix(port, "udp") {
+				proto = "UDP"
+			}
+			out = append(out, fmt.Sprintf("* Listen on %s port %s", proto, portNumber))
+		}
+	}
+
+	for _, vol := range pkg.Volumes {
+		if len(strings.Split(vol, ":")) > 1 {
+			text := "* Read and write to the file or directory %q"
+			if strings.HasSuffix(vol, "ro") {
+				text = "* Read the file or directory %q"
+			}
+			out = append(out, fmt.Sprintf(text, strings.Split(vol, ":")[0]))
+		}
+	}
+
+	return strings.Join(out, "\n") + "\n"
 }

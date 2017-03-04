@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path"
 
+	"github.com/Songmu/prompter"
 	"github.com/bfirsh/whalebrew/client"
 	"github.com/bfirsh/whalebrew/packages"
 	dockerClient "github.com/docker/docker/client"
@@ -67,6 +68,14 @@ var installCommand = &cobra.Command{
 		}
 		if customPackageName != "" {
 			pkg.Name = customPackageName
+		}
+
+		preinstallMessage := pkg.PreinstallMessage()
+		if preinstallMessage != "" {
+			fmt.Println(preinstallMessage)
+			if !prompter.YN("Is this okay?", true) {
+				return fmt.Errorf("not installing package")
+			}
 		}
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
 		if forceInstall {
