@@ -70,11 +70,6 @@ var installCommand = &cobra.Command{
 
 		if pkg.DisplayPreinstallMessage() {
 			if !prompter.YN("Is this okay?", true) {
-				if prompter.YN(fmt.Sprintf("Remove %s image?", imageName), true) {
-					if err = removeImage(imageName); err != nil {
-						return err
-					}
-				}
 				return nil
 			}
 		}
@@ -90,13 +85,6 @@ var installCommand = &cobra.Command{
 
 func pullImage(image string) error {
 	c := exec.Command("docker", "pull", image)
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	return c.Run()
-}
-
-func removeImage(image string) error {
-	c := exec.Command("docker", "rmi", image)
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 	return c.Run()
