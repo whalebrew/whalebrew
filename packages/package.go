@@ -100,26 +100,32 @@ func (pkg *Package) PreinstallMessage() string {
 		return ""
 	}
 
-	out := []string{"This package needs additional access to your system:"}
-	if len(pkg.Environment) > 0 {
-		out = append(out, "Environment Variables:")
-		for _, env := range pkg.Environment {
-			out = append(out, fmt.Sprintf("  * %s", env))
-		}
-	}
-
-	if len(pkg.Volumes) > 0 {
-		out = append(out, "Mounts:")
-		for _, vol := range pkg.Volumes {
-			out = append(out, fmt.Sprintf("  * %s", vol))
-		}
+	out := []string{"This package needs additional access to your system. It wants to:", ""}
+	for _, env := range pkg.Environment {
+		out = append(out, fmt.Sprintf("* Read the environment variable %s", env))
 	}
 
 	if len(pkg.Ports) > 0 {
-		out = append(out, "Ports:")
 		for _, port := range pkg.Ports {
-			out = append(out, fmt.Sprintf("  * %s", port))
+			// no support for interfaces (e.g. 127.0.0.1:80:80)
+			portNumber := strings.Split(port, ":")[0]
+			proto := "TCP"
+			if strings.HasSuffix(port, "udp") {
+				proto = "UDP"
+			}
+			out = append(out, fmt.Sprintf("* Listen on %s port %s", proto, portNumber))
 		}
 	}
-	return strings.Join(out, "\n")
+
+	for _, vol := range pkg.Volumes {
+		if len(strings.Split(vol, ":")) > 1 {
+			text := "* Read and write to the file or directory %q"
+			if strings.HasSuffix(vol, "ro") {
+				text = "* Read the file or directory %q"
+			}
+			out = append(out, fmt.Sprintf(text, strings.Split(vol, ":")[0]))
+		}
+	}
+
+	return strings.Join(out, "\n") + "\n"
 }
