@@ -36,3 +36,8 @@ func TestNewPackageFromImage(t *testing.T) {
 	assert.Equal(t, pkg.Networks, []string{"host"})
 
 }
+
+func TestPreinstallMessage(t *testing.T) {
+	pkg := &Package{}
+	assert.Equal(t, pkg.PreinstallMessage(), "")
+}

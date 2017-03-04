@@ -94,32 +94,32 @@ func (pkg *Package) ImageInspect() (*types.ImageInspect, error) {
 	return &img, err
 }
 
-// DisplayPreinstallMessage displays the preinstall message of the package
-func (pkg *Package) DisplayPreinstallMessage() bool {
+// PreinstallMessage returns the preinstall message for the package
+func (pkg *Package) PreinstallMessage() string {
 	if len(pkg.Environment) == 0 && len(pkg.Volumes) == 0 && len(pkg.Ports) == 0 {
-		return false
+		return ""
 	}
 
-	fmt.Println("This package needs additional access to your system:")
+	out := []string{"This package needs additional access to your system:"}
 	if len(pkg.Environment) > 0 {
-		fmt.Println("Environment Variables:")
+		out = append(out, "Environment Variables:")
 		for _, env := range pkg.Environment {
-			fmt.Printf("  * %s\n", env)
+			out = append(out, fmt.Sprintf("  * %s", env))
 		}
 	}
 
 	if len(pkg.Volumes) > 0 {
-		fmt.Println("Mounts:")
+		out = append(out, "Mounts:")
 		for _, vol := range pkg.Volumes {
-			fmt.Printf("  * %s\n", vol)
+			out = append(out, fmt.Sprintf("  * %s", vol))
 		}
 	}
 
 	if len(pkg.Ports) > 0 {
-		fmt.Println("Ports:")
+		out = append(out, "Ports:")
 		for _, port := range pkg.Ports {
-			fmt.Printf("  * %s\n", port)
+			out = append(out, fmt.Sprintf("  * %s", port))
 		}
 	}
-	return true
+	return strings.Join(out, "\n")
 }
