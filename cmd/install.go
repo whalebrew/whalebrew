@@ -70,7 +70,7 @@ var installCommand = &cobra.Command{
 
 		if pkg.DisplayPreinstallMessage() {
 			if !prompter.YN("Is this okay?", true) {
-				return nil
+				return fmt.Errorf("not installing package")
 			}
 		}
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
