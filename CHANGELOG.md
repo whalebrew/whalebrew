@@ -1,5 +1,10 @@
 # Change log
 
+## 0.1.0 - 2017-03-04
+### Added
+* Ask permission before installing a package that needs to listen on ports, access environment variables, or access files/directories on the host.
+* A `-f` flag to `whalebrew install` to force install a package over an existing file.
+
 ## 0.0.4 - 2017-02-07
 ### Added
 * `whalebrew edit` command for editing packages

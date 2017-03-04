@@ -1,4 +1,4 @@
 package version
 
 // Version is the current Whalebrew version
-const Version = "0.0.4"
+const Version = "0.0.5"
