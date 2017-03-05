@@ -72,12 +72,12 @@ var installCommand = &cobra.Command{
 			pkg.Name = customPackageName
 		}
 
-		if !assumeYes {
-			preinstallMessage := pkg.PreinstallMessage()
-			if preinstallMessage != "" {
-				fmt.Println(preinstallMessage)
+		preinstallMessage := pkg.PreinstallMessage()
+		if preinstallMessage != "" {
+			fmt.Println(preinstallMessage)
+			if !assumeYes {
 				if !prompter.YN("Is this okay?", true) {
-					return fmt.Errorf("not installing package")
+					return fmt.Errorf("Not installing package")
 				}
 			}
 		}
