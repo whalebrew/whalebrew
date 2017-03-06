@@ -17,10 +17,12 @@ import (
 
 var customPackageName string
 var forceInstall bool
+var assumeYes bool
 
 func init() {
 	installCommand.Flags().StringVarP(&customPackageName, "name", "n", "", "Name to give installed package. Defaults to image name.")
 	installCommand.Flags().BoolVarP(&forceInstall, "force", "f", false, "Replace existing package if already exists. Defaults to false.")
+	installCommand.Flags().BoolVarP(&assumeYes, "assume-yes", "y", false, "Assume 'yes' as answer to all prompts and run non-interactively. Defaults to false.")
 
 	RootCmd.AddCommand(installCommand)
 }
@@ -73,10 +75,13 @@ var installCommand = &cobra.Command{
 		preinstallMessage := pkg.PreinstallMessage()
 		if preinstallMessage != "" {
 			fmt.Println(preinstallMessage)
-			if !prompter.YN("Is this okay?", true) {
-				return fmt.Errorf("not installing package")
+			if !assumeYes {
+				if !prompter.YN("Is this okay?", true) {
+					return fmt.Errorf("Not installing package")
+				}
 			}
 		}
+
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
 		if forceInstall {
 			err = pm.ForceInstall(pkg)
