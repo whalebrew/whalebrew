@@ -147,12 +147,14 @@ There are some labels you can use to configure how Whalebrew installs your image
 
 #### Using user environment variables
 
-All three io.whalebrew.config.working_dir, io.whalebrew.config.volumes and io.whalebrew.config.environment are expanded with user environment variables at the time the container is launched. For example Adding the following line in your image's `Dockerfile` will:
+The labels `io.whalebrew.config.working_dir`, `io.whalebrew.config.volumes` and `io.whalebrew.config.environment` are expanded with user environment variables when the container is launched.
 
-- bind your working directory to the container, keeping the same path
-- ensure the working directory of the container is the same as the user's one
+For example, if your image has this line in your `Dockerfile`:
 
         LABEL io.whalebrew.config.working_dir '$PWD'
+
+At runtime, it will bind your working directory into the container at the same path and set it as the working directory.
+
 
 ### Whalebrew images
 
