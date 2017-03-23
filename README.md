@@ -48,7 +48,7 @@ Windows support is theoretically possible, but not implemented yet.
 
 ## Usage
 
-### Install packages
+### Install packages
 
     $ whalebrew install whalebrew/wget
 
@@ -80,11 +80,11 @@ The images in the `whalebrew` organization are a set of images that are known to
     whalebrew   whalebrew/whalebrew
     whalesay    whalebrew/whalesay
 
-### Uninstall packages
+### Uninstall packages
 
     $ whalebrew uninstall wget
 
-### Upgrade packages
+### Upgrade packages
 
 To upgrade a single package, just pull its image:
 
