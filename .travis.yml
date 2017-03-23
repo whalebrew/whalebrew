@@ -1,13 +1,23 @@
 language: go
 go:
 - 1.7
-
 install:
 - go get -t ./...
 - go get github.com/golang/lint/golint
 - go get golang.org/x/tools/cmd/goimports
-
+- go get github.com/mitchellh/gox
 script:
 - FIXED=$(goimports ./... | wc -l); if [ $FIXED -gt 0 ]; then echo "goimports - $FIXED file(s) not formatted correctly, please run goimports to fix this." && exit 1; fi
 - golint ./...
 - go test ./...
+- script/build
+deploy:
+  provider: releases
+  api_key:
+    secure: PvRBdjIyAzq+x8Sq0lJW+wRqE+kUE6t+FDxIpawmaUWLvJmA5R1n8RiHMniYTQFOE/0I8SaKu6TbzvnlIZBqG9DIvi3o/eu6mJJCh1tXQHCzo+sfbLtm6545svKUtLTzGF4jESWsKE5x43DgjMCboPKuE4Y7iLs6x7/n6qDgOffZyFkJCPEQd595D7O8LTtL3eHuvzXnxzDIcohSbe1z/YN7b/R4SvT04yXVrji5WmEcuueqQiq/z2BaCh8+TUBihApw024ICCWjALgWQF3XBYnWgW6TR8RQzJB+uA16VjWPetFpPiyOGX824fhUU9u9UoEQyJOQ0BvtI3qTP+2m7VWWKnZuLBxQ68H2o3U/qufrnklVXnargem1455Dq0wVXxwYbTANZcHx0rEzIhcQeAwhMiHFKAGQMpEOqvSC0A2m1RbO4K/LjBNLu6Ab+HfIzgdecRP78U79NVPGVX7PZijxPlvhMYk4z+J20kH65yRZUZoRSqmT/AwMlmdOUEbPjqIsBGinfydWspUfUNf85uDsIfONznTd/X148Pj78CPV5mew9zdx4Jjc9FwYmSyO2zUYpsBJfsF5KMgU3E8SQuKj9s0wwvGAAOTcQMufe9U3bJkq/AxwQOq9CiuNAGTpm1NYZFEuRRCyvnVZ/DJiE6hp4Q98koIzI2p0lpRH+/0=
+  file:
+  - "build/whalebrew-Darwin-x86_64"
+  - "build/whalebrew-Linux-x86_64"
+  on:
+    repo: bfirsh/whalebrew
+    tags: true
