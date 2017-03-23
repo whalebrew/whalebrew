@@ -136,10 +136,14 @@ There are some labels you can use to configure how Whalebrew installs your image
 * `io.whalebrew.config.ports`: A list of host port to container port mappings to create when the command is run. For example, putting this in your image's `Dockerfile` will map container port 8100 to host port 8100:
 
         LABEL io.whalebrew.config.ports '["8100:8100"]'
-
+    
 * `io.whalebrew.config.networks`: A list of networks to connect on the container.
 
-        LABEL io.whalebrew.config.networks '["host"]'
+		LABEL io.whalebrew.config.networks '["host"]'
+
+* `io.whalebrew.post-install-message`: A message to display to the user after the package has been installed:
+
+		LABEL io.whalebrew.post-install-message "This package requires a directory called '.package' in your home directory."
 
 ### Whalebrew images
 
