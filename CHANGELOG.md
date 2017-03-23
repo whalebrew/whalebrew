@@ -1,5 +1,11 @@
 # Change log
 
+## 0.1.0 - 2017-03-23
+### Added
+* A label for setting the working directory inside the container.
+* The ability to put environment variables in `working_dir`, `volumes`, and `environment` labels that are resolved at runtime.
+* A `-y` flag to install to assume the answer "yes" to any questions asked.
+
 ## 0.0.5 - 2017-03-04
 ### Added
 * Ask permission before installing a package that needs to listen on ports, access environment variables, or access files/directories on the host.
