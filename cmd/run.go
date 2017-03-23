@@ -44,8 +44,8 @@ var runCommand = &cobra.Command{
 			"run",
 			"--interactive",
 			"--rm",
-			"--workdir", "/workdir",
-			"-v", fmt.Sprintf("%s:/workdir", cwd),
+			"--workdir", os.ExpandEnv(pkg.WorkingDir),
+			"-v", fmt.Sprintf("%s:%s", cwd, os.ExpandEnv(pkg.WorkingDir)),
 		}
 		if terminal.IsTerminal(int(os.Stdin.Fd())) {
 			dockerArgs = append(dockerArgs, "--tty")
@@ -60,11 +60,11 @@ var runCommand = &cobra.Command{
 				volume = user.HomeDir + volume[1:]
 			}
 			dockerArgs = append(dockerArgs, "-v")
-			dockerArgs = append(dockerArgs, volume)
+			dockerArgs = append(dockerArgs, os.ExpandEnv(volume))
 		}
 		for _, envvar := range pkg.Environment {
 			dockerArgs = append(dockerArgs, "-e")
-			dockerArgs = append(dockerArgs, envvar)
+			dockerArgs = append(dockerArgs, os.ExpandEnv(envvar))
 		}
 		for _, portmap := range pkg.Ports {
 			dockerArgs = append(dockerArgs, "-p")
@@ -80,8 +80,8 @@ var runCommand = &cobra.Command{
 			return err
 		}
 		dockerArgs = append(dockerArgs, "-u")
-		dockerArgs = append(dockerArgs, user.Uid + ":" + user.Gid)
-		
+		dockerArgs = append(dockerArgs, user.Uid+":"+user.Gid)
+
 		dockerArgs = append(dockerArgs, pkg.Image)
 		dockerArgs = append(dockerArgs, args[1:]...)
 
