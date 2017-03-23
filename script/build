@@ -4,7 +4,8 @@ set -e
 
 mkdir -p build
 cd build
-gox -osarch="linux/amd64" -osarch="darwin/amd64" ../
+gox -osarch="linux/amd64" -osarch="darwin/amd64" -osarch="windows/amd64" ../
 
 mv whalebrew_linux_amd64 whalebrew-Linux-x86_64
 mv whalebrew_darwin_amd64 whalebrew-Darwin-x86_64
+mv whalebrew_windows_amd64 whalebrew-Windows-x86_64

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -30,12 +31,20 @@ func (pm *PackageManager) Install(pkg *Package) error {
 	}
 
 	packagePath := path.Join(pm.InstallPath, pkg.Name)
+	if runtime.GOOS == "windows" {
+		packagePath = packagePath + ".cmd"
+	}
 
 	if _, err := os.Stat(packagePath); err == nil {
 		return fmt.Errorf("'%s' already exists", packagePath)
 	}
 
-	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
+	if runtime.GOOS == "windows" {
+		d = append([]byte("@echo off\r\nwhalebrew %~f0 %*\r\nexit\r\n"), d...)
+	} else {
+		d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
+	}
+
 	return ioutil.WriteFile(packagePath, d, 0755)
 }
 
@@ -95,6 +104,9 @@ func (pm *PackageManager) Load(name string) (*Package, error) {
 // Uninstall uninstalls a package
 func (pm *PackageManager) Uninstall(packageName string) error {
 	p := path.Join(pm.InstallPath, packageName)
+	if runtime.GOOS == "windows" {
+		p += ".cmd"
+	}
 	isPackage, err := IsPackage(p)
 	if err != nil {
 		return err
@@ -124,20 +136,6 @@ func IsPackage(path string) (bool, error) {
 	}
 
 	reader := bufio.NewReader(f)
-	firstTwoBytes := make([]byte, 2)
-	_, err = reader.Read(firstTwoBytes)
-
-	if err == io.EOF {
-		return false, nil
-	}
-
-	if err != nil {
-		return false, err
-	}
-
-	if string(firstTwoBytes) != "#!" {
-		return false, nil
-	}
 
 	line, _, err := reader.ReadLine()
 
@@ -147,7 +145,8 @@ func IsPackage(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if strings.HasPrefix(string(line), "/usr/bin/env whalebrew") {
+
+	if strings.HasPrefix(string(line), "#!/usr/bin/env whalebrew") || strings.HasPrefix(string(line), "@echo off") {
 		return true, nil
 	}
 

@@ -1,6 +1,7 @@
 package packages
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io/ioutil"
@@ -77,6 +78,22 @@ func LoadPackageFromPath(path string) (*Package, error) {
 	if err != nil {
 		return nil, err
 	}
+	packageContents := string(d)
+	var lines []string
+	scanner := bufio.NewScanner(strings.NewReader(packageContents))
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	var p string
+	var startIndex = 0
+	if strings.HasSuffix(path, ".cmd") {
+		startIndex = 3
+	}
+	for i := startIndex; i < len(lines); i++ {
+		p = p + "\n" + lines[i]
+	}
+	d = []byte(p)
+
 	pkg := &Package{}
 	if err = yaml.Unmarshal(d, pkg); err != nil {
 		return pkg, err
