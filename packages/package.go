@@ -19,7 +19,7 @@ type Package struct {
 	Volumes     []string `yaml:"volumes,omitempty"`
 	Ports       []string `yaml:"ports,omitempty"`
 	Networks    []string `yaml:"networks,omitempty"`
-	WorkingDir  string   `yaml:"workingdir,omitempty"`
+	WorkingDir  string   `yaml:"working_dir,omitempty"`
 }
 
 // NewPackageFromImage creates a package from a given image name,
