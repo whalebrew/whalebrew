@@ -9,6 +9,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/bfirsh/whalebrew/git"
 	"gopkg.in/yaml.v2"
 )
 
@@ -22,12 +23,21 @@ func NewPackageManager(path string) *PackageManager {
 	return &PackageManager{InstallPath: path}
 }
 
-// Install installs a package
-func (pm *PackageManager) Install(pkg *Package) error {
+func (pm *PackageManager) doInstall(packagePath string, pkg *Package) error {
 	d, err := yaml.Marshal(&pkg)
 	if err != nil {
 		return err
 	}
+	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
+	err = ioutil.WriteFile(packagePath, d, 0755)
+	if err != nil {
+		return err
+	}
+	return git.NewRepo(packagePath).Add(packagePath)
+}
+
+// Install installs a package
+func (pm *PackageManager) Install(pkg *Package) error {
 
 	packagePath := path.Join(pm.InstallPath, pkg.Name)
 
@@ -35,21 +45,14 @@ func (pm *PackageManager) Install(pkg *Package) error {
 		return fmt.Errorf("'%s' already exists", packagePath)
 	}
 
-	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
-	return ioutil.WriteFile(packagePath, d, 0755)
+	return pm.doInstall(packagePath, pkg)
 }
 
 // ForceInstall installs a package
 func (pm *PackageManager) ForceInstall(pkg *Package) error {
-	d, err := yaml.Marshal(&pkg)
-	if err != nil {
-		return err
-	}
-
 	packagePath := path.Join(pm.InstallPath, pkg.Name)
 
-	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
-	return ioutil.WriteFile(packagePath, d, 0755)
+	return pm.doInstall(packagePath, pkg)
 }
 
 // List lists installed packages
@@ -102,7 +105,11 @@ func (pm *PackageManager) Uninstall(packageName string) error {
 	if !isPackage {
 		return fmt.Errorf("%s is not a Whalebrew package", p)
 	}
-	return os.Remove(p)
+	err = git.NewRepo(p).Rm(p)
+	if err != nil {
+		return os.Remove(p)
+	}
+	return nil
 }
 
 // IsPackage returns true if the given path is a whalebrew package
