@@ -1,11 +1,10 @@
 package client
 
 import (
+	"context"
+
 	"github.com/docker/docker/client"
 )
-
-// DefaultVersion is the Engine API version used by Whalebrew
-const DefaultVersion string = "1.20"
 
 // NewClient returns a Docker client configured for Whalebrew
 func NewClient() (*client.Client, error) {
@@ -13,6 +12,6 @@ func NewClient() (*client.Client, error) {
 	if err != nil {
 		return cli, err
 	}
-	cli.UpdateClientVersion(DefaultVersion)
+	cli.NegotiateAPIVersion(context.Background())
 	return cli, nil
 }

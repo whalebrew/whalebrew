@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"path"
 
 	"github.com/Songmu/prompter"
 	"github.com/bfirsh/whalebrew/packages"
@@ -28,7 +27,7 @@ var uninstallCommand = &cobra.Command{
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
 		packageName := args[0]
 
-		path := path.Join(pm.InstallPath, packageName)
+		path := pm.MakePackagePath(packageName)
 
 		if !prompter.YN(fmt.Sprintf("This will permanently delete '%s'. Are you sure?", path), false) {
 			return nil
