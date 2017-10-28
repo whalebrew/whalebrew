@@ -1,0 +1,35 @@
+version: "{build}"
+
+os: Windows Server 2012 R2
+
+clone_folder: c:\gopath\src\github.com\bfirsh\whalebrew
+
+environment:
+  GOPATH: c:\gopath
+
+artifacts:
+  - path: build\*
+
+install:
+  - set PATH=%GOPATH%\bin;%PATH%
+  - git submodule update --init --recursive
+  - go version
+  - go env
+  - go get -t ./...
+  - go get -u github.com/golang/lint/golint
+  - go get -u github.com/mitchellh/gox
+
+build_script:
+  - golint ./...
+  - go test ./...
+  - ps: script/build-for-windows.ps1
+
+test: off
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: ""
+  artifact: build\whalebrew-Windows-x86_64.exe
+  on:
+    appveyor_repo_tag: true

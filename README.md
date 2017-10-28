@@ -34,7 +34,7 @@ Docker works well for packaging up development environments, but there are lots 
 Whalebrew can run almost any CLI tool, but it isn't for everything (e.g. where commands must start instantly). It works particularly well for:
 
 * **Complex dependencies.** For example, a Python app that requires C libraries, specific package versions, and other CLI tools that you don't want to clutter up your machine with.
-* **Cross-platform portability.** Package managers tend to be very closely tied to the system they are running on. Whalebrew packages work on any modern version of macOS, Linux, and Windows (coming soon).
+* **Cross-platform portability.** Package managers tend to be very closely tied to the system they are running on. Whalebrew packages work on any modern version of macOS, Linux, and Windows.
 
 ## Install
 
@@ -44,7 +44,13 @@ Next, on macOS and Linux:
 
     curl -L "https://github.com/bfirsh/whalebrew/releases/download/0.1.0/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
 
-Windows support is theoretically possible, but not implemented yet.
+on Windows with Command Prompt:
+
+    @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy -Scope CurrentUser Bypass; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/bfirsh/whalebrew/0.0.5/install.ps1'))" && SET "WHALEBREW_INSTALL_PATH=C:\whalebrew" && SET "PATH=%PATH%;%WHALEBREW_INSTALL_PATH%"
+
+on Windows with Powershell:
+
+    Set-ExecutionPolicy -Scope CurrentUser AllSigned; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/bfirsh/whalebrew/0.0.5/install.ps1'))
 
 ## Usage
 
@@ -94,7 +100,7 @@ To upgrade a single package, just pull its image:
 
 Whalebrew is configured with environment variables, which you can either provide at runtime or put in your `~/.bashrc` file (or whatever shell you use).
 
- - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/local/bin`)
+ - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default for macOS and Linux: `/usr/local/bin`, default for Windows: `C:\whalebrew`)
 
 ## How it works
 

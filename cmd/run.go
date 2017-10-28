@@ -8,6 +8,8 @@ import (
 	"strings"
 	"syscall"
 
+	"runtime"
+
 	"github.com/bfirsh/whalebrew/packages"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
@@ -70,9 +72,34 @@ var runCommand = &cobra.Command{
 			dockerArgs = append(dockerArgs, "-p")
 			dockerArgs = append(dockerArgs, portmap)
 		}
+
 		for _, network := range pkg.Networks {
 			dockerArgs = append(dockerArgs, "--net")
 			dockerArgs = append(dockerArgs, network)
+		}
+
+		if runtime.GOOS == "windows" {
+			dockerArgs = append(dockerArgs, pkg.Image)
+			dockerArgs = append(dockerArgs, args[1:]...)
+
+			dockerCmd := exec.Command(dockerPath, dockerArgs[1:]...)
+			dockerCmd.Env = os.Environ()
+			dockerCmd.Stdin = os.Stdin
+			dockerCmd.Stdout = os.Stdout
+			dockerCmd.Stderr = os.Stderr
+
+			exitStatus := 1
+			if err := dockerCmd.Run(); err != nil {
+				if exitError, ok := err.(*exec.ExitError); ok {
+					if ws, ok := exitError.Sys().(syscall.WaitStatus); ok {
+						exitStatus = ws.ExitStatus()
+					}
+				}
+			} else {
+				ws := dockerCmd.ProcessState.Sys().(syscall.WaitStatus)
+				exitStatus = ws.ExitStatus()
+			}
+			os.Exit(exitStatus)
 		}
 
 		user, err := user.Current()

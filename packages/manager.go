@@ -2,11 +2,14 @@ package packages
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
+	"regexp"
+	"runtime"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -29,13 +32,19 @@ func (pm *PackageManager) Install(pkg *Package) error {
 		return err
 	}
 
-	packagePath := path.Join(pm.InstallPath, pkg.Name)
+	packagePath := pm.MakePackagePath(pkg.Name)
 
 	if _, err := os.Stat(packagePath); err == nil {
 		return fmt.Errorf("'%s' already exists", packagePath)
 	}
 
-	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
+	if runtime.GOOS == "windows" {
+		d = append([]byte(":: |\r\n  @echo off\r\n  whalebrew run %~f0 %*\r\n  exit /b %errorlevel%\r\n"), d...)
+		d = bytes.Replace(d, []byte("\r\n"), []byte("\n"), -1)
+		d = bytes.Replace(d, []byte("\n"), []byte("\r\n"), -1)
+	} else {
+		d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
+	}
 	return ioutil.WriteFile(packagePath, d, 0755)
 }
 
@@ -46,9 +55,15 @@ func (pm *PackageManager) ForceInstall(pkg *Package) error {
 		return err
 	}
 
-	packagePath := path.Join(pm.InstallPath, pkg.Name)
+	packagePath := pm.MakePackagePath(pkg.Name)
 
-	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
+	if runtime.GOOS == "windows" {
+		d = append([]byte(":: |\r\n  @echo off\r\n  whalebrew run %~f0 %*\r\n  exit /b %errorlevel%\r\n"), d...)
+		d = bytes.Replace(d, []byte("\r\n"), []byte("\n"), -1)
+		d = bytes.Replace(d, []byte("\n"), []byte("\r\n"), -1)
+	} else {
+		d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
+	}
 	return ioutil.WriteFile(packagePath, d, 0755)
 }
 
@@ -60,7 +75,7 @@ func (pm *PackageManager) List() (map[string]*Package, error) {
 		return packages, err
 	}
 	for _, file := range files {
-		isPackage, err := IsPackage(path.Join(pm.InstallPath, file.Name()))
+		isPackage, err := IsPackage(filepath.Join(pm.InstallPath, file.Name()))
 		if err != nil {
 			// Check for various file errors here rather than in IsPackage so it
 			// does not swallow errors when checking individual files.
@@ -77,11 +92,17 @@ func (pm *PackageManager) List() (map[string]*Package, error) {
 			return packages, err
 		}
 		if isPackage {
-			pkg, err := pm.Load(file.Name())
+			pkgName := file.Name()
+			if runtime.GOOS == "windows" {
+				re := regexp.MustCompile("\\.bat$")
+				pkgName = re.ReplaceAllLiteralString(pkgName, "")
+			}
+
+			pkg, err := pm.Load(pkgName)
 			if err != nil {
 				return packages, err
 			}
-			packages[file.Name()] = pkg
+			packages[pkgName] = pkg
 		}
 	}
 	return packages, nil
@@ -89,12 +110,12 @@ func (pm *PackageManager) List() (map[string]*Package, error) {
 
 // Load returns an installed package given its package name
 func (pm *PackageManager) Load(name string) (*Package, error) {
-	return LoadPackageFromPath(path.Join(pm.InstallPath, name))
+	return LoadPackageFromPath(pm.MakePackagePath(name))
 }
 
 // Uninstall uninstalls a package
 func (pm *PackageManager) Uninstall(packageName string) error {
-	p := path.Join(pm.InstallPath, packageName)
+	p := pm.MakePackagePath(packageName)
 	isPackage, err := IsPackage(p)
 	if err != nil {
 		return err
@@ -107,6 +128,10 @@ func (pm *PackageManager) Uninstall(packageName string) error {
 
 // IsPackage returns true if the given path is a whalebrew package
 func IsPackage(path string) (bool, error) {
+	if runtime.GOOS == "windows" && !strings.HasSuffix(path, ".bat") {
+		return false, nil
+	}
+
 	f, err := os.Open(path)
 	if err != nil {
 		return false, err
@@ -124,6 +149,22 @@ func IsPackage(path string) (bool, error) {
 	}
 
 	reader := bufio.NewReader(f)
+
+	if runtime.GOOS == "windows" {
+		line, _, err := reader.ReadLine()
+
+		if err == io.EOF {
+			return false, nil
+		}
+		if err != nil {
+			return false, err
+		}
+		if strings.HasPrefix(string(line), ":: |") {
+			return true, nil
+		}
+		return false, nil
+	}
+
 	firstTwoBytes := make([]byte, 2)
 	_, err = reader.Read(firstTwoBytes)
 
@@ -152,4 +193,19 @@ func IsPackage(path string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+// MakePackagePath returns package path
+func MakePackagePath(dir, name string) string {
+	// if on Windows, file is batch file.
+	pkgPath := filepath.Join(dir, name)
+	if runtime.GOOS == "windows" {
+		pkgPath = pkgPath + ".bat"
+	}
+	return pkgPath
+}
+
+// MakePackagePath returns package path
+func (pm *PackageManager) MakePackagePath(name string) string {
+	return MakePackagePath(pm.InstallPath, name)
 }
