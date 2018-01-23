@@ -98,4 +98,33 @@ func TestDockerRun(t *testing.T) {
 			Gid: "4086",
 		},
 	}))
+
+	// Test customgid functionality.
+	d.Exec = func(argv0 string, argv []string, envv []string) (err error) {
+		assert.Equal(t, "docker", argv0)
+		assert.Equal(
+			t,
+			[]string{
+				"docker", "run", "--interactive", "--rm",
+				"--workdir", "/workdir", "--init",
+				"-u", "2048:1234",
+				"alpine",
+				"-h", "hello", "world",
+			},
+			argv,
+		)
+		assert.Equal(t, os.Environ(), envv)
+		return nil
+	}
+	assert.NoError(t, d.Run(&packages.Package{
+		Image:     "alpine",
+		CustomGid: "1234",
+	}, &run.Execution{
+		WorkingDir: "/workdir",
+		User: &user.User{
+			Uid: "2048",
+			Gid: "4086",
+		},
+		Args: []string{"-h", "hello", "world"},
+	}))
 }
