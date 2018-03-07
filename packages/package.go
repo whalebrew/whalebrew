@@ -13,13 +13,14 @@ import (
 
 // Package represents a Whalebrew package
 type Package struct {
-	Name        string   `yaml:"-"`
-	Environment []string `yaml:"environment,omitempty"`
-	Image       string   `yaml:"image"`
-	Volumes     []string `yaml:"volumes,omitempty"`
-	Ports       []string `yaml:"ports,omitempty"`
-	Networks    []string `yaml:"networks,omitempty"`
-	WorkingDir  string   `yaml:"working_dir,omitempty"`
+	Name              string   `yaml:"-"`
+	Environment       []string `yaml:"environment,omitempty"`
+	Image             string   `yaml:"image"`
+	Volumes           []string `yaml:"volumes,omitempty"`
+	Ports             []string `yaml:"ports,omitempty"`
+	Networks          []string `yaml:"networks,omitempty"`
+	WorkingDir        string   `yaml:"working_dir,omitempty"`
+	KeepContainerUser bool     `yaml:"keep_container_user,omitempty"`
 }
 
 // NewPackageFromImage creates a package from a given image name,
@@ -74,6 +75,12 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 
 			if networks, ok := labels["io.whalebrew.config.networks"]; ok {
 				if err := yaml.Unmarshal([]byte(networks), &pkg.Networks); err != nil {
+					return pkg, err
+				}
+			}
+
+			if v, ok := labels["io.whalebrew.config.keep_container_user"]; ok {
+				if err := yaml.Unmarshal([]byte(v), &pkg.KeepContainerUser); err != nil {
 					return pkg, err
 				}
 			}

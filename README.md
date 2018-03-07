@@ -146,6 +146,11 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.working_dir '/working_directory'
 
+* `io.whalebrew.config.keep_container_user`: Set this variable to true to keep the default container USER. When set to true, whalebrew will not run the command as the current user using the docker `-u` flag
+
+        LABEL io.whalebrew.config.keep_container_user 'true'
+
+
 #### Using user environment variables
 
 The labels `io.whalebrew.config.working_dir`, `io.whalebrew.config.volumes` and `io.whalebrew.config.environment` are expanded with user environment variables when the container is launched.
