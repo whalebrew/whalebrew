@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"regexp"
 	"os"
 	"os/exec"
 	"os/user"
@@ -26,7 +27,18 @@ var runCommand = &cobra.Command{
 			return cmd.Help()
 		}
 
-		pkg, err := packages.LoadPackageFromPath(args[0])
+		pkgPath := args[0]
+		cmdArgs := args[1:]
+		entrypoint := ""
+		entrypointRegEx := regexp.MustCompile("--entrypoint=(.+)")
+		entrypointMatches := entrypointRegEx.FindStringSubmatch(pkgPath)
+		if entrypointMatches != nil {
+			entrypoint = entrypointMatches[1]
+			pkgPath = args[1]
+			cmdArgs = args[2:]
+		}
+
+		pkg, err := packages.LoadPackageFromPath(pkgPath)
 		if err != nil {
 			return err
 		}
@@ -82,8 +94,12 @@ var runCommand = &cobra.Command{
 		dockerArgs = append(dockerArgs, "-u")
 		dockerArgs = append(dockerArgs, user.Uid+":"+user.Gid)
 
+		if entrypoint != "" {
+			dockerArgs = append(dockerArgs, "--entrypoint")
+			dockerArgs = append(dockerArgs, entrypoint)
+		}
 		dockerArgs = append(dockerArgs, pkg.Image)
-		dockerArgs = append(dockerArgs, args[1:]...)
+		dockerArgs = append(dockerArgs, cmdArgs...)
 
 		return syscall.Exec(dockerPath, dockerArgs, os.Environ())
 	},

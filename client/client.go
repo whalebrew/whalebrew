@@ -13,6 +13,6 @@ func NewClient() (*client.Client, error) {
 	if err != nil {
 		return cli, err
 	}
-	cli.UpdateClientVersion(DefaultVersion)
+
 	return cli, nil
 }
