@@ -97,7 +97,11 @@ var runCommand = &cobra.Command{
 		if entrypoint != "" {
 			dockerArgs = append(dockerArgs, "--entrypoint")
 			dockerArgs = append(dockerArgs, entrypoint)
+		} else if pkg.Entrypoint != "" {
+			dockerArgs = append(dockerArgs, "--entrypoint")
+			dockerArgs = append(dockerArgs, pkg.Entrypoint)
 		}
+
 		dockerArgs = append(dockerArgs, pkg.Image)
 		dockerArgs = append(dockerArgs, cmdArgs...)
 
