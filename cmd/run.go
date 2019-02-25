@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"regexp"
 	"os"
 	"os/exec"
 	"os/user"
@@ -15,30 +14,20 @@ import (
 )
 
 func init() {
+	runCommand.Flags().StringVarP(&entrypoint, "entrypoint", "e", "", "Override the entrypoint defined in the image. Defaults to image's entrypoint")
+
 	RootCmd.AddCommand(runCommand)
 }
 
 var runCommand = &cobra.Command{
-	Use:                "run PACKAGEPATH [ARGS ...]",
-	Short:              "Run a package",
-	DisableFlagParsing: true,
+	Use:   "run PACKAGEPATH [ARGS ...]",
+	Short: "Run a package",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return cmd.Help()
 		}
 
-		pkgPath := args[0]
-		cmdArgs := args[1:]
-		entrypoint := ""
-		entrypointRegEx := regexp.MustCompile("--entrypoint=(.+)")
-		entrypointMatches := entrypointRegEx.FindStringSubmatch(pkgPath)
-		if entrypointMatches != nil {
-			entrypoint = entrypointMatches[1]
-			pkgPath = args[1]
-			cmdArgs = args[2:]
-		}
-
-		pkg, err := packages.LoadPackageFromPath(pkgPath)
+		pkg, err := packages.LoadPackageFromPath(args[0])
 		if err != nil {
 			return err
 		}
@@ -103,7 +92,7 @@ var runCommand = &cobra.Command{
 		}
 
 		dockerArgs = append(dockerArgs, pkg.Image)
-		dockerArgs = append(dockerArgs, cmdArgs...)
+		dockerArgs = append(dockerArgs, args[1:]...)
 
 		return syscall.Exec(dockerPath, dockerArgs, os.Environ())
 	},
