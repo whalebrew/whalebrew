@@ -14,6 +14,7 @@ import (
 )
 
 func init() {
+	runCommand.Flags().SetInterspersed(false)
 	runCommand.Flags().StringVarP(&entrypoint, "entrypoint", "e", "", "Override the entrypoint defined in the image. Defaults to image's entrypoint")
 
 	RootCmd.AddCommand(runCommand)
