@@ -1,4 +1,4 @@
-FROM golang:1.7
+FROM golang:1.11
 
 RUN mkdir -p /go/src/github.com/whalebrew/whalebrew
 WORKDIR /go/src/github.com/whalebrew/whalebrew
