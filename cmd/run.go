@@ -8,7 +8,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/bfirsh/whalebrew/packages"
+	"github.com/whalebrew/whalebrew/packages"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
 )

@@ -5,7 +5,7 @@ import (
 	"path"
 
 	"github.com/Songmu/prompter"
-	"github.com/bfirsh/whalebrew/packages"
+	"github.com/whalebrew/whalebrew/packages"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

@@ -8,8 +8,8 @@ import (
 	"path"
 
 	"github.com/Songmu/prompter"
-	"github.com/bfirsh/whalebrew/client"
-	"github.com/bfirsh/whalebrew/packages"
+	"github.com/whalebrew/whalebrew/client"
+	"github.com/whalebrew/whalebrew/packages"
 	dockerClient "github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
