@@ -46,6 +46,7 @@ var runCommand = &cobra.Command{
 			"--rm",
 			"--workdir", os.ExpandEnv(pkg.WorkingDir),
 			"-v", fmt.Sprintf("%s:%s", cwd, os.ExpandEnv(pkg.WorkingDir)),
+			"--init",
 		}
 		if terminal.IsTerminal(int(os.Stdin.Fd())) {
 			dockerArgs = append(dockerArgs, "--tty")
