@@ -8,11 +8,12 @@ import (
 	"path"
 
 	"github.com/Songmu/prompter"
-	"github.com/whalebrew/whalebrew/client"
-	"github.com/whalebrew/whalebrew/packages"
 	dockerClient "github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/client"
+	"github.com/whalebrew/whalebrew/hooks"
+	"github.com/whalebrew/whalebrew/packages"
 )
 
 var customPackageName string
@@ -83,6 +84,11 @@ var installCommand = &cobra.Command{
 		}
 
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
+
+		if err := hooks.Run("pre-install", imageName, pkg.Name); err != nil {
+			return fmt.Errorf("pre install script failed: %s", err.Error())
+		}
+
 		if forceInstall {
 			err = pm.ForceInstall(pkg)
 		} else {
@@ -91,6 +97,11 @@ var installCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		if err := hooks.Run("post-install", pkg.Name); err != nil {
+			return fmt.Errorf("post install script failed: %s", err.Error())
+		}
+
 		fmt.Printf("🐳  Installed %s to %s\n", imageName, path.Join(pm.InstallPath, pkg.Name))
 		return nil
 	},
