@@ -5,9 +5,10 @@ import (
 	"path"
 
 	"github.com/Songmu/prompter"
-	"github.com/whalebrew/whalebrew/packages"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/hooks"
+	"github.com/whalebrew/whalebrew/packages"
 )
 
 func init() {
@@ -30,6 +31,10 @@ var uninstallCommand = &cobra.Command{
 
 		path := path.Join(pm.InstallPath, packageName)
 
+		if err := hooks.Run("pre-uninstall", packageName); err != nil {
+			return fmt.Errorf("pre-uninstall install script failed: %s", err.Error())
+		}
+
 		if !prompter.YN(fmt.Sprintf("This will permanently delete '%s'. Are you sure?", path), false) {
 			return nil
 		}
@@ -39,7 +44,11 @@ var uninstallCommand = &cobra.Command{
 			return err
 		}
 
+		if err := hooks.Run("post-uninstall", packageName); err != nil {
+			return fmt.Errorf("post-uninstall install script failed: %s", err.Error())
+		}
 		fmt.Printf("🚽  Uninstalled %s\n", path)
+
 		return nil
 	},
 }
