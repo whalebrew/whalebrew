@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
-docker build -t whalebrew .
-exec docker run -it --rm whalebrew "$@"
+docker build -t whalebrew-build  --target=build .
+exec docker run -it -v /var/run/docker.sock:/var/run/docker.sock --rm whalebrew-build "$@"
