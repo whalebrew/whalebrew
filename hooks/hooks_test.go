@@ -88,18 +88,20 @@ func TestRun(t *testing.T) {
 		assert.NoError(
 			t,
 			run(
-				testStater{t, testFileInfo{os.FileMode(0700), false}, nil, "/tmp/.whalebrew/hooks/post-install"},
-				testRunner{t, nil, "/tmp/.whalebrew/hooks/post-install", nil},
+				testStater{t, testFileInfo{os.FileMode(0700), false}, nil, "/home/user/.whalebrew/hooks/post-install"},
+				testRunner{t, nil, "/home/user/.whalebrew/hooks/post-install", nil},
 				osDirGetChanger{},
+				"/home/user/.whalebrew",
 				"/tmp",
 				"post-install"),
 		)
 		assert.NoError(
 			t,
 			run(
-				testStater{t, testFileInfo{os.FileMode(0700), false}, nil, "/tmp/.whalebrew/hooks/post-install"},
-				testRunner{t, nil, "/tmp/.whalebrew/hooks/post-install", []string{"an-argument"}},
+				testStater{t, testFileInfo{os.FileMode(0700), false}, nil, "/home/other/.whalebrew/hooks/post-install"},
+				testRunner{t, nil, "/home/other/.whalebrew/hooks/post-install", []string{"an-argument"}},
 				&testDirChanger{t, "some/path", []string{"/tmp", "some/path"}, nil, nil},
+				"/home/other/.whalebrew",
 				"/tmp",
 				"post-install",
 				"an-argument"),
@@ -109,9 +111,10 @@ func TestRun(t *testing.T) {
 		assert.Error(
 			t,
 			run(
-				testStater{t, testFileInfo{os.FileMode(0600), false}, nil, "/tmp/.whalebrew/hooks/post-install"},
+				testStater{t, testFileInfo{os.FileMode(0600), false}, nil, "/home/other/.whalebrew/hooks/post-install"},
 				testRunner{t, nil, "/tmp/.whalebrew/hooks/post-install", nil},
-				&testDirChanger{t, "", nil, fmt.Errorf("testError"), nil},
+				&testDirChanger{t, "should-be-ignored", nil, fmt.Errorf("testError"), nil},
+				"/home/other/.whalebrew",
 				"/tmp",
 				"post-install",
 				"an-argument"),
@@ -121,9 +124,10 @@ func TestRun(t *testing.T) {
 		assert.Error(
 			t,
 			run(
-				testStater{t, testFileInfo{os.FileMode(0600), false}, nil, "/tmp/.whalebrew/hooks/post-install"},
-				testRunner{t, nil, "/tmp/.whalebrew/hooks/post-install", nil},
-				&testDirChanger{t, "some/path", []string{"/tmp/whalebrew"}, nil, fmt.Errorf("testError")},
+				testStater{t, testFileInfo{os.FileMode(0600), false}, nil, "/home/other/.whalebrew/hooks/post-install"},
+				testRunner{t, nil, "should-be-ignored", nil},
+				&testDirChanger{t, "should-be-ignored", []string{"/tmp/whalebrew"}, nil, fmt.Errorf("testError")},
+				"/home/other/.whalebrew",
 				"/tmp/whalebrew",
 				"post-install",
 				"an-argument"),
@@ -133,9 +137,10 @@ func TestRun(t *testing.T) {
 		assert.Error(
 			t,
 			run(
-				testStater{t, testFileInfo{os.FileMode(0600), false}, nil, "/tmp/.whalebrew/hooks/post-install"},
-				testRunner{t, nil, "/tmp/.whalebrew/hooks/post-install", nil},
+				testStater{t, testFileInfo{os.FileMode(0600), false}, nil, "/tmp/whalebrew/hooks/post-install"},
+				testRunner{t, nil, "should-be-ignored", nil},
 				osDirGetChanger{},
+				"/tmp/whalebrew",
 				"/tmp",
 				"post-install",
 				"an-argument"),
@@ -145,22 +150,24 @@ func TestRun(t *testing.T) {
 		assert.Error(
 			t,
 			run(
-				testStater{t, testFileInfo{os.FileMode(0700), true}, nil, "/tmp/.whalebrew/hooks/post-install"},
-				testRunner{t, nil, "/tmp/.whalebrew/hooks/post-install", nil},
+				testStater{t, testFileInfo{os.FileMode(0700), true}, nil, "/tmp/whalebrew/hooks/post-install"},
+				testRunner{t, nil, "should-be-ignored", nil},
 				osDirGetChanger{},
+				"/tmp/whalebrew",
 				"/tmp",
 				"post-install",
 				"an-argument"),
 		)
 	})
 
-	t.Run("When command fails exists", func(t *testing.T) {
+	t.Run("When command fails", func(t *testing.T) {
 		assert.Error(
 			t,
 			run(
-				testStater{t, testFileInfo{os.FileMode(0700), false}, nil, "/tmp/.whalebrew/hooks/post-install"},
-				testRunner{t, fmt.Errorf("test-error"), "/tmp/.whalebrew/hooks/post-install", []string{"an-argument"}},
+				testStater{t, testFileInfo{os.FileMode(0700), false}, nil, "/tmp/whalebrew/hooks/post-install"},
+				testRunner{t, fmt.Errorf("test-error"), "/tmp/whalebrew/hooks/post-install", []string{"an-argument"}},
 				osDirGetChanger{},
+				"/tmp/whalebrew",
 				"/tmp",
 				"post-install",
 				"an-argument"),
@@ -168,6 +175,7 @@ func TestRun(t *testing.T) {
 	})
 	t.Run("When the webhook does not exist", func(t *testing.T) {
 		viper.Set("install_path", ".")
+		viper.Set("config_dir", ".")
 		fmt.Println(Run(
 			"post-install",
 			"an-argument"))
