@@ -47,8 +47,8 @@ func (osDirGetChanger) Chdir(path string) error {
 	return os.Chdir(path)
 }
 
-func run(s stater, r runner, wdChanger dirGetChanger, installPath string, hook string, args ...string) error {
-	hookPath := filepath.Join(installPath, ".whalebrew/hooks", hook)
+func run(s stater, r runner, wdChanger dirGetChanger, configDir, installPath string, hook string, args ...string) error {
+	hookPath := filepath.Join(configDir, "hooks", hook)
 	wd, err := wdChanger.Getwd()
 	if err != nil {
 		return fmt.Errorf("unable to get current directory: %s", err.Error())
@@ -72,5 +72,5 @@ func run(s stater, r runner, wdChanger dirGetChanger, installPath string, hook s
 }
 
 func Run(hook string, args ...string) error {
-	return run(osStater{}, execRunner{}, osDirGetChanger{}, viper.GetString("install_path"), hook, args...)
+	return run(osStater{}, execRunner{}, osDirGetChanger{}, viper.GetString("config_dir"), viper.GetString("install_path"), hook, args...)
 }

@@ -95,6 +95,7 @@ To upgrade a single package, just pull its image:
 Whalebrew is configured with environment variables, which you can either provide at runtime or put in your `~/.bashrc` file (or whatever shell you use).
 
  - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/local/bin`)
+ - `WHALEBREW_CONFIG_DIR`: The directory to install packages in. (default: `~/.whalebrew`)
 
 ## How it works
 
@@ -155,21 +156,20 @@ For example, if your image has this line in your `Dockerfile`:
 
 At runtime, it will bind your working directory into the container at the same path and set it as the working directory.
 
-
 #### Using hooks
 
 In some cases, you might want to execute custom actions, like checking the integrity of the image or adding the whalebrew scripts to your whalebrew repository.
 To do so, whalebrew will call git-like hooks when handling installation/uninstallation of a package.
-Those hooks must be executable files located in `${WHALEBREW_INSTALL_PATH}/.whalebrew/hooks`.
+Those hooks must be executable files located in `${WHALEBREW_CONFIG_DIR}/hooks`.
 
 Whalebrew supports the following hooks:
 
-|path & arguments|description|
+|command & arguments|description|
 |-|-|
-|`${WHALEBREW_INSTALL_PATH}/.whalebrew/hooks/pre-install ${DOCKER_IMAGE} ${EXECUTABLE_NAME}`|This hook is called before installing a package. Failure of this hook will fail the installation process|
-|`${WHALEBREW_INSTALL_PATH}/.whalebrew/hooks/post-install ${EXECUTABLE_NAME}`|This hook is called after a package is installed. Failure of this hook will fail the installation process, but the package is not uninstalled|
-|`${WHALEBREW_INSTALL_PATH}/.whalebrew/hooks/pre-uninstall ${EXECUTABLE_NAME}`|This hook is called before uninstalling a package. Failure of this hook will fail the uninstallation process|
-|`${WHALEBREW_INSTALL_PATH}/.whalebrew/hooks/post-uninstall ${EXECUTABLE_NAME}`|This hook is called after a package is uninstalled. Failure of this hook will fail the uninstallation process, but the package is not uninstalled|
+|`pre-install ${DOCKER_IMAGE} ${EXECUTABLE_NAME}`|This hook is called before installing a package. Failure of this hook will fail the installation process|
+|`post-install ${EXECUTABLE_NAME}`|This hook is called after a package is installed. Failure of this hook will fail the installation process, but the package is not uninstalled|
+|`pre-uninstall ${EXECUTABLE_NAME}`|This hook is called before uninstalling a package. Failure of this hook will fail the uninstallation process|
+|`post-uninstall ${EXECUTABLE_NAME}`|This hook is called after a package is uninstalled. Failure of this hook will fail the uninstallation process, but the package is not uninstalled|
 
 ### Whalebrew images
 
