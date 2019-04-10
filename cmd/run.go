@@ -76,12 +76,14 @@ var runCommand = &cobra.Command{
 			dockerArgs = append(dockerArgs, network)
 		}
 
-		user, err := user.Current()
-		if err != nil {
-			return err
+		if !pkg.KeepContainerUser {
+			user, err := user.Current()
+			if err != nil {
+				return err
+			}
+			dockerArgs = append(dockerArgs, "-u")
+			dockerArgs = append(dockerArgs, user.Uid+":"+user.Gid)
 		}
-		dockerArgs = append(dockerArgs, "-u")
-		dockerArgs = append(dockerArgs, user.Uid+":"+user.Gid)
 
 		dockerArgs = append(dockerArgs, pkg.Image)
 		dockerArgs = append(dockerArgs, args[1:]...)
