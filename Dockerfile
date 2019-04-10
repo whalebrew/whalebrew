@@ -1,9 +1,10 @@
-FROM golang:1.11
+FROM golang:1.12
 
-RUN mkdir -p /go/src/github.com/whalebrew/whalebrew
-WORKDIR /go/src/github.com/whalebrew/whalebrew
+WORKDIR /src
 
-COPY . /go/src/github.com/whalebrew/whalebrew
-RUN go get -t -v ./...
-RUN go install .
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN GO111MODULE=on go install .
 CMD ["whalebrew"]

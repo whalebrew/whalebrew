@@ -1,16 +1,15 @@
 language: go
 go:
-- 1.11
+- 1.12
 install:
-- go get -t ./...
-- go get github.com/golang/lint/golint
+- go get -u golang.org/x/lint/golint
 - go get golang.org/x/tools/cmd/goimports
 - go get github.com/mitchellh/gox
 script:
 - FIXED=$(goimports ./... | wc -l); if [ $FIXED -gt 0 ]; then echo "goimports - $FIXED file(s) not formatted correctly, please run goimports to fix this." && exit 1; fi
 - golint ./...
-- go test ./...
-- script/build
+- GO111MODULE=on go test ./...
+- GO111MODULE=on script/build
 deploy:
   provider: releases
   api_key:
