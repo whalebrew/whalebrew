@@ -17,11 +17,13 @@ import (
 )
 
 var customPackageName string
+var customEntrypoint string
 var forceInstall bool
 var assumeYes bool
 
 func init() {
 	installCommand.Flags().StringVarP(&customPackageName, "name", "n", "", "Name to give installed package. Defaults to image name.")
+	installCommand.Flags().StringVarP(&customEntrypoint, "entrypoint", "e", "", "Alternate entrypoint to run the image with. Defaults to image entrypoint.")
 	installCommand.Flags().BoolVarP(&forceInstall, "force", "f", false, "Replace existing package if already exists. Defaults to false.")
 	installCommand.Flags().BoolVarP(&assumeYes, "assume-yes", "y", false, "Assume 'yes' as answer to all prompts and run non-interactively. Defaults to false.")
 
@@ -71,6 +73,10 @@ var installCommand = &cobra.Command{
 		}
 		if customPackageName != "" {
 			pkg.Name = customPackageName
+		}
+
+		if customEntrypoint != "" {
+			pkg.Entrypoint = []string{customEntrypoint}
 		}
 
 		preinstallMessage := pkg.PreinstallMessage()

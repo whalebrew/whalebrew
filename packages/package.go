@@ -16,6 +16,7 @@ import (
 // Package represents a Whalebrew package
 type Package struct {
 	Name                string   `yaml:"-"`
+	Entrypoint          []string `yaml:"entrypoint,omitempty"`
 	Environment         []string `yaml:"environment,omitempty"`
 	Image               string   `yaml:"image"`
 	Volumes             []string `yaml:"volumes,omitempty"`
