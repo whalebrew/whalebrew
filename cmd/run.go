@@ -109,7 +109,7 @@ func Run(args []string) error {
 	}
 
 	dockerArgs = append(dockerArgs, pkg.Image)
-	dockerArgs = append(dockerArgs, args[1:]...)
+	dockerArgs = append(dockerArgs, args[2:]...)
 
 	return syscall.Exec(dockerPath, dockerArgs, os.Environ())
 }
