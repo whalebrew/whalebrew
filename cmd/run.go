@@ -57,7 +57,7 @@ func appendVolumes(dockerArgs []string, pkg *packages.Package) ([]string, error)
 
 // Run runs a package after extracting arguments
 func Run(args []string) error {
-	pkg, err := packages.LoadPackageFromPath(args[0])
+	pkg, err := packages.LoadPackageFromPath(args[1])
 	if err != nil {
 		return err
 	}
