@@ -5,12 +5,55 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path/filepath"
 	"strings"
 	"syscall"
 
 	"github.com/whalebrew/whalebrew/packages"
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+func shouldBind(hostPath string, pkg *packages.Package) (bool, error) {
+	if pkg.MountMissingVolumes {
+		return true, nil
+	}
+	// according to docker docs, binded volumes must be provided by absolute path
+	// momn abs path are handled as docker volume names
+	// https://docs.docker.com/engine/reference/commandline/run/#mount-volume--v---read-only
+	if filepath.IsAbs(hostPath) {
+		_, err := os.Stat(hostPath)
+		if err != nil && os.IsNotExist(err) {
+			if pkg.SkipMissingVolumes {
+				return false, nil
+			}
+			return false, err
+		}
+	}
+	return true, nil
+}
+
+func appendVolumes(dockerArgs []string, pkg *packages.Package) ([]string, error) {
+	for _, volume := range pkg.Volumes {
+		// special case expanding home directory
+		if strings.HasPrefix(volume, "~/") {
+			user, err := user.Current()
+			if err != nil {
+				return nil, err
+			}
+			volume = user.HomeDir + volume[1:]
+		}
+		volume = os.ExpandEnv(volume)
+		b, err := shouldBind(strings.Split(volume, ":")[0], pkg)
+		if err != nil {
+			return nil, err
+		}
+		if b {
+			dockerArgs = append(dockerArgs, "-v")
+			dockerArgs = append(dockerArgs, volume)
+		}
+	}
+	return dockerArgs, nil
+}
 
 // Run runs a package after extracting arguments
 func Run(args []string) error {
@@ -39,17 +82,9 @@ func Run(args []string) error {
 	if terminal.IsTerminal(int(os.Stdin.Fd())) {
 		dockerArgs = append(dockerArgs, "--tty")
 	}
-	for _, volume := range pkg.Volumes {
-		// special case expanding home directory
-		if strings.HasPrefix(volume, "~/") {
-			user, err := user.Current()
-			if err != nil {
-				return err
-			}
-			volume = user.HomeDir + volume[1:]
-		}
-		dockerArgs = append(dockerArgs, "-v")
-		dockerArgs = append(dockerArgs, os.ExpandEnv(volume))
+	dockerArgs, err = appendVolumes(dockerArgs, pkg)
+	if err != nil {
+		return err
 	}
 	for _, envvar := range pkg.Environment {
 		dockerArgs = append(dockerArgs, "-e")

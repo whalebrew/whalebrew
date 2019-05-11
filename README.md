@@ -150,6 +150,14 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.keep_container_user 'true'
 
+* `io.whalebrew.config.missing_volumes`: The behaviour to handle missing files or volumes into the container.
+
+        LABEL io.whalebrew.config.skip_missing_volumes 'skip'
+
+        Possible values are
+        - 'error' to raise an error when trying to mount a non existing volume *this is the default behaviour*
+        - 'skip' to prevent binding the volume
+        - 'mount' to mount the volume anyway. This will result in docker [creating a host directory](https://docs.docker.com/engine/reference/commandline/run/#mount-volume--v---read-only)
 
 #### Using user environment variables
 

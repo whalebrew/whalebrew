@@ -8,6 +8,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func newTestPkg(label, value string) (*Package, error) {
+	return NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{
+		ContainerConfig: &container.Config{
+			Labels: map[string]string{label: value},
+		},
+	})
+}
+
+func mustNewTestPkg(t *testing.T, label, value string) *Package {
+	pkg, err := newTestPkg(label, value)
+	assert.NoErrorf(t, err, "creating a package with label '%s' and value '%s' should not raise an error", label, value)
+	return pkg
+}
+
 func TestNewPackageFromImage(t *testing.T) {
 	// with tag
 	pkg, err := NewPackageFromImage("whalebrew/foo:bar", types.ImageInspect{})
@@ -15,26 +29,27 @@ func TestNewPackageFromImage(t *testing.T) {
 	assert.Equal(t, pkg.Name, "foo")
 	assert.Equal(t, pkg.Image, "whalebrew/foo:bar")
 
-	// test labels
-	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{
-		ContainerConfig: &container.Config{
-			Labels: map[string]string{
-				"io.whalebrew.name":               "ws",
-				"io.whalebrew.config.environment": "[\"SOME_CONFIG_OPTION\"]",
-				"io.whalebrew.config.volumes":     "[\"/somesource:/somedest\"]",
-				"io.whalebrew.config.ports":       "[\"8100:8100\"]",
-				"io.whalebrew.config.networks":    "[\"host\"]",
-			},
-		},
-	})
-	assert.Nil(t, err)
-	assert.Equal(t, pkg.Name, "ws")
-	assert.Equal(t, pkg.Image, "whalebrew/whalesay")
-	assert.Equal(t, pkg.Environment, []string{"SOME_CONFIG_OPTION"})
-	assert.Equal(t, pkg.Volumes, []string{"/somesource:/somedest"})
-	assert.Equal(t, pkg.Ports, []string{"8100:8100"})
-	assert.Equal(t, pkg.Networks, []string{"host"})
+	assert.Equal(t, "ws", mustNewTestPkg(t, "io.whalebrew.name", "ws").Name)
+	assert.Equal(t, "whalebrew/whalesay", mustNewTestPkg(t, "io.whalebrew.name", "ws").Image)
+	assert.Equal(t, []string{"SOME_CONFIG_OPTION"}, mustNewTestPkg(t, "io.whalebrew.config.environment", `["SOME_CONFIG_OPTION"]`).Environment)
+	assert.Equal(t, []string{"/somesource:/somedest"}, mustNewTestPkg(t, "io.whalebrew.config.volumes", `["/somesource:/somedest"]`).Volumes)
+	assert.Equal(t, []string{"8100:8100"}, mustNewTestPkg(t, "io.whalebrew.config.ports", `["8100:8100"]`).Ports)
+	assert.Equal(t, []string{"host"}, mustNewTestPkg(t, "io.whalebrew.config.networks", `["host"]`).Networks)
 
+	assert.True(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "mount").MountMissingVolumes)
+	assert.False(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "mount").SkipMissingVolumes)
+
+	assert.False(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "skip").MountMissingVolumes)
+	assert.True(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "skip").SkipMissingVolumes)
+
+	assert.False(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "error").MountMissingVolumes)
+	assert.False(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "error").SkipMissingVolumes)
+
+	assert.False(t, mustNewTestPkg(t, "any", "ws").MountMissingVolumes)
+	assert.False(t, mustNewTestPkg(t, "any", "other").SkipMissingVolumes)
+
+	_, err = newTestPkg("io.whalebrew.config.missing_volumes", "some-other")
+	assert.Error(t, err)
 }
 
 func TestPreinstallMessage(t *testing.T) {

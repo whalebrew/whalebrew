@@ -13,14 +13,16 @@ import (
 
 // Package represents a Whalebrew package
 type Package struct {
-	Name              string   `yaml:"-"`
-	Environment       []string `yaml:"environment,omitempty"`
-	Image             string   `yaml:"image"`
-	Volumes           []string `yaml:"volumes,omitempty"`
-	Ports             []string `yaml:"ports,omitempty"`
-	Networks          []string `yaml:"networks,omitempty"`
-	WorkingDir        string   `yaml:"working_dir,omitempty"`
-	KeepContainerUser bool     `yaml:"keep_container_user,omitempty"`
+	Name                string   `yaml:"-"`
+	Environment         []string `yaml:"environment,omitempty"`
+	Image               string   `yaml:"image"`
+	Volumes             []string `yaml:"volumes,omitempty"`
+	Ports               []string `yaml:"ports,omitempty"`
+	Networks            []string `yaml:"networks,omitempty"`
+	WorkingDir          string   `yaml:"working_dir,omitempty"`
+	KeepContainerUser   bool     `yaml:"keep_container_user,omitempty"`
+	SkipMissingVolumes  bool     `yaml:"skip_missing_volumes,omitempty"`
+	MountMissingVolumes bool     `yaml:"mount_missing_volumes,omitempty"`
 }
 
 // NewPackageFromImage creates a package from a given image name,
@@ -82,6 +84,22 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 			if v, ok := labels["io.whalebrew.config.keep_container_user"]; ok {
 				if err := yaml.Unmarshal([]byte(v), &pkg.KeepContainerUser); err != nil {
 					return pkg, err
+				}
+			}
+
+			if v, ok := labels["io.whalebrew.config.missing_volumes"]; ok {
+				missingVolumes := "error"
+				if err := yaml.Unmarshal([]byte(v), &missingVolumes); err != nil {
+					return pkg, err
+				}
+				switch missingVolumes {
+				case "error", "":
+				case "skip":
+					pkg.SkipMissingVolumes = true
+				case "mount":
+					pkg.MountMissingVolumes = true
+				default:
+					return pkg, fmt.Errorf("unexpected io.whalebrew.config.missing_volumes value: %s expecting error, skip or mount", missingVolumes)
 				}
 			}
 		}
