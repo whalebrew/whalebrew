@@ -159,6 +159,8 @@ There are some labels you can use to configure how Whalebrew installs your image
         - 'skip' to prevent binding the volume
         - 'mount' to mount the volume anyway. This will result in docker [creating a host directory](https://docs.docker.com/engine/reference/commandline/run/#mount-volume--v---read-only)
 
+* `io.whalebrew.required_version`: Specifies the minimum whalebrew version to required to run the package. Examples: `<1.0.0`, `>0.1.0`, `>0.1.0 <1.0.0`
+
 #### Using user environment variables
 
 The labels `io.whalebrew.config.working_dir`, `io.whalebrew.config.volumes` and `io.whalebrew.config.environment` are expanded with user environment variables when the container is launched.

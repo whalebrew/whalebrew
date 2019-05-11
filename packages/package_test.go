@@ -50,6 +50,11 @@ func TestNewPackageFromImage(t *testing.T) {
 
 	_, err = newTestPkg("io.whalebrew.config.missing_volumes", "some-other")
 	assert.Error(t, err)
+
+	_, err = newTestPkg("io.whalebrew.required_version", "some-other")
+	assert.Error(t, err)
+	_, err = newTestPkg("io.whalebrew.required_version", ">0.0.1")
+	assert.NoError(t, err)
 }
 
 func TestPreinstallMessage(t *testing.T) {
@@ -76,4 +81,15 @@ func TestPreinstallMessage(t *testing.T) {
 			"* Read and write to the file or directory \"/etc/passwd\"\n"+
 			"* Read the file or directory \"/etc/readonly\"\n",
 	)
+}
+
+func TestLoadPackageFromFile(t *testing.T) {
+	_, err := LoadPackageFromPath("resources/aws")
+	assert.NoError(t, err)
+	_, err = LoadPackageFromPath("resources/aws-incompatible")
+	assert.Error(t, err)
+	_, err = LoadPackageFromPath("resources/syntax-error")
+	assert.Error(t, err)
+	_, err = LoadPackageFromPath("resources/file-that-does-not-exist")
+	assert.Error(t, err)
 }
