@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/whalebrew/whalebrew/version"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"gopkg.in/yaml.v2"
@@ -23,6 +25,7 @@ type Package struct {
 	KeepContainerUser   bool     `yaml:"keep_container_user,omitempty"`
 	SkipMissingVolumes  bool     `yaml:"skip_missing_volumes,omitempty"`
 	MountMissingVolumes bool     `yaml:"mount_missing_volumes,omitempty"`
+	RequiredVersion     string   `yaml:"required_version,omitempty"`
 }
 
 // NewPackageFromImage creates a package from a given image name,
@@ -51,6 +54,13 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 
 			if name, ok := labels["io.whalebrew.name"]; ok {
 				pkg.Name = name
+			}
+
+			if requiredVersion, ok := labels["io.whalebrew.required_version"]; ok {
+				if err := version.CheckCompatible(requiredVersion); err != nil {
+					return nil, err
+				}
+				pkg.RequiredVersion = requiredVersion
 			}
 
 			if workingDir, ok := labels["io.whalebrew.config.working_dir"]; ok {
@@ -119,6 +129,11 @@ func LoadPackageFromPath(path string) (*Package, error) {
 	}
 	if err = yaml.Unmarshal(d, pkg); err != nil {
 		return pkg, err
+	}
+	if pkg.RequiredVersion != "" {
+		if err := version.CheckCompatible(pkg.RequiredVersion); err != nil {
+			return pkg, err
+		}
 	}
 	return pkg, nil
 }

@@ -1,0 +1,5 @@
+#!/usr/bin/env whalebrew
+image: 
+- whalebrew/awscli
+volumes:
+- ~/.aws:/.aws
