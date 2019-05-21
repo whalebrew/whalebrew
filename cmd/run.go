@@ -61,6 +61,7 @@ func Run(args []string) error {
 	if err != nil {
 		return err
 	}
+	args = args[2:]
 	dockerPath, err := exec.LookPath("docker")
 	if err != nil {
 		return err
@@ -78,6 +79,14 @@ func Run(args []string) error {
 		"--workdir", os.ExpandEnv(pkg.WorkingDir),
 		"-v", fmt.Sprintf("%s:%s", cwd, os.ExpandEnv(pkg.WorkingDir)),
 		"--init",
+	}
+	if pkg.Entrypoint != nil {
+		if len(pkg.Entrypoint) > 0 {
+			dockerArgs = append(dockerArgs, "--entrypoint", pkg.Entrypoint[0])
+			if len(pkg.Entrypoint) > 1 {
+				args = append(pkg.Entrypoint[1:], args...)
+			}
+		}
 	}
 	if terminal.IsTerminal(int(os.Stdin.Fd())) {
 		dockerArgs = append(dockerArgs, "--tty")
@@ -109,7 +118,7 @@ func Run(args []string) error {
 	}
 
 	dockerArgs = append(dockerArgs, pkg.Image)
-	dockerArgs = append(dockerArgs, args[2:]...)
+	dockerArgs = append(dockerArgs, args...)
 
 	return syscall.Exec(dockerPath, dockerArgs, os.Environ())
 }
