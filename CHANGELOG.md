@@ -1,5 +1,21 @@
 # Change log
 
+## 0.2.0 - 2019-06-10
+### Added
+* Use the --init docker flag when running the image, allowing signal management inside the image
+* Support for custom hooks for before and after installing or uninstalling a package
+* Freeze dependencies with go modules
+* Add support to override an image entrypoint
+* Add a filter to specify the version of whalebrew required in a package
+* Allow customizing the behaviour when volumes are missing
+
+### Fixed
+* Docker image build
+* Updated docker library using outdated features
+
+### Removed
+* internal `run` command is not exposed as a command any longer
+
 ## 0.1.0 - 2017-03-23
 ### Added
 * A label for setting the working directory inside the container.
