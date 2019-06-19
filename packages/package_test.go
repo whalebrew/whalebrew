@@ -22,6 +22,15 @@ func mustNewTestPkg(t *testing.T, label, value string) *Package {
 	return pkg
 }
 
+func mustNewTestPackageFromImage(t *testing.T, imageName string) *Package {
+	pkg, err := NewPackageFromImage(imageName, types.ImageInspect{
+		ContainerConfig: &container.Config{
+		},
+	})
+	assert.NoErrorf(t, err, "creating a package for image '%s' should not raise an error", imageName)
+	return pkg
+}
+
 func TestNewPackageFromImage(t *testing.T) {
 	// with tag
 	pkg, err := NewPackageFromImage("whalebrew/foo:bar", types.ImageInspect{})
@@ -47,6 +56,9 @@ func TestNewPackageFromImage(t *testing.T) {
 
 	assert.False(t, mustNewTestPkg(t, "any", "ws").MountMissingVolumes)
 	assert.False(t, mustNewTestPkg(t, "any", "other").SkipMissingVolumes)
+
+	assert.Equal(t, "example", mustNewTestPackageFromImage(t, "quay.io/some/registry/example").Name)
+	assert.Equal(t, "quay.io/some/registry/example", mustNewTestPackageFromImage(t, "quay.io/some/registry/example").Image)
 
 	_, err = newTestPkg("io.whalebrew.config.missing_volumes", "some-other")
 	assert.Error(t, err)
