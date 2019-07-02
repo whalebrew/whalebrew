@@ -33,9 +33,8 @@ type Package struct {
 // inspecting the image to fetch the package configuration
 func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Package, error) {
 	name := image
-	if strings.Contains(name, "/") {
-		name = strings.SplitN(name, "/", 2)[1]
-	}
+	splittedName := strings.Split(name, "/")
+	name = splittedName[len(splittedName)-1]
 	if strings.Contains(name, ":") {
 		name = strings.SplitN(name, ":", 2)[0]
 	}
