@@ -1,5 +1,9 @@
 # Change log
 
+## 0.2.1 - 2019-07-08
+### Fixed
+* Whalebrew install not working when registry name was provided
+
 ## 0.2.0 - 2019-06-10
 ### Added
 * Use the --init docker flag when running the image, allowing signal management inside the image
