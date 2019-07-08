@@ -1,5 +1,9 @@
 # Change log
 
+## 0.2.2 - 2019-07-08
+### Fixed
+* Whalebrew releases should now be deployed by travis
+
 ## 0.2.1 - 2019-07-08
 ### Fixed
 * Whalebrew install not working when registry name was provided
