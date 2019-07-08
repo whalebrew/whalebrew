@@ -14,6 +14,7 @@ deploy:
   provider: releases
   api_key:
     secure: "QUG18EkuFI9pp7O7sISqy7Oww4cNqUO0M8Dks78LLXaHfRjSqHwcu6qNDNeg0gPHLuK58roVS3kNb6wbwotoum8FzwuuATM27/KsOS4E6dtl0bTXVzklAMJsHwUqNJ5hdz0Su8wtwzHGQ1hXWWAx42VmcMNSd7EsBnBm7lrfegJlqjRBfKPEJiFjOaNILWQdElnsp/nGuYfe6A7c4mpRE0iXQ3GAGX8GPYrmwttO5IcWTedbw9mPFiFhfdOPKtYThXYqYf+gfquLvzIXncEOlpLjylU91OzB32DR5IAV9HmMsuKjwR94uBs4Tbxi/XIFg5KNTYI7D7sjq4W//N79/xZ447V8ju9m9dOYDKeoqKub4QB1D8kR23jDGpGDG7ucN/BIibIGG4TRdADqdXo1jiQB/qapoSmfUM8wR+WFpumftLH/+3VkRXFHHQFLakh/giK4qZKf3JJbFXp2NPDiLDEVgelsD4DvESJw0SYIiLs5CnCQfT2BaLpjeWsqz1UN6Qw94dJcF4uR+NLIXDDL9dAglgXj458BJv4o8Ps1aQrG1iRjFRJDSwbWJ6Db4TVhyMY8S1HRNUx6D3vwBTGtFRX/+XGVUiWXTqa/kouQmeubWY+Yr3csglBdIyzoaLrKwihnYL2Z6kSY7e+GSLujYk507UvDc7SNYq/fSa8YpAs="
+  skip_cleanup: true
   file:
   - "build/whalebrew-Darwin-x86_64"
   - "build/whalebrew-Linux-x86_64"
