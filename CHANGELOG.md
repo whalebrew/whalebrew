@@ -1,5 +1,9 @@
 # Change log
 
+## 0.2.3 - 2019-07-08
+### Fixed
+* Invalid version number
+
 ## 0.2.2 - 2019-07-08
 ### Fixed
 * Whalebrew releases should now be deployed by travis
