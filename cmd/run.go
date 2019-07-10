@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/pflag"
 	"github.com/whalebrew/whalebrew/packages"
 	"github.com/whalebrew/whalebrew/run"
 	"golang.org/x/crypto/ssh/terminal"
@@ -58,6 +59,42 @@ func getVolumes(pkg *packages.Package) ([]string, error) {
 	return volumes, nil
 }
 
+func parseRuntimeVolumes(args []string, pkg *packages.Package) []string {
+	volumes := []string{}
+	if pkg == nil || pkg.PathArguments == nil {
+		return volumes
+	}
+	flags := pflag.NewFlagSet("volume-binder", pflag.ContinueOnError)
+	flags.ParseErrorsWhitelist.UnknownFlags = true
+	volumesArgs := []*[]string{}
+	for _, name := range pkg.PathArguments {
+		if len(name) == 1 {
+			// Allow shorthand grouping like -cf
+			volumesArgs = append(volumesArgs, flags.StringArrayP(name, name, []string{}, ""))
+		} else {
+			volumesArgs = append(volumesArgs, flags.StringArray(name, []string{}, ""))
+		}
+	}
+	err := flags.Parse(args)
+	if err != nil {
+		return volumes
+	}
+	for _, vs := range volumesArgs {
+		for _, volume := range *vs {
+			switch volume {
+			case "-", "/dev/stdout", "/dev/stderr", "/dev/stdin":
+				// standard input outputs are already handled by docker run
+			default:
+				volume, err := filepath.Abs(volume)
+				if err == nil {
+					volumes = append(volumes, fmt.Sprintf("%s:%s", volume, volume))
+				}
+			}
+		}
+	}
+	return volumes
+}
+
 func expandEnvVars(vars []string) []string {
 	r := []string{}
 	for _, v := range vars {
@@ -97,7 +134,7 @@ func Run(runner run.Runner, args []string) error {
 		IsTTYOpened: terminal.IsTerminal(int(os.Stdin.Fd())),
 		Args:        args,
 		Environment: expandEnvVars(pkg.Environment),
-		Volumes:     volumes,
+		Volumes:     append(volumes, parseRuntimeVolumes(args, pkg)...),
 	})
 }
 

@@ -31,6 +31,7 @@ type Package struct {
 	SkipMissingVolumes  bool     `yaml:"skip_missing_volumes,omitempty"`
 	MountMissingVolumes bool     `yaml:"mount_missing_volumes,omitempty"`
 	RequiredVersion     string   `yaml:"required_version,omitempty"`
+	PathArguments       []string `yaml:"path_arguments,omitempty"`
 }
 
 // NewPackageFromImage creates a package from a given image name,
@@ -80,6 +81,16 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 			if volumesStr, ok := labels["io.whalebrew.config.volumes"]; ok {
 				if err := yaml.Unmarshal([]byte(volumesStr), &pkg.Volumes); err != nil {
 					return pkg, err
+				}
+			}
+
+			if pathArgs, ok := labels["io.whalebrew.config.volumes_from_args"]; ok {
+				args := []string{}
+				if err := yaml.Unmarshal([]byte(pathArgs), &args); err != nil {
+					return pkg, err
+				}
+				for _, arg := range args {
+					pkg.PathArguments = append(pkg.PathArguments, strings.TrimLeft(arg, "-"))
 				}
 			}
 
