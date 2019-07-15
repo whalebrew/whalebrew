@@ -1,0 +1,95 @@
+#!/bin/bash
+
+editor=$(git config core.editor)
+if [ "${editor}" = "" ]; then
+    editor=vim
+fi
+
+set -euo pipefail
+
+git fetch origin
+
+commit=$(git rev-parse origin/master)
+latest=$(git describe --tags --abbrev=0 ${commit})
+
+next=$(echo ${latest} | awk -F. '{print $1"."$2"."$3+1}')
+tagdate=$(date -u +%Y-%m-%d)
+
+worktree=$(mktemp -d "${TMPDIR:-/tmp/}worktree.XXXXXXXXXXXX")
+
+git worktree add -b auto/release/${next} ${worktree} ${commit}
+
+atexit () {
+    git worktree remove -f ${worktree}
+    git branch -D auto/release/${next}
+}
+trap atexit EXIT
+
+tagmessage=${worktree}/.tagmessage
+touch ${worktree}/.gitconfig
+
+export GIT_CONFIG=${worktree}/.gitconfig
+git config core.commentchar ±
+
+(
+    cd ${worktree}
+
+
+    echo "## ${next} - ${tagdate}" > $tagmessage
+
+    git log --oneline ${latest}...origin/master --pretty=format:'* %s' -s >> $tagmessage
+    echo >> $tagmessage
+
+    cat >> $tagmessage <<EOF
+
+± Please enter the release message for your changes. Lines starting
+± with '±' will be ignored, and an empty message aborts the release.
+EOF
+
+    ${editor} $tagmessage
+
+    message="$(cat $tagmessage | grep -v '^±' || true)"
+    if [ $(echo $message | wc -w) = 0 ]; then
+        echo "Aborting commit due to empty release message."
+        exit 1
+    fi
+
+    cat > CHANGELOG <<EOF
+# Change log
+
+${message}
+
+$(tail -n +2 CHANGELOG.md)
+EOF
+
+    mv CHANGELOG CHANGELOG.md
+
+    sed -i.old 's:const Version.*:const Version = "'${next}'":' version/version.go
+    sed -i.old 's,https://github.com/whalebrew/whalebrew/releases/download/.*/whalebrew-,https://github.com/whalebrew/whalebrew/releases/download/'${next}'/whalebrew-,' README.md
+
+    git add CHANGELOG.md version/version.go README.md
+
+    git commit -m "Ship ${next}" -m "${message}"
+    # git tag does not consider comment char
+    git tag -a ${next} -m ${next} -m "$(echo "$message" | sed 's:^: :')"
+
+    echo "About to release ${next}:"
+
+    git show ${next}
+
+    read -p "Is this OK? (y/N)" yn
+    yn=$(echo ${yn} | tr '[A-Z]' '[a-z]')
+
+    case $yn in
+        [y]* )
+        ;;
+        * )
+            echo "aborting release"
+            git tag -d ${next}
+            exit 1
+        ;;
+    esac
+
+    git push --follow-tags origin HEAD:master
+
+)
