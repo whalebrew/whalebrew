@@ -1,14 +1,22 @@
 package cmd
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
-	"sort"
+	"net/http"
+	"net/url"
 
-	"github.com/whalebrew/whalebrew/client"
-	"github.com/docker/docker/api/types"
 	"github.com/spf13/cobra"
 )
+
+type imageResult struct {
+	User string `json:"user"`
+	Name string `json:"name"`
+}
+
+type searchAnswer struct {
+	Results []imageResult `json:"results"`
+}
 
 func init() {
 	RootCmd.AddCommand(searchCommand)
@@ -23,32 +31,31 @@ var searchCommand = &cobra.Command{
 			return fmt.Errorf("Only one search term is supported")
 		}
 
-		cli, err := client.NewClient()
+		params := url.Values{}
+		params.Set("page_size", "100")
+		params.Set("ordering", "last_updated")
+		if len(args) > 0 {
+			params.Set("name", args[0])
+		}
+		u := url.URL{
+			Scheme:   "https",
+			Host:     "hub.docker.com",
+			Path:     "/v2/repositories/whalebrew/",
+			RawQuery: params.Encode(),
+		}
+
+		r, err := http.Get(u.String())
 		if err != nil {
 			return err
 		}
-
-		term := "whalebrew/"
-		if len(args) == 1 {
-			term = term + args[0]
-		}
-
-		options := types.ImageSearchOptions{Limit: 100}
-		results, err := cli.ImageSearch(context.Background(), term, options)
+		answer := searchAnswer{}
+		err = json.NewDecoder(r.Body).Decode(&answer)
 		if err != nil {
 			return err
 		}
-
-		names := make([]string, len(results))
-		for i, result := range results {
-			names[i] = result.Name
+		for _, image := range answer.Results {
+			fmt.Printf("%s/%s\n", image.User, image.Name)
 		}
-		sort.Strings(names)
-
-		for _, name := range names {
-			fmt.Println(name)
-		}
-
 		return nil
 	},
 }
