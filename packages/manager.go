@@ -22,8 +22,9 @@ func NewPackageManager(path string) *PackageManager {
 	return &PackageManager{InstallPath: path}
 }
 
-func (pm *PackageManager) HasInstallation(pkg_name string) (bool) {
-	packagePath := path.Join(pm.InstallPath, pkg_name)
+// Looks at installation path for existing installation of pkgName
+func (pm *PackageManager) HasInstallation(pkgName string) bool {
+	packagePath := path.Join(pm.InstallPath, pkgName)
 
 	if _, err := os.Stat(packagePath); err == nil {
 		return true
