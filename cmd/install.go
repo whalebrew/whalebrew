@@ -78,10 +78,10 @@ var installCommand = &cobra.Command{
 		installPath := viper.GetString("install_path")
 		pm := packages.NewPackageManager(installPath)
 
-		if pm.HasInstallation(pkg.Name) {
+		if !forceInstall && pm.HasInstallation(pkg.Name) {
 			installed, err := pm.Load(pkg.Name)
 			if err != nil {
-				return fmt.Errorf("looks like there's already an installation of %s, but there was an error loading the details of the pkg err: %s", pkg.Name, err.Error())
+				return fmt.Errorf("there's already an installation of %s, but there was an error loading the package, err: %s", pkg.Name, err.Error())
 			}
 
 			fmt.Printf("Looks like you already have %s installed as %s.\n", installed.Image, path.Join(installPath, pkg.Name))
