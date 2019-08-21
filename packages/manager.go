@@ -164,3 +164,4 @@ func IsPackage(path string) (bool, error) {
 
 	return false, nil
 }
+

@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/whalebrew/whalebrew/version"
+	"github.com/whalebrew/whalebrew/client"
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"gopkg.in/yaml.v2"
 )
 
@@ -65,6 +67,8 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 
 			if workingDir, ok := labels["io.whalebrew.config.working_dir"]; ok {
 				pkg.WorkingDir = workingDir
+			} else {
+				pkg.WorkingDir = "/workdir"
 			}
 
 			if env, ok := labels["io.whalebrew.config.environment"]; ok {
@@ -130,20 +134,22 @@ func LoadPackageFromPath(path string) (*Package, error) {
 	if err = yaml.Unmarshal(d, pkg); err != nil {
 		return pkg, err
 	}
+
+	if pkg.Name == "" {
+		pkg.Name = filepath.Base(path)
+	}
+
 	if pkg.RequiredVersion != "" {
 		if err := version.CheckCompatible(pkg.RequiredVersion); err != nil {
 			return pkg, err
 		}
 	}
+
 	return pkg, nil
 }
 
 // ImageInspect inspects the image associated with this package
-func (pkg *Package) ImageInspect() (*types.ImageInspect, error) {
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		return nil, err
-	}
+func (pkg *Package) ImageInspect(cli *client.Client) (*types.ImageInspect, error) {
 	img, _, err := cli.ImageInspectWithRaw(context.Background(), pkg.Image)
 	return &img, err
 }
@@ -182,4 +188,18 @@ func (pkg *Package) PreinstallMessage() string {
 	}
 
 	return strings.Join(out, "\n") + "\n"
+}
+
+func (pkg *Package) HasChanges(ctx context.Context, cli *client.Client) (bool, error) {
+	imageInspect, err := cli.ImageInspect(ctx, pkg.Image)
+	if err != nil {
+		return false, err
+	}
+
+	newPkg, err := NewPackageFromImage(pkg.Image, *imageInspect)
+	if err != nil {
+		return false, err
+	}
+
+	return cmp.Equal(newPkg, pkg), nil
 }

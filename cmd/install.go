@@ -3,12 +3,9 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
-	"os/exec"
 	"path"
 
 	"github.com/Songmu/prompter"
-	dockerClient "github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/whalebrew/whalebrew/client"
@@ -47,27 +44,19 @@ var installCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		imageInspect, _, err := cli.ImageInspectWithRaw(context.Background(), imageName)
+
+		ctx := context.Background()
+
+		imageInspect, err := cli.ImageInspect(ctx, imageName)
 		if err != nil {
-			if dockerClient.IsErrNotFound(err) {
-				fmt.Printf("Unable to find image '%s' locally\n", imageName)
-				if err = pullImage(imageName); err != nil {
-					return err
-				}
-				// retry
-				imageInspect, _, err = cli.ImageInspectWithRaw(context.Background(), imageName)
-				if err != nil {
-					return err
-				}
-			} else {
-				return fmt.Errorf("failed to inspect docker image: %v", err)
-			}
+			return err
 		}
+		
 		if imageInspect.Config.Entrypoint == nil {
 			return fmt.Errorf("the image '%s' is not compatible with Whalebrew: it does not have an entrypoint", imageName)
 		}
 
-		pkg, err := packages.NewPackageFromImage(imageName, imageInspect)
+		pkg, err := packages.NewPackageFromImage(imageName, *imageInspect)
 		if err != nil {
 			return err
 		}
@@ -75,26 +64,39 @@ var installCommand = &cobra.Command{
 			pkg.Name = customPackageName
 		}
 
+		if customEntrypoint != "" {
+			pkg.Entrypoint = []string{customEntrypoint}
+		}
+
 		installPath := viper.GetString("install_path")
 		pm := packages.NewPackageManager(installPath)
 
-		if !forceInstall && pm.HasInstallation(pkg.Name) {
-			installed, err := pm.Load(pkg.Name)
-			if err != nil {
+		var installed *packages.Package
+		hasInstall := pm.HasInstallation(pkg.Name)
+		if hasInstall {
+			installed, err = pm.Load(pkg.Name)
+			if !forceInstall && err != nil {
 				return fmt.Errorf("there's already an installation of %s, but there was an error loading the package, err: %s", pkg.Name, err.Error())
 			}
 
 			fmt.Printf("Looks like you already have %s installed as %s.\n", installed.Image, path.Join(installPath, pkg.Name))
+
 			if !assumeYes {
-				if !prompter.YN(fmt.Sprintf("Would you like to change it to %s", pkg.Image), true) {
+				if equal, err := installed.HasChanges(ctx, cli); err != nil {
+					return err
+				} else if !equal {
+					if !prompter.YN("There are differences between the installed version of the package and the image.\nAre you sure you would like to overwrite these changes?", false) {
+						return fmt.Errorf("Not installing package")
+					}
+				} else if pkg.Image == installed.Image {
+					return fmt.Errorf("%s would generate the same package, nothing to do\n", pkg.Image)
+				}
+
+				if pkg.Image != installed.Image && !prompter.YN(fmt.Sprintf("Would you like to change %s to %s?", installed.Image, pkg.Image), true) {
 					return fmt.Errorf("Not installing package")
 				}
 			}
 			forceInstall = true
-		}
-
-		if customEntrypoint != "" {
-			pkg.Entrypoint = []string{customEntrypoint}
 		}
 
 		preinstallMessage := pkg.PreinstallMessage()
@@ -124,14 +126,12 @@ var installCommand = &cobra.Command{
 			return fmt.Errorf("post install script failed: %s", err.Error())
 		}
 
-		fmt.Printf("🐳  Installed %s to %s\n", imageName, path.Join(pm.InstallPath, pkg.Name))
+		if hasInstall {
+			fmt.Printf("🐳  Modified %s to %s\n", installed.Image, imageName)
+		} else {
+			fmt.Printf("🐳  Installed %s to %s\n", imageName, path.Join(pm.InstallPath, pkg.Name))
+		}
 		return nil
 	},
 }
 
-func pullImage(image string) error {
-	c := exec.Command("docker", "pull", image)
-	c.Stdout = os.Stdout
-	c.Stderr = os.Stderr
-	return c.Run()
-}
