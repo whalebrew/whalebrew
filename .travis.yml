@@ -8,8 +8,10 @@ install:
 script:
 - FIXED=$(goimports ./... | wc -l); if [ $FIXED -gt 0 ]; then echo "goimports - $FIXED file(s) not formatted correctly, please run goimports to fix this." && exit 1; fi
 - golint ./...
-- GO111MODULE=on go test -race -coverprofile=coverage.txt -covermode=atomic ./...
-- GO111MODULE=on script/build
+- export GO111MODULE=on
+- travis_retry go mod download
+- go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+- script/build
 - curl -s https://codecov.io/bash | bash
 deploy:
   provider: releases
