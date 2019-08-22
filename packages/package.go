@@ -15,6 +15,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const DefaultWorkingDir = "/workdir"
+
 // Package represents a Whalebrew package
 type Package struct {
 	Name                string   `yaml:"-"`
@@ -67,8 +69,6 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 
 			if workingDir, ok := labels["io.whalebrew.config.working_dir"]; ok {
 				pkg.WorkingDir = workingDir
-			} else {
-				pkg.WorkingDir = "/workdir"
 			}
 
 			if env, ok := labels["io.whalebrew.config.environment"]; ok {
@@ -129,7 +129,7 @@ func LoadPackageFromPath(path string) (*Package, error) {
 		return nil, err
 	}
 	pkg := &Package{
-		WorkingDir: "/workdir",
+		WorkingDir: DefaultWorkingDir,
 	}
 	if err = yaml.Unmarshal(d, pkg); err != nil {
 		return pkg, err
@@ -199,6 +199,10 @@ func (pkg *Package) HasChanges(ctx context.Context, cli *client.Client) (bool, e
 	newPkg, err := NewPackageFromImage(pkg.Image, *imageInspect)
 	if err != nil {
 		return false, err
+	}
+
+	if newPkg.WorkingDir == "" {
+		newPkg.WorkingDir = DefaultWorkingDir
 	}
 
 	return cmp.Equal(newPkg, pkg), nil
