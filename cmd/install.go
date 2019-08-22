@@ -89,7 +89,8 @@ var installCommand = &cobra.Command{
 						return fmt.Errorf("Not installing package")
 					}
 				} else if pkg.Image == installed.Image {
-					return fmt.Errorf("%s would generate the same package, nothing to do\n", pkg.Image)
+					fmt.Printf("%s would generate the same package, nothing to do\n", pkg.Image)
+					return nil
 				}
 
 				if pkg.Image != installed.Image && !prompter.YN(fmt.Sprintf("Would you like to change %s to %s?", installed.Image, pkg.Image), true) {
