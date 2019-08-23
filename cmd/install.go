@@ -82,10 +82,13 @@ var installCommand = &cobra.Command{
 			fmt.Printf("Looks like you already have %s installed as %s.\n", installed.Image, path.Join(installPath, pkg.Name))
 
 			if !assumeYes {
-				if equal, err := installed.HasChanges(ctx, cli); err != nil {
+				if changed, diff, err := installed.HasChanges(ctx, cli); err != nil {
 					return err
-				} else if !equal {
-					if !prompter.YN("There are differences between the installed version of the package and the image.\nAre you sure you would like to overwrite these changes?", false) {
+				} else if changed {
+					fmt.Println("There are differences between the installed version of the package and the image:")
+					fmt.Println(diff)
+
+					if !prompter.YN("Are you sure you would like to overwrite these changes?", false) {
 						return fmt.Errorf("Not installing package")
 					}
 				} else if pkg.Image == installed.Image {
