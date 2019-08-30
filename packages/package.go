@@ -130,13 +130,11 @@ func LoadPackageFromPath(path string) (*Package, error) {
 	}
 	pkg := &Package{
 		WorkingDir: DefaultWorkingDir,
-	}
-	if err = yaml.Unmarshal(d, pkg); err != nil {
-		return pkg, err
+		Name:       filepath.Base(path),
 	}
 
-	if pkg.Name == "" {
-		pkg.Name = filepath.Base(path)
+	if err = yaml.Unmarshal(d, pkg); err != nil {
+		return pkg, err
 	}
 
 	if pkg.RequiredVersion != "" {

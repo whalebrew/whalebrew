@@ -131,7 +131,7 @@ var installCommand = &cobra.Command{
 		}
 
 		if hasInstall {
-			fmt.Printf("🐳  Modified %s to %s\n", installed.Image, imageName)
+			fmt.Printf("🐳  Modified %s to use %s\n", path.Join(pm.InstallPath, pkg.Name), imageName)
 		} else {
 			fmt.Printf("🐳  Installed %s to %s\n", imageName, path.Join(pm.InstallPath, pkg.Name))
 		}
