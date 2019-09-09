@@ -103,7 +103,7 @@ var installCommand = &cobra.Command{
 			forceInstall = true
 		}
 
-		preinstallMessage := pkg.PreinstallMessage()
+		preinstallMessage := pkg.PreinstallMessage(installed)
 		if preinstallMessage != "" {
 			fmt.Println(preinstallMessage)
 			if !assumeYes {
