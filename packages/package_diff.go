@@ -433,7 +433,7 @@ func (r *PermissionChangeReporter) String() string {
 					fmt.Fprintf(&removals, "%s\n", changeReporter(change))
 				case Modification:
 					if !wroteHeader[2] {
-						fmt.Fprint(&modifications, "Updating this package will modify some its current permissions\n\n")
+						fmt.Fprint(&modifications, "Updating this package will modify some of its current permissions\n\n")
 						wroteHeader[2] = true
 					}
 					fmt.Fprintf(&modifications, "%s\n", changeReporter(change))
