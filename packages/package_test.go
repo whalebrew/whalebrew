@@ -71,7 +71,7 @@ func TestNewPackageFromImage(t *testing.T) {
 
 func TestPreinstallMessage(t *testing.T) {
 	pkg := &Package{}
-	assert.Equal(t, pkg.PreinstallMessage(), "")
+	assert.Equal(t, "", pkg.PreinstallMessage(nil))
 
 	pkg = &Package{
 		Environment: []string{"AWS_ACCESS_KEY"},
@@ -84,7 +84,7 @@ func TestPreinstallMessage(t *testing.T) {
 			"/etc/readonly:/readonly:ro",
 		},
 	}
-	assert.Equal(t, pkg.PreinstallMessage(),
+	assert.Equal(t,
 		"This package needs additional access to your system. It wants to:\n"+
 			"\n"+
 			"* Read the environment variable AWS_ACCESS_KEY\n"+
@@ -92,7 +92,7 @@ func TestPreinstallMessage(t *testing.T) {
 			"* Listen on UDP port 81\n"+
 			"* Read and write to the file or directory \"/etc/passwd\"\n"+
 			"* Read the file or directory \"/etc/readonly\"\n",
-	)
+		pkg.PreinstallMessage(nil))
 }
 
 func TestLoadPackageFromFile(t *testing.T) {

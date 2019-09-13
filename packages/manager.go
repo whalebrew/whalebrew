@@ -22,6 +22,17 @@ func NewPackageManager(path string) *PackageManager {
 	return &PackageManager{InstallPath: path}
 }
 
+// Looks at installation path for existing installation of pkgName
+func (pm *PackageManager) HasInstallation(pkgName string) bool {
+	packagePath := path.Join(pm.InstallPath, pkgName)
+
+	if _, err := os.Stat(packagePath); err == nil {
+		return true
+	}
+
+	return false
+}
+
 // Install installs a package
 func (pm *PackageManager) Install(pkg *Package) error {
 	d, err := yaml.Marshal(&pkg)
@@ -153,3 +164,4 @@ func IsPackage(path string) (bool, error) {
 
 	return false, nil
 }
+

@@ -4,14 +4,18 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/whalebrew/whalebrew/client"
 	"github.com/whalebrew/whalebrew/version"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"gopkg.in/yaml.v2"
 )
+
+const DefaultWorkingDir = "/workdir"
 
 // Package represents a Whalebrew package
 type Package struct {
@@ -125,61 +129,55 @@ func LoadPackageFromPath(path string) (*Package, error) {
 		return nil, err
 	}
 	pkg := &Package{
-		WorkingDir: "/workdir",
+		WorkingDir: DefaultWorkingDir,
+		Name:       filepath.Base(path),
 	}
+
 	if err = yaml.Unmarshal(d, pkg); err != nil {
 		return pkg, err
 	}
+
 	if pkg.RequiredVersion != "" {
 		if err := version.CheckCompatible(pkg.RequiredVersion); err != nil {
 			return pkg, err
 		}
 	}
+
 	return pkg, nil
 }
 
-// ImageInspect inspects the image associated with this package
-func (pkg *Package) ImageInspect() (*types.ImageInspect, error) {
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		return nil, err
+// PreinstallMessage returns the preinstall message for the package
+func (pkg *Package) PreinstallMessage(prevInstall *Package) string {
+	var permissionReporter *PermissionChangeReporter
+	if prevInstall == nil {
+		permissionReporter = NewPermissionChangeReporter(true)
+		cmp.Equal(&Package{}, pkg, cmp.Reporter(permissionReporter))
+	} else {
+		permissionReporter = NewPermissionChangeReporter(false)
+		cmp.Equal(prevInstall, pkg, cmp.Reporter(permissionReporter))
 	}
-	img, _, err := cli.ImageInspectWithRaw(context.Background(), pkg.Image)
-	return &img, err
+
+	return permissionReporter.String()
 }
 
-// PreinstallMessage returns the preinstall message for the package
-func (pkg *Package) PreinstallMessage() string {
-	if len(pkg.Environment) == 0 && len(pkg.Volumes) == 0 && len(pkg.Ports) == 0 {
-		return ""
+func (pkg *Package) HasChanges(ctx context.Context, cli *client.Client) (bool, string, error) {
+	imageInspect, err := cli.ImageInspect(ctx, pkg.Image)
+	if err != nil {
+		return false, "", err
 	}
 
-	out := []string{"This package needs additional access to your system. It wants to:", ""}
-	for _, env := range pkg.Environment {
-		out = append(out, fmt.Sprintf("* Read the environment variable %s", env))
+	newPkg, err := NewPackageFromImage(pkg.Image, *imageInspect)
+	if err != nil {
+		return false, "", err
 	}
 
-	if len(pkg.Ports) > 0 {
-		for _, port := range pkg.Ports {
-			// no support for interfaces (e.g. 127.0.0.1:80:80)
-			portNumber := strings.Split(port, ":")[0]
-			proto := "TCP"
-			if strings.HasSuffix(port, "udp") {
-				proto = "UDP"
-			}
-			out = append(out, fmt.Sprintf("* Listen on %s port %s", proto, portNumber))
-		}
+	if newPkg.WorkingDir == "" {
+		newPkg.WorkingDir = DefaultWorkingDir
 	}
 
-	for _, vol := range pkg.Volumes {
-		if len(strings.Split(vol, ":")) > 1 {
-			text := "* Read and write to the file or directory %q"
-			if strings.HasSuffix(vol, "ro") {
-				text = "* Read the file or directory %q"
-			}
-			out = append(out, fmt.Sprintf(text, strings.Split(vol, ":")[0]))
-		}
-	}
+	reporter := NewDiffReporter()
 
-	return strings.Join(out, "\n") + "\n"
+	equal := cmp.Equal(newPkg, pkg, cmp.Reporter(reporter))
+
+	return !equal, reporter.String(), nil
 }
