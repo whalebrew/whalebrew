@@ -51,7 +51,7 @@ var installCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		
+
 		if imageInspect.Config.Entrypoint == nil {
 			return fmt.Errorf("the image '%s' is not compatible with Whalebrew: it does not have an entrypoint", imageName)
 		}
@@ -138,4 +138,3 @@ var installCommand = &cobra.Command{
 		return nil
 	},
 }
-

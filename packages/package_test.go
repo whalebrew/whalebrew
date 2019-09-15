@@ -24,8 +24,7 @@ func mustNewTestPkg(t *testing.T, label, value string) *Package {
 
 func mustNewTestPackageFromImage(t *testing.T, imageName string) *Package {
 	pkg, err := NewPackageFromImage(imageName, types.ImageInspect{
-		ContainerConfig: &container.Config{
-		},
+		ContainerConfig: &container.Config{},
 	})
 	assert.NoErrorf(t, err, "creating a package for image '%s' should not raise an error", imageName)
 	return pkg

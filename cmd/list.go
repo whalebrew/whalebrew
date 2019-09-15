@@ -6,9 +6,9 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	"github.com/whalebrew/whalebrew/packages"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/packages"
 )
 
 func init() {

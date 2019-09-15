@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var err error
-	if cmd.IsShellbang(os.Args){
+	if cmd.IsShellbang(os.Args) {
 		err = cmd.Run(os.Args)
 	} else {
 		err = cmd.RootCmd.Execute()

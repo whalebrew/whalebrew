@@ -13,7 +13,6 @@ var ErrNotExhaustiveChangeTypeSwitch = errors.New("change type switch is not exh
 
 type fieldChangeReporter func(change StructChange) string
 
-
 type StructChange interface {
 	FieldName() string
 }
