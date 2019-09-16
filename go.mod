@@ -8,13 +8,12 @@ require (
 	github.com/Microsoft/go-winio v0.4.12 // indirect
 	github.com/Songmu/prompter v0.0.0-20181014095714-d227c68538bd
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/distribution v2.7.1+incompatible
 	github.com/docker/docker v0.7.3-0.20190409075915-9d850cbfa5e9
 	github.com/docker/go-connections v0.4.0 // indirect
-	github.com/docker/go-metrics v0.0.1 // indirect
 	github.com/docker/go-units v0.3.3
-	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7 // indirect
 	github.com/gogo/protobuf v1.2.1 // indirect
+	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.3.0
 	github.com/gorilla/mux v1.7.1 // indirect
 	github.com/mattn/go-isatty v0.0.7 // indirect
@@ -27,6 +26,8 @@ require (
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
+	golang.org/x/net v0.0.0-20190613194153-d28f0bde5980 // indirect
+	golang.org/x/sys v0.0.0-20190801041406-cbf593c0f2f3 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	google.golang.org/grpc v1.19.1 // indirect
 	gopkg.in/yaml.v2 v2.2.2

@@ -112,7 +112,7 @@ func listTagsForImage(ctx context.Context, cli *client.Client, image string) err
 		}
 	}
 
-	// pre filter non semver images to back for less swapping
+	// pre filter non semver images to back for less swapping during sort
 	infos = append(infos, unsortableInfos...)
 	sort.Sort(listInfos(infos))
 
