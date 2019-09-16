@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"sort"
 	"text/tabwriter"
@@ -12,18 +11,11 @@ import (
 	"github.com/docker/distribution/reference"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/distribution"
-	"github.com/docker/docker/errdefs"
-	"github.com/docker/docker/registry"
 	"github.com/docker/go-units"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/whalebrew/whalebrew/client"
 	"github.com/whalebrew/whalebrew/packages"
-	registryClient "github.com/docker/distribution/registry/client"
-	 "github.com/docker/distribution/registry/client/transport"
-	"github.com/docker/distribution/registry/client/auth"
 )
 
 func init() {
@@ -68,51 +60,9 @@ var listCommand = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
-		reg, err := registryClient.NewRegistry("https://gcr.io", transport.NewTransport(http.DefaultTransport, ))
-		if err != nil {
-			return err
-		}
-		repos := make([]string, 200)
-		_, err = reg.Repositories(ctx, repos, "")
-		if err !=  nil {
-			return  err
-		}
-
 		if arglen := len(args); arglen > 0 {
 			if arglen > 1 {
 				return fmt.Errorf("invalid usage, this command accepts 0 or 1 arguments")
-			}
-			image := args[0]
-			ref, err := reference.ParseAnyReference(image)
-			if err != nil {
-				return err
-			}
-			namedRef, ok := ref.(reference.Named)
-			if !ok {
-				if _, ok := ref.(reference.Digested); ok {
-					return nil
-				}
-				return errors.Errorf("unknown image reference format: %s", image)
-			}
-			// only query registry if not a canonical reference (i.e. with digest)
-			if _, ok := namedRef.(reference.Canonical); !ok {
-				namedRef = reference.TagNameOnly(namedRef)
-
-				taggedRef, ok := namedRef.(reference.NamedTagged)
-				if !ok {
-					return errors.Errorf("image reference not tagged: %s", image)
-				}
-
-				repoInfo, err := registry.ParseRepositoryInfo(taggedRef)
-				if err != nil {
-					return err
-				}
-
-				if err := distribution.ValidateRepoName(repoInfo.Name); err != nil {
-					return errdefs.InvalidParameter(err)
-				}
-				repository, confirmedV2, lastError = distribution.NewV2Repository(ctx, repoInfo, endpoint, nil, authConfig, "pull")
-				repo, _, err := c.config.ImageBackend.GetRepository(ctx, taggedRef, authConfig)
 			}
 
 			cli, err := client.NewClient()
