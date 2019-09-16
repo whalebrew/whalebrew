@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
+	github.com/Masterminds/semver v1.5.0
 	github.com/Microsoft/go-winio v0.4.12 // indirect
 	github.com/Songmu/prompter v0.0.0-20181014095714-d227c68538bd
 	github.com/blang/semver v3.5.1+incompatible
