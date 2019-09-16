@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
 	dockerConfig "github.com/docker/cli/cli/config"
+	"github.com/docker/cli/cli/config/credentials"
 	cliTypes "github.com/docker/cli/cli/config/types"
 	"github.com/docker/distribution/reference"
 	"github.com/docker/docker/api/types"
@@ -83,6 +85,38 @@ func (c *Client) PullImage(ctx context.Context, image string) error {
 }
 
 func buildPullOptions(image string) (*types.ImagePullOptions, error) {
+	store, err := getRepoAuth(image)
+	if err !=  nil {
+		return nil, err
+	}
+
+	hostname := registry.ConvertToHostname(image)
+
+	privilegeFunc := func() (string, error) {
+		authConfig, err := store.Get(hostname)
+		if err != nil {
+			return "", err
+		}
+
+		buf, err := json.Marshal(authConfig)
+		if err != nil {
+			return "", err
+		}
+
+		encodedAuth := base64.URLEncoding.EncodeToString(buf)
+
+		return encodedAuth, nil
+	}
+
+	auth, _ := privilegeFunc()
+
+	return &types.ImagePullOptions{
+		RegistryAuth:  auth,
+		PrivilegeFunc: privilegeFunc,
+	}, nil
+}
+
+func getRepoAuth(image string) (credentials.Store, error) {
 	distributionRef, err := reference.ParseNormalizedNamed(image)
 	if err != nil {
 		return nil, err
@@ -100,53 +134,38 @@ func buildPullOptions(image string) (*types.ImagePullOptions, error) {
 
 	configFile := dockerConfig.LoadDefaultConfigFile(os.Stderr)
 
-	rightType := make(map[string]types.AuthConfig)
-	for repo, config := range configFile.GetAuthConfigs() {
-		rightType[repo] = types.AuthConfig(config)
+	configKey := registry.GetAuthConfigKey(repoInfo.Index)
+	// First try the happy case
+	if c, found := configFile.GetAuthConfigs()[configKey]; found || repoInfo.Index.Official {
+		return &staticAuthStore{AuthConfig: c}, nil
 	}
 
-	authConfig := cliTypes.AuthConfig(registry.ResolveAuthConfig(rightType, repoInfo.Index))
+	hostname := registry.ConvertToHostname(image)
 
-	var auth string
-	var privilegeFunc types.RequestPrivilegeFunc
-
-	if authConfig.Auth != "" {
-		buf, err := json.Marshal(authConfig)
-		if err != nil {
-			return nil, err
-		}
-
-		auth = base64.URLEncoding.EncodeToString(buf)
-
-		privilegeFunc = func() (string, error) {
-			return auth, nil
-		}
-	} else {
-		hostname := registry.ConvertToHostname(image)
-
-		store := configFile.GetCredentialsStore(hostname)
-
-		privilegeFunc = func() (string, error) {
-			authConfig, err = store.Get(hostname)
-			if err != nil {
-				return "", err
-			}
-
-			buf, err := json.Marshal(authConfig)
-			if err != nil {
-				return "", err
-			}
-
-			encodedAuth := base64.URLEncoding.EncodeToString(buf)
-
-			return encodedAuth, nil
-		}
-
-		auth, _ = privilegeFunc()
-	}
-
-	return &types.ImagePullOptions{
-		RegistryAuth:  auth,
-		PrivilegeFunc: privilegeFunc,
-	}, nil
+	return configFile.GetCredentialsStore(hostname), nil
 }
+
+var notImplemented = errors.New("not implemented")
+type staticAuthStore struct {
+	AuthConfig cliTypes.AuthConfig
+}
+
+func (s staticAuthStore) Erase(serverAddress string) error {
+	return notImplemented
+}
+
+func (s staticAuthStore) Get(serverAddress string) (cliTypes.AuthConfig, error) {
+	return s.AuthConfig, nil
+}
+
+func (s staticAuthStore) GetAll() (map[string]cliTypes.AuthConfig, error) {
+	result := map[string]cliTypes.AuthConfig{}
+
+	result[s.AuthConfig.ServerAddress] = s.AuthConfig
+	return result, nil
+}
+
+func (s staticAuthStore) Store(authConfig cliTypes.AuthConfig) error {
+	return notImplemented
+}
+
