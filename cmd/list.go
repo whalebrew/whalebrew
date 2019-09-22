@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/Masterminds/semver"
@@ -56,7 +57,7 @@ func (c listInfos) Swap(i, j int) {
 
 var listCommand = &cobra.Command{
 	Use:   "list [image]",
-	Short: "List installed packages, or tags for an image",
+	Short: "List installed packages, or installable images for a package",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
@@ -70,16 +71,40 @@ var listCommand = &cobra.Command{
 				return err
 			}
 
-			return listTagsForImage(ctx, cli, args[0])
+			return listImagesForPackage(ctx, cli, args[0])
 		} else {
 			return listInstalled()
 		}
 	},
 }
 
-func listTagsForImage(ctx context.Context, cli *client.Client, image string) error {
+func listImagesForPackage(ctx context.Context, cli *client.Client, pkgName string) error {
+	pm := packages.NewPackageManager(viper.GetString("install_path"))
+	if installed, err := pm.HasInstallation(pkgName); !installed {
+		return err
+	}
+
+	pkg, err := pm.Load(pkgName)
+	if err != nil {
+		return err
+	}
+
+	ref, err := reference.ParseAnyReference(pkg.Image)
+	if err != nil {
+		return err
+	}
+
+	installedRef, ok := ref.(reference.NamedTagged)
+	if !ok {
+		return nil
+	}
+
+	installedTag := installedRef.Tag()
+
+	name := strings.TrimPrefix(installedRef.Name(), "docker.io/library/")
+
 	summaries, err := cli.ImageList(ctx, types.ImageListOptions{
-		Filters: filters.NewArgs(filters.Arg("reference", image)),
+		Filters: filters.NewArgs(filters.Arg("reference", name)),
 	})
 
 	if err != nil {
@@ -117,9 +142,13 @@ func listTagsForImage(ctx context.Context, cli *client.Client, image string) err
 	sort.Sort(listInfos(infos))
 
 	w := tabwriter.NewWriter(os.Stdout, 10, 2, 2, ' ', 0)
-	fmt.Fprintln(w, "TAG\tSIZE")
+	fmt.Fprintln(w, "INSTALLED\tTAG\tSIZE")
 	for _, info := range infos {
-		fmt.Fprintf(w, "%s\t%v\n", info.tag, units.HumanSizeWithPrecision(float64(info.imageSummary.Size), 3))
+		if info.tag == installedTag {
+			fmt.Fprintf(w, "%s\t%s\t%v\n", ">", info.tag, units.HumanSizeWithPrecision(float64(info.imageSummary.Size), 3))
+		} else {
+			fmt.Fprintf(w, "%s\t%s\t%v\n", "", info.tag, units.HumanSizeWithPrecision(float64(info.imageSummary.Size), 3))
+		}
 	}
 	w.Flush()
 

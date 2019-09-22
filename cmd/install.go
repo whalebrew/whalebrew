@@ -72,7 +72,7 @@ var installCommand = &cobra.Command{
 		pm := packages.NewPackageManager(installPath)
 
 		var installed *packages.Package
-		hasInstall := pm.HasInstallation(pkg.Name)
+		hasInstall, err := pm.HasInstallation(pkg.Name)
 		if hasInstall {
 			installed, err = pm.Load(pkg.Name)
 			if !forceInstall && err != nil {

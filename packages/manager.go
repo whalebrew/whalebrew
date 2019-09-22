@@ -23,14 +23,10 @@ func NewPackageManager(path string) *PackageManager {
 }
 
 // Looks at installation path for existing installation of pkgName
-func (pm *PackageManager) HasInstallation(pkgName string) bool {
+func (pm *PackageManager) HasInstallation(pkgName string) (bool, error) {
 	packagePath := path.Join(pm.InstallPath, pkgName)
 
-	if _, err := os.Stat(packagePath); err == nil {
-		return true
-	}
-
-	return false
+	return IsPackage(packagePath)
 }
 
 // Install installs a package
@@ -65,11 +61,13 @@ func (pm *PackageManager) ForceInstall(pkg *Package) error {
 
 // List lists installed packages
 func (pm *PackageManager) List() (map[string]*Package, error) {
-	packages := make(map[string]*Package)
 	files, err := ioutil.ReadDir(pm.InstallPath)
 	if err != nil {
-		return packages, err
+		return nil, err
 	}
+
+	packages := make(map[string]*Package)
+
 	for _, file := range files {
 		isPackage, err := IsPackage(path.Join(pm.InstallPath, file.Name()))
 		if err != nil {
