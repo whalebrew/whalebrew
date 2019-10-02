@@ -6,7 +6,9 @@ environment:
 - AWS_DEFAULT_REGION
 - AWS_DEFAULT_PROFILE
 - AWS_CONFIG_FILE
+- TEST_ENV=${TEST_ENVIRONMENT_VARIABLE}
 image: whalebrew/awscli
 volumes:
 - ~/.aws:/.aws
 required_version: ">=0.1.0"
+mount_missing_volumes: true

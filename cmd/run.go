@@ -3,13 +3,12 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/whalebrew/whalebrew/packages"
+	"github.com/whalebrew/whalebrew/run"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -32,8 +31,13 @@ func shouldBind(hostPath string, pkg *packages.Package) (bool, error) {
 	return true, nil
 }
 
-func appendVolumes(dockerArgs []string, pkg *packages.Package) ([]string, error) {
-	for _, volume := range pkg.Volumes {
+func getVolumes(pkg *packages.Package) ([]string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	volumes := []string{}
+	for _, volume := range append(pkg.Volumes, fmt.Sprintf("%s:%s", cwd, pkg.WorkingDir)) {
 		// special case expanding home directory
 		if strings.HasPrefix(volume, "~/") {
 			user, err := user.Current()
@@ -48,79 +52,53 @@ func appendVolumes(dockerArgs []string, pkg *packages.Package) ([]string, error)
 			return nil, err
 		}
 		if b {
-			dockerArgs = append(dockerArgs, "-v")
-			dockerArgs = append(dockerArgs, volume)
+			volumes = append(volumes, volume)
 		}
 	}
-	return dockerArgs, nil
+	return volumes, nil
+}
+
+func expandEnvVars(vars []string) []string {
+	r := []string{}
+	for _, v := range vars {
+		r = append(r, os.ExpandEnv(v))
+	}
+	return r
+}
+
+// DockerCLIRun runs the package using docker CLI forwarding the command line arguments
+func DockerCLIRun(args []string) error {
+	docker, err := run.NewDocker()
+	if err != nil {
+		return err
+	}
+	return Run(docker, args)
 }
 
 // Run runs a package after extracting arguments
-func Run(args []string) error {
+func Run(runner run.Runner, args []string) error {
 	pkg, err := packages.LoadPackageFromPath(args[1])
 	if err != nil {
 		return err
 	}
 	args = args[2:]
-	dockerPath, err := exec.LookPath("docker")
+
+	user, err := user.Current()
 	if err != nil {
 		return err
 	}
-
-	cwd, err := os.Getwd()
+	volumes, err := getVolumes(pkg)
 	if err != nil {
 		return err
 	}
-	dockerArgs := []string{
-		dockerPath,
-		"run",
-		"--interactive",
-		"--rm",
-		"--workdir", os.ExpandEnv(pkg.WorkingDir),
-		"-v", fmt.Sprintf("%s:%s", cwd, os.ExpandEnv(pkg.WorkingDir)),
-		"--init",
-	}
-	if pkg.Entrypoint != nil {
-		if len(pkg.Entrypoint) > 0 {
-			dockerArgs = append(dockerArgs, "--entrypoint", pkg.Entrypoint[0])
-			if len(pkg.Entrypoint) > 1 {
-				args = append(pkg.Entrypoint[1:], args...)
-			}
-		}
-	}
-	if terminal.IsTerminal(int(os.Stdin.Fd())) {
-		dockerArgs = append(dockerArgs, "--tty")
-	}
-	dockerArgs, err = appendVolumes(dockerArgs, pkg)
-	if err != nil {
-		return err
-	}
-	for _, envvar := range pkg.Environment {
-		dockerArgs = append(dockerArgs, "-e")
-		dockerArgs = append(dockerArgs, os.ExpandEnv(envvar))
-	}
-	for _, portmap := range pkg.Ports {
-		dockerArgs = append(dockerArgs, "-p")
-		dockerArgs = append(dockerArgs, portmap)
-	}
-	for _, network := range pkg.Networks {
-		dockerArgs = append(dockerArgs, "--net")
-		dockerArgs = append(dockerArgs, network)
-	}
-
-	if !pkg.KeepContainerUser {
-		user, err := user.Current()
-		if err != nil {
-			return err
-		}
-		dockerArgs = append(dockerArgs, "-u")
-		dockerArgs = append(dockerArgs, user.Uid+":"+user.Gid)
-	}
-
-	dockerArgs = append(dockerArgs, pkg.Image)
-	dockerArgs = append(dockerArgs, args...)
-
-	return syscall.Exec(dockerPath, dockerArgs, os.Environ())
+	return runner.Run(pkg, &run.Execution{
+		WorkingDir:  pkg.WorkingDir,
+		User:        user,
+		IsTTYOpened: terminal.IsTerminal(int(os.Stdin.Fd())),
+		Args:        args,
+		Environment: expandEnvVars(pkg.Environment),
+		Volumes:     volumes,
+	})
 }
 
 // IsShellbang returns whether the arguments should be interpreted as a shellbang run
