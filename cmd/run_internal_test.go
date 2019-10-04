@@ -54,37 +54,37 @@ func TestAppendVolumes(t *testing.T) {
 		"~/:/home/user",
 	}
 	t.Run("when non existing volumes should be skept", func(t *testing.T) {
-		args, err := appendVolumes(nil, &packages.Package{SkipMissingVolumes: true, Volumes: volumes})
+		volumes, err := getVolumes(&packages.Package{SkipMissingVolumes: true, Volumes: volumes})
 		assert.NoError(t, err)
-		assert.NotNil(t, args)
-		assert.Len(t, args, 4)
+		assert.NotNil(t, volumes)
+		assert.Len(t, volumes, 3)
 		t.Run("all existing volumes instructed to mount on command line", func(t *testing.T) {
-			assert.Equal(t, []string{"-v", fmt.Sprintf("%s/run.go:/exists", wd), "-v"}, args[:3])
-			if !strings.HasSuffix(args[3], "/:/home/user") {
+			assert.Equal(t, []string{fmt.Sprintf("%s/run.go:/exists", wd)}, volumes[:1])
+			if !strings.HasSuffix(volumes[1], "/:/home/user") {
 				t.Errorf("home volume should be mounted")
 			}
-			if strings.HasPrefix(args[3], "~") {
+			if strings.HasPrefix(volumes[1], "~") {
 				t.Errorf("~/ prefix should be replaced by current user home directory")
 			}
 		})
 	})
 	t.Run("when non existing volumes should be mounted", func(t *testing.T) {
-		args, err := appendVolumes(nil, &packages.Package{MountMissingVolumes: true, Volumes: volumes})
+		args, err := getVolumes(&packages.Package{MountMissingVolumes: true, Volumes: volumes})
 		assert.NoError(t, err)
 		assert.NotNil(t, args)
-		assert.Len(t, args, 6)
+		assert.Len(t, args, 4)
 		t.Run("all existing volumes instructed to mount on command line", func(t *testing.T) {
-			assert.Equal(t, []string{"-v", fmt.Sprintf("%s/thisFileShouldNotExist.go:/notExists", wd), "-v", fmt.Sprintf("%s/run.go:/exists", wd), "-v"}, args[:5])
-			if !strings.HasSuffix(args[5], "/:/home/user") {
+			assert.Equal(t, []string{fmt.Sprintf("%s/thisFileShouldNotExist.go:/notExists", wd), fmt.Sprintf("%s/run.go:/exists", wd)}, args[:2])
+			if !strings.HasSuffix(args[2], "/:/home/user") {
 				t.Errorf("home volume should be mounted")
 			}
-			if strings.HasPrefix(args[5], "~") {
+			if strings.HasPrefix(args[2], "~") {
 				t.Errorf("~/ prefix should be replaced by current user home directory")
 			}
 		})
 	})
 	t.Run("when non existing volumes should not be skept", func(t *testing.T) {
-		args, err := appendVolumes(nil, &packages.Package{SkipMissingVolumes: false, Volumes: volumes})
+		args, err := getVolumes(&packages.Package{SkipMissingVolumes: false, Volumes: volumes})
 		assert.Error(t, err)
 		assert.Nil(t, args)
 	})
