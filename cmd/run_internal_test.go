@@ -89,3 +89,17 @@ func TestAppendVolumes(t *testing.T) {
 		assert.Nil(t, args)
 	})
 }
+
+func TestParseRuntimeVolumes(t *testing.T) {
+	pkg := &packages.Package{
+		PathArguments: []string{"C", "exec-path", "X", "stream"},
+	}
+
+	wd, err := os.Getwd()
+	assert.NoError(t, err)
+	assert.Equal(
+		t,
+		[]string{"/tmp:/tmp", "/other/path:/other/path", "/some/path:/some/path", fmt.Sprintf("%s/local:%s/local", wd, wd), "/something:/something"},
+		parseRuntimeVolumes([]string{"-C/tmp", "--other", "arg", "--exec-path", "/some/path", "-C", "/other/path", "--exec-path=local", "--stream", "-", "-X", "/dev/stdin", "-X/something"}, pkg),
+	)
+}

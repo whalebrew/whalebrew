@@ -24,8 +24,7 @@ func mustNewTestPkg(t *testing.T, label, value string) *Package {
 
 func mustNewTestPackageFromImage(t *testing.T, imageName string) *Package {
 	pkg, err := NewPackageFromImage(imageName, types.ImageInspect{
-		ContainerConfig: &container.Config{
-		},
+		ContainerConfig: &container.Config{},
 	})
 	assert.NoErrorf(t, err, "creating a package for image '%s' should not raise an error", imageName)
 	return pkg
@@ -44,6 +43,7 @@ func TestNewPackageFromImage(t *testing.T) {
 	assert.Equal(t, []string{"/somesource:/somedest"}, mustNewTestPkg(t, "io.whalebrew.config.volumes", `["/somesource:/somedest"]`).Volumes)
 	assert.Equal(t, []string{"8100:8100"}, mustNewTestPkg(t, "io.whalebrew.config.ports", `["8100:8100"]`).Ports)
 	assert.Equal(t, []string{"host"}, mustNewTestPkg(t, "io.whalebrew.config.networks", `["host"]`).Networks)
+	assert.Equal(t, []string{"C", "exec-path"}, mustNewTestPkg(t, "io.whalebrew.config.volumes_from_args", `["-C", "--exec-path"]`).PathArguments)
 
 	assert.True(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "mount").MountMissingVolumes)
 	assert.False(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "mount").SkipMissingVolumes)

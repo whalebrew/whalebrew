@@ -165,6 +165,10 @@ There are some labels you can use to configure how Whalebrew installs your image
 
 * `io.whalebrew.required_version`: Specifies the minimum whalebrew version to required to run the package. Examples: `<1.0.0`, `>0.1.0`, `>0.1.0 <1.0.0`
 
+* `io.whalebrew.config.volumes_from_args`: A list of command line arguments of the program passed at runtime that must be consideredand mounted as volumes:
+
+        LABEL io.whalebrew.config.volumes_from_args '["-C", "--exec-path"]'
+
 #### Using user environment variables
 
 The labels `io.whalebrew.config.working_dir`, `io.whalebrew.config.volumes` and `io.whalebrew.config.environment` are expanded with user environment variables when the container is launched.
