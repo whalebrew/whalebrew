@@ -11,10 +11,10 @@ import (
 	"github.com/whalebrew/whalebrew/packages"
 )
 
-var displayHeaders bool
+var hideHeaders bool
 
 func init() {
-	listCommand.Flags().BoolVarP(&displayHeaders, "display-headers", "", true, "Display column headers for output. Defaults to true.")
+	listCommand.Flags().BoolVarP(&hideHeaders, "no-headers", "", false, "Hide column headers for output. Defaults to false.")
 
 	RootCmd.AddCommand(listCommand)
 }
@@ -36,7 +36,7 @@ var listCommand = &cobra.Command{
 		sort.Strings(packageNames)
 
 		w := tabwriter.NewWriter(os.Stdout, 10, 2, 2, ' ', 0)
-		if displayHeaders {
+		if !hideHeaders {
 			fmt.Fprintln(w, "COMMAND\tIMAGE")
 		}
 		for _, name := range packageNames {
