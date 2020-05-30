@@ -6,12 +6,16 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	"github.com/whalebrew/whalebrew/packages"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/packages"
 )
 
+var hideHeaders bool
+
 func init() {
+	listCommand.Flags().BoolVarP(&hideHeaders, "no-headers", "", false, "Hide column headers for output. Defaults to false.")
+
 	RootCmd.AddCommand(listCommand)
 }
 
@@ -32,7 +36,9 @@ var listCommand = &cobra.Command{
 		sort.Strings(packageNames)
 
 		w := tabwriter.NewWriter(os.Stdout, 10, 2, 2, ' ', 0)
-		fmt.Fprintln(w, "COMMAND\tIMAGE")
+		if !hideHeaders {
+			fmt.Fprintln(w, "COMMAND\tIMAGE")
+		}
 		for _, name := range packageNames {
 			fmt.Fprintf(w, "%s\t%s\n", name, packages[name].Image)
 		}
