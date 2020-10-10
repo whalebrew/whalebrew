@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/Songmu/prompter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/whalebrew/whalebrew/hooks"
