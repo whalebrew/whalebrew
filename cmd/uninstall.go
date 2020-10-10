@@ -35,10 +35,6 @@ var uninstallCommand = &cobra.Command{
 			return fmt.Errorf("pre-uninstall install script failed: %s", err.Error())
 		}
 
-		if !prompter.YN(fmt.Sprintf("This will permanently delete '%s'. Are you sure?", path), false) {
-			return nil
-		}
-
 		err := pm.Uninstall(packageName)
 		if err != nil {
 			return err
