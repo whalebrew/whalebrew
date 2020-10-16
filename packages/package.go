@@ -17,6 +17,10 @@ import (
 
 const DefaultWorkingDir = "/workdir"
 
+var (
+	DefaultLoader = YamlLoader{}
+)
+
 // Package represents a Whalebrew package
 type Package struct {
 	Name                string   `yaml:"-"`
@@ -32,6 +36,11 @@ type Package struct {
 	MountMissingVolumes bool     `yaml:"mount_missing_volumes,omitempty"`
 	RequiredVersion     string   `yaml:"required_version,omitempty"`
 	PathArguments       []string `yaml:"path_arguments,omitempty"`
+}
+
+// Loader loads a package from a given path
+type Loader interface {
+	LoadPackageFromPath(path string) (*Package, error)
 }
 
 // NewPackageFromImage creates a package from a given image name,
@@ -133,8 +142,11 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 	return pkg, nil
 }
 
+// YamlLoader reads a package stored as yaml
+type YamlLoader struct{}
+
 // LoadPackageFromPath reads a package from the given path
-func LoadPackageFromPath(path string) (*Package, error) {
+func (y YamlLoader) LoadPackageFromPath(path string) (*Package, error) {
 	d, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -155,6 +167,11 @@ func LoadPackageFromPath(path string) (*Package, error) {
 	}
 
 	return pkg, nil
+}
+
+// LoadPackageFromPath reads a package from the given path
+func LoadPackageFromPath(path string) (*Package, error) {
+	return DefaultLoader.LoadPackageFromPath(path)
 }
 
 // PreinstallMessage returns the preinstall message for the package

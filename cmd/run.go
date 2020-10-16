@@ -109,12 +109,12 @@ func DockerCLIRun(args []string) error {
 	if err != nil {
 		return err
 	}
-	return Run(docker, args)
+	return Run(packages.DefaultLoader, docker, args)
 }
 
 // Run runs a package after extracting arguments
-func Run(runner run.Runner, args []string) error {
-	pkg, err := packages.LoadPackageFromPath(args[1])
+func Run(loader packages.Loader, runner run.Runner, args []string) error {
+	pkg, err := loader.LoadPackageFromPath(args[1])
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func Run(runner run.Runner, args []string) error {
 		return err
 	}
 	return runner.Run(pkg, &run.Execution{
-		WorkingDir:  pkg.WorkingDir,
+		WorkingDir:  os.ExpandEnv(pkg.WorkingDir),
 		User:        user,
 		IsTTYOpened: terminal.IsTerminal(int(os.Stdin.Fd())),
 		Args:        args,
