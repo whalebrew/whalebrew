@@ -22,7 +22,12 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Build
-      run: go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version="$(git describe --always --tags --dirty)" -o whalebrew-${{ matrix.os}} .
+      run: go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o whalebrew-${{ matrix.os}} .
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: whalebrew-${{ matrix.os}}
+        path: whalebrew-${{ matrix.os}}
 
     - name: run tests
       run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
