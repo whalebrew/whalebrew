@@ -129,7 +129,7 @@ func Run(runner run.Runner, args []string) error {
 		return err
 	}
 	return runner.Run(pkg, &run.Execution{
-		WorkingDir:  pkg.WorkingDir,
+		WorkingDir:  os.ExpandEnv(pkg.WorkingDir),
 		User:        user,
 		IsTTYOpened: terminal.IsTerminal(int(os.Stdin.Fd())),
 		Args:        args,
