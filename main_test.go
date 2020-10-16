@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -17,7 +16,10 @@ func TestRun(t *testing.T) {
 	os.Setenv("RUN_WHALEBREW", "true")
 	os.Setenv("WHALEBREW_INSTALL_PATH", ".whalebrew-tests")
 	assert.NoError(t, os.MkdirAll(".whalebrew-tests", 0777))
-	log.Println("hello world", os.Args[0])
+	if err := exec.Command("docker", "pull", "alpine").Run(); err != nil {
+		t.Skipf("Unable to pull alpine image: %v, this test needs a running docker daemon", err)
+		return
+	}
 	c := exec.Command(os.Args[0], "install", "-y", "-f", "whalebrew/awscli")
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
