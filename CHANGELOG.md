@@ -1,5 +1,16 @@
 # Change log
 
+## 0.2.4 - 2020-10-16
+### Fixed
+* whalebrew search was returning no result (#89)
+* Fix package not installable when entrypoint is not the last step (#91)
+
+### Added
+* Ask if a different version of a pkg should be installed when theres an existing installation (#92)
+* Add an option to mount paths provided in flags (#84)
+* Add an option to hide headers in whalebrew list output (#99)
+* Add option to remove prompt when uninstalling a package (#107)
+
 ## 0.2.3 - 2019-07-08
 ### Fixed
 * Invalid version number
