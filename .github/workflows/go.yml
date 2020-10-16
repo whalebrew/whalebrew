@@ -20,6 +20,10 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+      with:
+        # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+        # fetch all tags
+        fetch-depth: 0    
 
     - name: Build
       run: go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o whalebrew-${{ matrix.os}} .
