@@ -1,0 +1,20 @@
+name: 'Upsert release'
+description: 'Creates or update a release for a given tag. All the artifacts are renewed in this release process.'
+inputs:
+  tag_name:
+    description: 'The name of the git tag generating the version'
+    required: true
+  body:
+    description: 'The body of the release. This body will be used as a description of the release in the release page'
+  folder:
+    description: 'The folder containing all the files to recursively upload'
+outputs:
+  release_id:
+    description: 'The ID of the generated release'
+  release_url:
+    description: 'The URL of the generated release'
+  release_upload_url:
+    description: 'The URL where to upload assets'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
