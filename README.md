@@ -101,6 +101,31 @@ Whalebrew is configured with environment variables, which you can either provide
  - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/local/bin`)
  - `WHALEBREW_CONFIG_DIR`: The directory to store configuration in. (default: `~/.whalebrew`)
 
+### Using custom registries
+
+:warning: This feature is currently under development. Any feedback or subjection is wram welcomed
+
+Whalebrew now supports handling several registries, used when searching for packages.
+
+Each reporisoty will be searched sequentially and output whalebrew packages, one per line.
+
+To enable this feature, ensure you have a configuration file in `${WHALEBREW_CONFIG_DIR:-~/.whalebrew}/config.yaml`.
+
+You can configure such running:
+
+```
+mkdir -p ${WHALEBREW_CONFIG_DIR:-~/.whalebrew}
+cat > ${WHALEBREW_CONFIG_DIR:-~/.whalebrew}/config.yaml <<EOF
+registries:
+- dockerHub:
+    owner: whalebrew
+- dockerHub:
+    owner: my-org
+EOF
+```
+
+:warning: _Note_ that if you provide a single docker hub owner, only this owner will be searched for registries, replacing the default `whalebrew` docker hub organisation.
+
 ## How it works
 
 Whalebrew is simple, and leans as much as possible on native Docker features:
