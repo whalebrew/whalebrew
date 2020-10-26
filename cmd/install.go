@@ -20,7 +20,7 @@ var assumeYes bool
 
 func init() {
 	installCommand.Flags().StringVarP(&customPackageName, "name", "n", "", "Name to give installed package. Defaults to image name.")
-	installCommand.Flags().StringVarP(&customEntrypoint, "entrypoint", "e", "", "Alternate entrypoint to run the image with. Defaults to image entrypoint.")
+	installCommand.Flags().StringVarP(&customEntrypoint, "entrypoint", "e", "", "Custom entrypoint to run the image with. Defaults to image entrypoint.")
 	installCommand.Flags().BoolVarP(&forceInstall, "force", "f", false, "Replace existing package if already exists. Defaults to false.")
 	installCommand.Flags().BoolVarP(&assumeYes, "assume-yes", "y", false, "Assume 'yes' as answer to all prompts and run non-interactively. Defaults to false.")
 
@@ -52,8 +52,8 @@ var installCommand = &cobra.Command{
 			return err
 		}
 		
-		if imageInspect.Config.Entrypoint == nil {
-			return fmt.Errorf("the image '%s' is not compatible with Whalebrew: it does not have an entrypoint", imageName)
+		if imageInspect.Config.Entrypoint == nil && customEntrypoint == "" {
+			return fmt.Errorf("The image '%s' does not have an entrypoint, please provide a custom entrypoint by adding '--entrypoint EXECUTABLE'", imageName)
 		}
 
 		pkg, err := packages.NewPackageFromImage(imageName, *imageInspect)
