@@ -12,8 +12,15 @@ type DockerHubRegistry struct {
 	Owner string `yaml:"owner"`
 }
 
+type DockerRegistry struct {
+	Owner   string `yaml:"owner"`
+	Host    string `yaml:"host"`
+	UseHTTP bool   `yaml:"useHTTP"`
+}
+
 type Registry struct {
-	DockerHub *DockerHubRegistry `yaml:"dockerHub"`
+	DockerHub      *DockerHubRegistry `yaml:"dockerHub"`
+	DockerRegistry *DockerRegistry    `yaml:"dockerRegistry"`
 }
 
 type Config struct {
