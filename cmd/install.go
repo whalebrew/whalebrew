@@ -53,7 +53,7 @@ var installCommand = &cobra.Command{
 		}
 		
 		if imageInspect.Config.Entrypoint == nil && customEntrypoint == "" {
-			return fmt.Errorf("The image '%s' does not have an entrypoint, please provide a custom entrypoint", imageName)
+			return fmt.Errorf("The image '%s' does not have an entrypoint, please provide a custom entrypoint by adding '--entrypoint EXECUTABLE'", imageName)
 		}
 
 		pkg, err := packages.NewPackageFromImage(imageName, *imageInspect)
