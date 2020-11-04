@@ -1,5 +1,14 @@
 # Change log
 
+## 0.2.5 - 2020-11-04
+### Fixed
+* Environment variables in working directory not expanded (#113)
+
+### Added
+* Support for multiple search repositories (#108)
+* Allow images without entrypoint with -e (#112)
+* Support to search on any docker registry (#115)
+
 ## 0.2.4 - 2020-10-16
 ### Fixed
 * whalebrew search was returning no result (#89)
