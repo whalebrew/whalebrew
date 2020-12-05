@@ -75,10 +75,17 @@ func (d *Docker) Run(p *packages.Package, e *Execution) error {
 		dockerArgs = append(dockerArgs, "-v")
 		dockerArgs = append(dockerArgs, volume)
 	}
+
 	if !p.KeepContainerUser {
 		if e.User != nil {
 			dockerArgs = append(dockerArgs, "-u")
-			dockerArgs = append(dockerArgs, e.User.Uid+":"+e.User.Gid)
+			if p.CustomGid != "" {
+				dockerArgs = append(dockerArgs, e.User.Uid+":"+p.CustomGid)
+			} else {
+				// does this have test..
+				dockerArgs = append(dockerArgs, e.User.Uid+":"+e.User.Gid)
+			}
+
 		}
 	}
 	dockerArgs = append(dockerArgs, p.Image)

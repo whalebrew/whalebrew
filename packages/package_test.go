@@ -36,6 +36,7 @@ func TestNewPackageFromImage(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, pkg.Name, "foo")
 	assert.Equal(t, pkg.Image, "whalebrew/foo:bar")
+	assert.Equal(t, pkg.CustomGid, "")
 
 	assert.Equal(t, "ws", mustNewTestPkg(t, "io.whalebrew.name", "ws").Name)
 	assert.Equal(t, "whalebrew/whalesay", mustNewTestPkg(t, "io.whalebrew.name", "ws").Image)
@@ -53,6 +54,7 @@ func TestNewPackageFromImage(t *testing.T) {
 
 	assert.False(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "error").MountMissingVolumes)
 	assert.False(t, mustNewTestPkg(t, "io.whalebrew.config.missing_volumes", "error").SkipMissingVolumes)
+	assert.Equal(t, "42", mustNewTestPkg(t, "io.whalebrew.config.customgid", "42").CustomGid)
 
 	assert.False(t, mustNewTestPkg(t, "any", "ws").MountMissingVolumes)
 	assert.False(t, mustNewTestPkg(t, "any", "other").SkipMissingVolumes)

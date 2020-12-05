@@ -36,6 +36,7 @@ type Package struct {
 	MountMissingVolumes bool     `yaml:"mount_missing_volumes,omitempty"`
 	RequiredVersion     string   `yaml:"required_version,omitempty"`
 	PathArguments       []string `yaml:"path_arguments,omitempty"`
+	CustomGid string `yaml:"customgid,omitempty"`
 }
 
 // Loader loads a package from a given path
@@ -134,6 +135,12 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 					pkg.MountMissingVolumes = true
 				default:
 					return pkg, fmt.Errorf("unexpected io.whalebrew.config.missing_volumes value: %s expecting error, skip or mount", missingVolumes)
+				}
+			}
+
+			if customgid, ok := labels["io.whalebrew.config.customgid"]; ok {
+				if err := yaml.Unmarshal([]byte(customgid), &pkg.CustomGid); err != nil {
+					return pkg, err
 				}
 			}
 		}
