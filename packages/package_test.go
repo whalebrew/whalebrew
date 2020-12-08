@@ -30,6 +30,94 @@ func mustNewTestPackageFromImage(t *testing.T, imageName string) *Package {
 	return pkg
 }
 
+func TestLoadImageLabelDecodesYamlList(t *testing.T) {
+	value := []string{}
+	assert.NoError(
+		t,
+		loadImageLabel(
+			types.ImageInspect{
+				ContainerConfig: &container.Config{
+					Labels: map[string]string{"io.whalebrew.some.key": "- some\n- other"},
+				},
+			},
+			"some.key",
+			&value,
+		),
+	)
+	assert.Equal(t, []string{"some", "other"}, value)
+}
+
+func TestLoadImageLabelDecodesYamlString(t *testing.T) {
+	value := ""
+	assert.NoError(
+		t,
+		loadImageLabel(
+			types.ImageInspect{
+				ContainerConfig: &container.Config{
+					Labels: map[string]string{"io.whalebrew.some.key": `"some value"`},
+				},
+			},
+			"some.key",
+			&value,
+		),
+	)
+	assert.Equal(t, "some value", value)
+}
+
+func TestLoadImageLabelDecodesPlainString(t *testing.T) {
+	value := ""
+	assert.NoError(
+		t,
+		loadImageLabel(
+			types.ImageInspect{
+				ContainerConfig: &container.Config{
+					Labels: map[string]string{"io.whalebrew.some.key": "some: value"},
+				},
+			},
+			"some.key",
+			&value,
+		),
+	)
+	assert.Equal(t, "some: value", value)
+}
+
+func TestLoadImageLabelPrefersContainerConfig(t *testing.T) {
+	value := []string{}
+	assert.NoError(
+		t,
+		loadImageLabel(
+			types.ImageInspect{
+				ContainerConfig: &container.Config{
+					Labels: map[string]string{"io.whalebrew.config.environment": `["SOME_CONFIG_OPTION"]`},
+				},
+				Config: &container.Config{
+					Labels: map[string]string{"io.whalebrew.config.environment": `["OTHER_CONFIG_OPTION"]`},
+				},
+			},
+			"config.environment",
+			&value,
+		),
+	)
+	assert.Equal(t, []string{"SOME_CONFIG_OPTION"}, value)
+}
+
+func TestLoadImageLabelFallsBackToConfig(t *testing.T) {
+	value := []string{}
+	assert.NoError(
+		t,
+		loadImageLabel(
+			types.ImageInspect{
+				Config: &container.Config{
+					Labels: map[string]string{"io.whalebrew.config.environment": `["OTHER_CONFIG_OPTION"]`},
+				},
+			},
+			"config.environment",
+			&value,
+		),
+	)
+	assert.Equal(t, []string{"OTHER_CONFIG_OPTION"}, value)
+}
+
 func TestNewPackageFromImage(t *testing.T) {
 	// with tag
 	pkg, err := NewPackageFromImage("whalebrew/foo:bar", types.ImageInspect{})
