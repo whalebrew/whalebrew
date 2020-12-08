@@ -18,8 +18,8 @@ var searchCommand = &cobra.Command{
 	Short: "Search for packages on Docker Hub",
 	Long:  "Search for Whalebrew packages on Docker Hub. If no search term is provided, all packages are listed.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) > 1 {
-			return fmt.Errorf("Only one search term is supported")
+		if len(args) != 1 {
+			return cmd.Help()
 		}
 		errHandler := func(err error) bool {
 			fmt.Println(err.Error())
