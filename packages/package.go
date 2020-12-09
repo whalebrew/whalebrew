@@ -12,6 +12,7 @@ import (
 	"github.com/whalebrew/whalebrew/version"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"gopkg.in/yaml.v2"
 )
 
@@ -43,6 +44,36 @@ type Loader interface {
 	LoadPackageFromPath(path string) (*Package, error)
 }
 
+func loadImageLabel(imageInspect types.ImageInspect, label string, dest interface{}) error {
+	label = "io.whalebrew." + label
+	// In the previous behaviour we were reading from ContainerConfig only.
+	// When building images with buildkit, it seems that those fields are not set any longer.
+	// Make the transition smoother by using a fallback to the Config field when not found in ContainerConfig.
+	// We should make a deeper analysis of the meaning of those 3 fields, the consequences to go for only one,
+	// eventually notice about the deprecation and finally rmove it.
+	for _, config := range []*container.Config{imageInspect.ContainerConfig, imageInspect.Config} {
+		if config != nil && config.Labels != nil {
+			if val, ok := config.Labels[label]; ok {
+				err := yaml.Unmarshal([]byte(val), dest)
+				if err != nil {
+					switch dest.(type) {
+					// this is used when decoding plain strings that may not be valid yaml.
+					// Specially required versions may be interpreted in yaml as an object
+					// Whereas we expect it to be a plain string
+					case *string:
+						d := dest.(*string)
+						*d = val
+						err = nil
+						return nil
+					}
+				}
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // NewPackageFromImage creates a package from a given image name,
 // inspecting the image to fetch the package configuration
 func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Package, error) {
@@ -56,87 +87,53 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 		Name:  name,
 		Image: image,
 	}
+	missingVolumes := "error"
+	args := []string{}
+	if err := loadImageLabel(imageInspect, "name", &pkg.Name); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "required_version", &pkg.RequiredVersion); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "config.working_dir", &pkg.WorkingDir); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "config.environment", &pkg.Environment); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "config.volumes", &pkg.Volumes); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "config.volumes_from_args", &args); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "config.ports", &pkg.Ports); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "config.networks", &pkg.Networks); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "config.keep_container_user", &pkg.KeepContainerUser); err != nil {
+		return nil, err
+	}
+	if err := loadImageLabel(imageInspect, "config.missing_volumes", &missingVolumes); err != nil {
+		return nil, err
+	}
 
-	if imageInspect.ContainerConfig != nil {
-
-		if imageInspect.ContainerConfig.WorkingDir != "" {
-			pkg.WorkingDir = imageInspect.ContainerConfig.WorkingDir
-		}
-
-		if imageInspect.ContainerConfig.Labels != nil {
-			labels := imageInspect.ContainerConfig.Labels
-
-			if name, ok := labels["io.whalebrew.name"]; ok {
-				pkg.Name = name
-			}
-
-			if requiredVersion, ok := labels["io.whalebrew.required_version"]; ok {
-				if err := version.CheckCompatible(requiredVersion); err != nil {
-					return nil, err
-				}
-				pkg.RequiredVersion = requiredVersion
-			}
-
-			if workingDir, ok := labels["io.whalebrew.config.working_dir"]; ok {
-				pkg.WorkingDir = workingDir
-			}
-
-			if env, ok := labels["io.whalebrew.config.environment"]; ok {
-				if err := yaml.Unmarshal([]byte(env), &pkg.Environment); err != nil {
-					return pkg, err
-				}
-			}
-
-			if volumesStr, ok := labels["io.whalebrew.config.volumes"]; ok {
-				if err := yaml.Unmarshal([]byte(volumesStr), &pkg.Volumes); err != nil {
-					return pkg, err
-				}
-			}
-
-			if pathArgs, ok := labels["io.whalebrew.config.volumes_from_args"]; ok {
-				args := []string{}
-				if err := yaml.Unmarshal([]byte(pathArgs), &args); err != nil {
-					return pkg, err
-				}
-				for _, arg := range args {
-					pkg.PathArguments = append(pkg.PathArguments, strings.TrimLeft(arg, "-"))
-				}
-			}
-
-			if ports, ok := labels["io.whalebrew.config.ports"]; ok {
-				if err := yaml.Unmarshal([]byte(ports), &pkg.Ports); err != nil {
-					return pkg, err
-				}
-			}
-
-			if networks, ok := labels["io.whalebrew.config.networks"]; ok {
-				if err := yaml.Unmarshal([]byte(networks), &pkg.Networks); err != nil {
-					return pkg, err
-				}
-			}
-
-			if v, ok := labels["io.whalebrew.config.keep_container_user"]; ok {
-				if err := yaml.Unmarshal([]byte(v), &pkg.KeepContainerUser); err != nil {
-					return pkg, err
-				}
-			}
-
-			if v, ok := labels["io.whalebrew.config.missing_volumes"]; ok {
-				missingVolumes := "error"
-				if err := yaml.Unmarshal([]byte(v), &missingVolumes); err != nil {
-					return pkg, err
-				}
-				switch missingVolumes {
-				case "error", "":
-				case "skip":
-					pkg.SkipMissingVolumes = true
-				case "mount":
-					pkg.MountMissingVolumes = true
-				default:
-					return pkg, fmt.Errorf("unexpected io.whalebrew.config.missing_volumes value: %s expecting error, skip or mount", missingVolumes)
-				}
-			}
-		}
+	if err := version.CheckCompatible(pkg.RequiredVersion); pkg.RequiredVersion != "" && err != nil {
+		return nil, err
+	}
+	for _, arg := range args {
+		pkg.PathArguments = append(pkg.PathArguments, strings.TrimLeft(arg, "-"))
+	}
+	switch missingVolumes {
+	case "error", "":
+	case "skip":
+		pkg.SkipMissingVolumes = true
+	case "mount":
+		pkg.MountMissingVolumes = true
+	default:
+		return pkg, fmt.Errorf("unexpected io.whalebrew.config.missing_volumes value: %s expecting error, skip or mount", missingVolumes)
 	}
 
 	return pkg, nil
