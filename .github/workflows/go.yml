@@ -14,8 +14,15 @@ jobs:
       matrix:
         os: 
         - ubuntu-latest
-        - macos-latest
+        arch:
+        - amd64
+        - arm
+        - arm64
         go-version: [1.15.3]
+        include:
+        - os: macos-latest
+          arch: amd64
+          go-version: 1.15.3
     name: Build
     runs-on: ${{ matrix.os }}
     steps:
@@ -35,17 +42,31 @@ jobs:
         # fetch all tags
         fetch-depth: 0    
 
+    - name: Map binary name
+      id: binary
+      run: |
+        os=$(uname -s)
+        case ${{ matrix.arch }} in
+          amd64) arch=x86_64 ;;
+          *)     arch=${{ matrix.arch }} ;;
+        esac
+        binary_name=whalebrew-${os}-${arch}
+        echo "Binary name: ${binary_name}"
+        echo "::set-output name=binary_name::${binary_name}"
+
     - name: Build
       id: build
       run: |
-        go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o whalebrew-$(uname -s)-$(uname -m) .
+        GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o ${{ steps.binary.outputs.binary_name }} .
+
     
     - name: Ensure binary works
-      run: ./whalebrew-$(uname -s)-$(uname -m) version
+      run: ./${{ steps.binary.outputs.binary_name }} version
+      if: ${{ !startsWith(matrix.arch, 'arm') }}
 
     - uses: actions/upload-artifact@v2
       with:
-        name: whalebrew-${{ matrix.os }}
+        name: ${{ steps.binary.outputs.binary_name }}
         path: whalebrew-*
 
     - name: run tests
