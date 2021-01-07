@@ -1,5 +1,15 @@
 # Change log
 
+
+## 0.3.0 - 2021-01-08
+
+### Fixed
+* Whalebrew search would panic when called without arguments (#120)
+* Whalebrew install was not finding labels for images built using buildkit (#121)
+
+### Added
+* Support for arm and arm64 on linux (#117)
+
 ## 0.2.5 - 2020-11-04
 ### Fixed
 * Environment variables in working directory not expanded (#113)
