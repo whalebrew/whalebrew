@@ -181,7 +181,7 @@ There are some labels you can use to configure how Whalebrew installs your image
 
 * `io.whalebrew.config.missing_volumes`: The behaviour to handle missing files or volumes into the container.
 
-        LABEL io.whalebrew.config.skip_missing_volumes 'skip'
+        LABEL io.whalebrew.config.missing_volumes 'skip'
 
         Possible values are
         - 'error' to raise an error when trying to mount a non existing volume *this is the default behaviour*
