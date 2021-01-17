@@ -2,6 +2,7 @@ package packages
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
@@ -17,7 +18,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-const DefaultWorkingDir = "/workdir"
+const (
+	DefaultWorkingDir = "/workdir"
+	labelPrefix       = "io.whalebrew."
+)
 
 var (
 	DefaultLoader = YamlLoader{}
@@ -40,13 +44,92 @@ type Package struct {
 	PathArguments       []string `yaml:"path_arguments,omitempty" labels:"config.volumes_from_args"`
 }
 
+type StrictError interface {
+	Strict() bool
+}
+
+type LabelError struct {
+	Err   error
+	Label string
+}
+
+func (e LabelError) Error() string {
+	return fmt.Sprintf("decoding label %s: %v", e.Label, e.Err)
+}
+
+func (e LabelError) Strict() bool {
+	if strictError, ok := e.Err.(StrictError); ok {
+		return strictError.Strict()
+	}
+	return true
+}
+
+type DecodeLabelError struct {
+	Err   error
+	Value string
+}
+
+func (e DecodeLabelError) Error() string {
+	return fmt.Sprintf("failed to decode value %v: %v", e.Value, e.Err)
+}
+
+func (e DecodeLabelError) Strict() bool {
+	return true
+}
+
+type UnknownLabelError struct {
+	Label string
+}
+
+func (e UnknownLabelError) Error() string {
+	return fmt.Sprintf("unknwon label %s", e.Label)
+}
+
+func (e UnknownLabelError) Strict() bool {
+	return false
+}
+
+type NoEntrypointError struct {
+}
+
+func (e NoEntrypointError) Error() string {
+	return `missing entrypoint in docker image. consider re-building using ENTRYPOINT ["/path/to/your/binary"]`
+}
+
+func (e NoEntrypointError) Strict() bool {
+	return true
+}
+
 // Loader loads a package from a given path
 type Loader interface {
 	LoadPackageFromPath(path string) (*Package, error)
 }
 
+func decodeLabel(value string, dest interface{}) error {
+	err := yaml.Unmarshal([]byte(value), dest)
+	if err != nil {
+		switch dest.(type) {
+		// this is used when decoding plain strings that may not be valid yaml.
+		// Specially required versions may be interpreted in yaml as an object
+		// Whereas we expect it to be a plain string
+		case *string:
+			d := dest.(*string)
+			*d = value
+			err = nil
+			return nil
+		}
+	}
+	if err != nil {
+		return DecodeLabelError{
+			Err:   err,
+			Value: value,
+		}
+	}
+	return nil
+}
+
 func loadImageLabel(imageInspect types.ImageInspect, label string, dest interface{}) error {
-	label = "io.whalebrew." + label
+	label = labelPrefix + label
 	// In the previous behaviour we were reading from ContainerConfig only.
 	// When building images with buildkit, it seems that those fields are not set any longer.
 	// Make the transition smoother by using a fallback to the Config field when not found in ContainerConfig.
@@ -55,24 +138,49 @@ func loadImageLabel(imageInspect types.ImageInspect, label string, dest interfac
 	for _, config := range []*container.Config{imageInspect.ContainerConfig, imageInspect.Config} {
 		if config != nil && config.Labels != nil {
 			if val, ok := config.Labels[label]; ok {
-				err := yaml.Unmarshal([]byte(val), dest)
-				if err != nil {
-					switch dest.(type) {
-					// this is used when decoding plain strings that may not be valid yaml.
-					// Specially required versions may be interpreted in yaml as an object
-					// Whereas we expect it to be a plain string
-					case *string:
-						d := dest.(*string)
-						*d = val
-						err = nil
-						return nil
-					}
-				}
-				return err
+				return decodeLabel(val, dest)
 			}
 		}
 	}
 	return nil
+}
+
+func LintImage(imageInspect types.ImageInspect, reportError func(error)) {
+	if imageInspect.Config == nil || len(imageInspect.Config.Entrypoint) == 0 {
+		reportError(NoEntrypointError{})
+	}
+	for _, config := range []*container.Config{imageInspect.ContainerConfig, imageInspect.Config} {
+		if config != nil && config.Labels != nil {
+			for originalLabel, value := range config.Labels {
+				if strings.HasPrefix(originalLabel, labelPrefix) {
+					label := strings.TrimPrefix(originalLabel, labelPrefix)
+					pkg := reflect.ValueOf(&Package{}).Elem()
+					found := false
+					for i := 0; i < pkg.NumField(); i++ {
+						if pkg.Type().Field(i).Tag.Get("labels") == label {
+							found = true
+							err := decodeLabel(value, pkg.Field(i).Addr().Interface())
+							if err != nil {
+								reportError(LabelError{Err: err, Label: originalLabel})
+							}
+						}
+					}
+					if !found && label == "config.missing_volumes" {
+						found = true
+						switch value {
+						case "", "error", "skip", "mount":
+							return
+						default:
+							reportError(LabelError{Err: errors.New("missing volumes strategy must be one of error, skip or mount"), Label: originalLabel})
+						}
+					}
+					if !found {
+						reportError(UnknownLabelError{originalLabel})
+					}
+				}
+			}
+		}
+	}
 }
 
 // NewPackageFromImage creates a package from a given image name,

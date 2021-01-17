@@ -17,12 +17,24 @@ var customPackageName string
 var customEntrypoint string
 var forceInstall bool
 var assumeYes bool
+var strict bool
+
+type multipleErrors []error
+
+func (e multipleErrors) Error() string {
+	r := ""
+	for _, err := range e {
+		r = r + fmt.Sprintf("%s\n", err.Error())
+	}
+	return r
+}
 
 func init() {
 	installCommand.Flags().StringVarP(&customPackageName, "name", "n", "", "Name to give installed package. Defaults to image name.")
 	installCommand.Flags().StringVarP(&customEntrypoint, "entrypoint", "e", "", "Custom entrypoint to run the image with. Defaults to image entrypoint.")
 	installCommand.Flags().BoolVarP(&forceInstall, "force", "f", false, "Replace existing package if already exists. Defaults to false.")
 	installCommand.Flags().BoolVarP(&assumeYes, "assume-yes", "y", false, "Assume 'yes' as answer to all prompts and run non-interactively. Defaults to false.")
+	installCommand.Flags().BoolVar(&strict, "strict", false, "Fail installing the image if it contains any skippable error. Defaults to false.")
 
 	RootCmd.AddCommand(installCommand)
 }
@@ -51,9 +63,22 @@ var installCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		
-		if imageInspect.Config.Entrypoint == nil && customEntrypoint == "" {
-			return fmt.Errorf("The image '%s' does not have an entrypoint, please provide a custom entrypoint by adding '--entrypoint EXECUTABLE'", imageName)
+
+		var errors multipleErrors
+		packages.LintImage(*imageInspect, func(e error) {
+			switch e.(type) {
+			case packages.NoEntrypointError:
+				// Exception is done for entrypoint, install offers the ability to customise its value
+				if customEntrypoint != "" {
+					return
+				}
+			}
+			if s, ok := e.(packages.StrictError); strict == true || !ok || s.Strict() {
+				errors = append(errors, e)
+			}
+		})
+		if errors != nil {
+			return errors
 		}
 
 		pkg, err := packages.NewPackageFromImage(imageName, *imageInspect)
@@ -138,4 +163,3 @@ var installCommand = &cobra.Command{
 		return nil
 	},
 }
-

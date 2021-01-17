@@ -47,6 +47,182 @@ func TestLoadImageLabelDecodesYamlList(t *testing.T) {
 	assert.Equal(t, []string{"some", "other"}, value)
 }
 
+func TestLintImageErrorsWhenMissingVolumesStrategyIsUnknown(t *testing.T) {
+	errored := false
+	LintImage(
+		types.ImageInspect{},
+		func(e error) {
+			errored = true
+			assert.Equal(t, NoEntrypointError{}, e)
+		},
+	)
+	assert.True(t, errored)
+}
+
+func TestLintImageErrorsWhenImageConfigIsNil(t *testing.T) {
+	errored := false
+	LintImage(
+		types.ImageInspect{
+			ContainerConfig: &container.Config{
+				Labels: map[string]string{"io.whalebrew.config.missing_volumes": "other"},
+			},
+			Config: &container.Config{
+				Entrypoint: []string{"/entrypoint"},
+			},
+		},
+		func(e error) {
+			errored = true
+			assert.Contains(t, e.Error(), "one of error, skip or mount")
+		},
+	)
+	assert.True(t, errored)
+}
+
+func TestLintImageSucceedsWithSupportedMissingVolumeStrategy(t *testing.T) {
+	for _, strategy := range []string{"error", "skip", "mount"} {
+		t.Run("with strategy "+strategy, func(t *testing.T) {
+			errored := false
+			LintImage(
+				types.ImageInspect{
+					ContainerConfig: &container.Config{
+						Labels: map[string]string{"io.whalebrew.config.missing_volumes": strategy},
+					},
+					Config: &container.Config{
+						Entrypoint: []string{"/entrypoint"},
+					},
+				},
+				func(e error) {
+					errored = true
+					t.Errorf("no error should be raised")
+				},
+			)
+			assert.False(t, errored)
+		})
+	}
+}
+
+func TestLintImageErrorsWhenEntrypointIsMissing(t *testing.T) {
+	errored := false
+	LintImage(
+		types.ImageInspect{
+			Config: &container.Config{},
+		},
+		func(e error) {
+			errored = true
+			assert.Equal(t, NoEntrypointError{}, e)
+		},
+	)
+	assert.True(t, errored)
+}
+
+func TestLintImageErrorsWhenLabelDoesNotExitsFromContainerConfig(t *testing.T) {
+	errored := false
+	LintImage(
+		types.ImageInspect{
+			ContainerConfig: &container.Config{
+				Labels: map[string]string{"io.whalebrew.some.key": "- some\n- other"},
+			},
+			Config: &container.Config{
+				Entrypoint: []string{"/entrypoint"},
+			},
+		},
+		func(e error) {
+			errored = true
+			assert.Equal(t, UnknownLabelError{"io.whalebrew.some.key"}, e)
+		},
+	)
+	assert.True(t, errored)
+}
+
+func TestLintImageErrorsWhenLabelDoesNotExitsFromImageConfig(t *testing.T) {
+	errored := false
+	LintImage(
+		types.ImageInspect{
+			Config: &container.Config{
+				Labels:     map[string]string{"io.whalebrew.some.key": "- some\n- other"},
+				Entrypoint: []string{"/entrypoint"},
+			},
+		},
+		func(e error) {
+			errored = true
+			assert.Equal(t, UnknownLabelError{"io.whalebrew.some.key"}, e)
+		},
+	)
+	assert.True(t, errored)
+}
+
+func TestLintImageErrorsWhenLabelCantBeDecodedFromContainerConfig(t *testing.T) {
+	errored := false
+	LintImage(
+		types.ImageInspect{
+			ContainerConfig: &container.Config{
+				Labels: map[string]string{"io.whalebrew.config.environment": "content of label"},
+			},
+			Config: &container.Config{
+				Entrypoint: []string{"/entrypoint"},
+			},
+		},
+		func(e error) {
+			errored = true
+			assert.IsType(t, LabelError{}, e)
+			assert.Contains(t, e.Error(), "io.whalebrew.config.environment")
+			assert.Contains(t, e.Error(), "cannot unmarshal")
+			assert.Contains(t, e.Error(), "content of label")
+		},
+	)
+	assert.True(t, errored)
+}
+
+func TestLintImageErrorsWhenLabelCantBeDecodedFromImageConfig(t *testing.T) {
+	errored := false
+	LintImage(
+		types.ImageInspect{
+			Config: &container.Config{
+				Labels:     map[string]string{"io.whalebrew.config.environment": "content of label"},
+				Entrypoint: []string{"/entrypoint"},
+			},
+		},
+		func(e error) {
+			errored = true
+			assert.IsType(t, LabelError{}, e)
+			assert.Contains(t, e.Error(), "io.whalebrew.config.environment")
+			assert.Contains(t, e.Error(), "cannot unmarshal")
+			assert.Contains(t, e.Error(), "content of label")
+		},
+	)
+	assert.True(t, errored)
+}
+
+func TestLintImageSucceedsFromContainerConfig(t *testing.T) {
+	LintImage(
+		types.ImageInspect{
+			ContainerConfig: &container.Config{
+				Labels: map[string]string{"io.whalebrew.config.environment": "[NAME]"},
+			},
+			Config: &container.Config{
+				Entrypoint: []string{"/entrypoint"},
+			},
+		},
+		func(e error) {
+			t.Errorf("when labels are correct, no error should be raised")
+		},
+	)
+}
+
+func TestLintImageSucceedsFromImageConfig(t *testing.T) {
+	LintImage(
+		types.ImageInspect{
+			Config: &container.Config{
+				Labels:     map[string]string{"io.whalebrew.config.environment": "[NAME]"},
+				Entrypoint: []string{"/entrypoint"},
+			},
+		},
+		func(e error) {
+			t.Errorf("when labels are correct, no error should be raised")
+		},
+	)
+}
+
 func TestLoadImageLabelDecodesYamlString(t *testing.T) {
 	value := ""
 	assert.NoError(
