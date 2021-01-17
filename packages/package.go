@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
@@ -24,19 +25,19 @@ var (
 
 // Package represents a Whalebrew package
 type Package struct {
-	Name                string   `yaml:"-"`
+	Name                string   `yaml:"-" labels:"name"`
 	Entrypoint          []string `yaml:"entrypoint,omitempty"`
-	Environment         []string `yaml:"environment,omitempty"`
+	Environment         []string `yaml:"environment,omitempty" labels:"config.environment"`
 	Image               string   `yaml:"image"`
-	Volumes             []string `yaml:"volumes,omitempty"`
-	Ports               []string `yaml:"ports,omitempty"`
-	Networks            []string `yaml:"networks,omitempty"`
-	WorkingDir          string   `yaml:"working_dir,omitempty"`
-	KeepContainerUser   bool     `yaml:"keep_container_user,omitempty"`
+	Volumes             []string `yaml:"volumes,omitempty" labels:"config.volumes"`
+	Ports               []string `yaml:"ports,omitempty" labels:"config.ports"`
+	Networks            []string `yaml:"networks,omitempty" labels:"config.networks"`
+	WorkingDir          string   `yaml:"working_dir,omitempty" labels:"config.working_dir"`
+	KeepContainerUser   bool     `yaml:"keep_container_user,omitempty" labels:"config.keep_container_user"`
 	SkipMissingVolumes  bool     `yaml:"skip_missing_volumes,omitempty"`
 	MountMissingVolumes bool     `yaml:"mount_missing_volumes,omitempty"`
-	RequiredVersion     string   `yaml:"required_version,omitempty"`
-	PathArguments       []string `yaml:"path_arguments,omitempty"`
+	RequiredVersion     string   `yaml:"required_version,omitempty" labels:"required_version"`
+	PathArguments       []string `yaml:"path_arguments,omitempty" labels:"config.volumes_from_args"`
 }
 
 // Loader loads a package from a given path
@@ -87,35 +88,18 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 		Name:  name,
 		Image: image,
 	}
-	missingVolumes := "error"
-	args := []string{}
-	if err := loadImageLabel(imageInspect, "name", &pkg.Name); err != nil {
-		return nil, err
+
+	v := reflect.ValueOf(pkg).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		label := v.Type().Field(i).Tag.Get("labels")
+		if label != "" {
+			if err := loadImageLabel(imageInspect, label, field.Addr().Interface()); err != nil {
+				return nil, err
+			}
+		}
 	}
-	if err := loadImageLabel(imageInspect, "required_version", &pkg.RequiredVersion); err != nil {
-		return nil, err
-	}
-	if err := loadImageLabel(imageInspect, "config.working_dir", &pkg.WorkingDir); err != nil {
-		return nil, err
-	}
-	if err := loadImageLabel(imageInspect, "config.environment", &pkg.Environment); err != nil {
-		return nil, err
-	}
-	if err := loadImageLabel(imageInspect, "config.volumes", &pkg.Volumes); err != nil {
-		return nil, err
-	}
-	if err := loadImageLabel(imageInspect, "config.volumes_from_args", &args); err != nil {
-		return nil, err
-	}
-	if err := loadImageLabel(imageInspect, "config.ports", &pkg.Ports); err != nil {
-		return nil, err
-	}
-	if err := loadImageLabel(imageInspect, "config.networks", &pkg.Networks); err != nil {
-		return nil, err
-	}
-	if err := loadImageLabel(imageInspect, "config.keep_container_user", &pkg.KeepContainerUser); err != nil {
-		return nil, err
-	}
+	missingVolumes := ""
 	if err := loadImageLabel(imageInspect, "config.missing_volumes", &missingVolumes); err != nil {
 		return nil, err
 	}
@@ -123,8 +107,8 @@ func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Packag
 	if err := version.CheckCompatible(pkg.RequiredVersion); pkg.RequiredVersion != "" && err != nil {
 		return nil, err
 	}
-	for _, arg := range args {
-		pkg.PathArguments = append(pkg.PathArguments, strings.TrimLeft(arg, "-"))
+	for i, arg := range pkg.PathArguments {
+		pkg.PathArguments[i] = strings.TrimLeft(arg, "-")
 	}
 	switch missingVolumes {
 	case "error", "":
