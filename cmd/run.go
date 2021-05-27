@@ -131,7 +131,7 @@ func Run(loader packages.Loader, runner run.Runner, args []string) error {
 	return runner.Run(pkg, &run.Execution{
 		WorkingDir:  os.ExpandEnv(pkg.WorkingDir),
 		User:        user,
-		IsTTYOpened: terminal.IsTerminal(int(os.Stdin.Fd())),
+		IsTTYOpened: terminal.IsTerminal(int(os.Stdin.Fd())) && terminal.IsTerminal(int(os.Stdout.Fd())),
 		Args:        args,
 		Environment: expandEnvVars(pkg.Environment),
 		Volumes:     append(volumes, parseRuntimeVolumes(args, pkg)...),
