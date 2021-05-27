@@ -1,6 +1,15 @@
 # Change log
 
 
+## 0.3.1 - 2021-05-27
+
+### Fixed
+* Whalebrew search without pattern was wrongly claiming to list all available packages (#133)
+* Images were wrongly run with TTY in case commands were piped (#136)
+
+### Added
+* Add a linter to validate image labels (#126)
+
 ## 0.3.0 - 2021-01-08
 
 ### Fixed
