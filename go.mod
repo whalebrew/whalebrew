@@ -6,10 +6,9 @@ require (
 	github.com/Songmu/prompter v0.0.0-20181014095714-d227c68538bd
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/containerd/containerd v1.4.1
-	github.com/creack/pty v1.1.17
 	github.com/docker/cli v20.10.0-beta1+incompatible
 	github.com/docker/docker v0.7.3-0.20190409075915-9d850cbfa5e9
-	github.com/google/go-cmp v0.4.0
+	github.com/google/go-cmp v0.5.6
 	github.com/spf13/cobra v0.0.4-0.20190321000552-67fc4837d267
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.3.2
