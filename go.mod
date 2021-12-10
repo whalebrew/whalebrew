@@ -12,7 +12,7 @@ require (
 	github.com/spf13/cobra v0.0.4-0.20190321000552-67fc4837d267
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.3.2
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d
 	gopkg.in/yaml.v2 v2.2.2
 )
@@ -54,6 +54,7 @@ require (
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	google.golang.org/genproto v0.0.0-20180817151627-c66870c02cf8 // indirect
 	google.golang.org/grpc v1.19.1 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 	gotest.tools v2.2.0+incompatible // indirect
 	gotest.tools/v3 v3.0.3 // indirect
 )
