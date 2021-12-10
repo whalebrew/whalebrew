@@ -23,7 +23,7 @@ require (
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/spf13/cobra v0.0.4-0.20190321000552-67fc4837d267
-	github.com/spf13/pflag v1.0.3
+	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d
