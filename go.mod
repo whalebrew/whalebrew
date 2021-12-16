@@ -9,7 +9,7 @@ require (
 	github.com/docker/cli v20.10.12+incompatible
 	github.com/docker/docker v0.7.3-0.20190409075915-9d850cbfa5e9
 	github.com/google/go-cmp v0.5.6
-	github.com/spf13/cobra v1.0.0
+	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.0
