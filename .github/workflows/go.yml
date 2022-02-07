@@ -23,6 +23,9 @@ jobs:
         - os: macos-latest
           arch: amd64
           go-version: 1.17.5
+        - os: macos-latest
+          arch: arm64
+          go-version: 1.17.5
     name: Build
     runs-on: ${{ matrix.os }}
     steps:
