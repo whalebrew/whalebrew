@@ -18,7 +18,7 @@ import (
 
 	"github.com/actions-go/toolkit/core"
 	gha "github.com/actions-go/toolkit/github"
-	"github.com/google/go-github/v29/github"
+	"github.com/google/go-github/v42/github"
 )
 
 func addUpload(uploads map[string][]string, path string) {

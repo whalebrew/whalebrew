@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/google/go-github/v29/github"
+	"github.com/google/go-github/v42/github"
 	"github.com/stretchr/testify/assert"
 )
 
