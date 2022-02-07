@@ -103,15 +103,15 @@ Whalebrew is configured with environment variables, which you can either provide
 
 ### Using custom registries
 
-:warning: This feature is currently under development. Any feedback or subjection is wram welcomed
+:warning: This feature is currently under development. Any feedback or comments are welcome!
 
-Whalebrew now supports handling several registries, used when searching for packages.
+Whalebrew now supports using several registries when searching for packages.
 
-Each reporisoty will be searched sequentially and output whalebrew packages, one per line.
+Each repository will be searched sequentially and matches on whalebrew packages will be shown, one per line.
 
 To enable this feature, ensure you have a configuration file in `${WHALEBREW_CONFIG_DIR:-~/.whalebrew}/config.yaml`.
 
-You can configure such running:
+You can make one by running:
 
 ```
 mkdir -p ${WHALEBREW_CONFIG_DIR:-~/.whalebrew}
@@ -163,11 +163,11 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.volumes '["~/.docker:/root/.docker:ro"]'
 
-* `io.whalebrew.config.ports`: A list of host port to container port mappings to create when the command is run. For example, putting this in your image's `Dockerfile` will map container port 8100 to host port 8100:
+* `io.whalebrew.config.ports`: A list of host port to container port mappings to create when the command is run. For example, putting this in your image's `Dockerfile` will map container port 8100 to host port 8000:
 
-        LABEL io.whalebrew.config.ports '["8100:8100"]'
+        LABEL io.whalebrew.config.ports '["8100:8000"]'
 
-* `io.whalebrew.config.networks`: A list of networks to connect on the container.
+* `io.whalebrew.config.networks`: A list of networks to connect the container to.
 
         LABEL io.whalebrew.config.networks '["host"]'
 
@@ -175,7 +175,7 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.working_dir '/working_directory'
 
-* `io.whalebrew.config.keep_container_user`: Set this variable to true to keep the default container USER. When set to true, whalebrew will not run the command as the current user using the docker `-u` flag
+* `io.whalebrew.config.keep_container_user`: Set this variable to true to keep the default container user. When set to true, whalebrew will not run the command as the current user using the docker `-u` flag
 
         LABEL io.whalebrew.config.keep_container_user 'true'
 
@@ -183,14 +183,14 @@ There are some labels you can use to configure how Whalebrew installs your image
 
         LABEL io.whalebrew.config.missing_volumes 'skip'
 
-        Possible values are
-        - 'error' to raise an error when trying to mount a non existing volume *this is the default behaviour*
-        - 'skip' to prevent binding the volume
-        - 'mount' to mount the volume anyway. This will result in docker [creating a host directory](https://docs.docker.com/engine/reference/commandline/run/#mount-volume--v---read-only)
+  Possible values are
+    * `error` to raise an error when trying to mount a non existing volume *this is the default behaviour*
+    * `skip` to prevent binding the volume
+    * `mount` to mount the volume anyway. This will result in docker [creating a host directory](https://docs.docker.com/engine/reference/commandline/run/#mount-volume--v---read-only)
 
-* `io.whalebrew.required_version`: Specifies the minimum whalebrew version to required to run the package. Examples: `<1.0.0`, `>0.1.0`, `>0.1.0 <1.0.0`
+* `io.whalebrew.required_version`: Specifies the minimum whalebrew version that is required to run the package. Examples: `<1.0.0`, `>0.1.0`, `>0.1.0 <1.0.0`
 
-* `io.whalebrew.config.volumes_from_args`: A list of command line arguments of the program passed at runtime that must be consideredand mounted as volumes:
+* `io.whalebrew.config.volumes_from_args`: A list of command line arguments of the program passed at runtime that must be considered and mounted as volumes:
 
         LABEL io.whalebrew.config.volumes_from_args '["-C", "--exec-path"]'
 
@@ -214,10 +214,10 @@ Whalebrew supports the following hooks:
 
 |command & arguments|description|
 |-|-|
-|`pre-install ${DOCKER_IMAGE} ${EXECUTABLE_NAME}`|This hook is called before installing a package. Failure of this hook will fail the installation process|
-|`post-install ${EXECUTABLE_NAME}`|This hook is called after a package is installed. Failure of this hook will fail the installation process, but the package is not uninstalled|
-|`pre-uninstall ${EXECUTABLE_NAME}`|This hook is called before uninstalling a package. Failure of this hook will fail the uninstallation process|
-|`post-uninstall ${EXECUTABLE_NAME}`|This hook is called after a package is uninstalled. Failure of this hook will fail the uninstallation process, but the package is not uninstalled|
+|`pre-install ${DOCKER_IMAGE} ${EXECUTABLE_NAME}`|This hook is called before installing a package. If it fails, the whole installation process fails|
+|`post-install ${EXECUTABLE_NAME}`|This hook is called after a package is installed. If it fails, the installation process fails, but the package is not uninstalled|
+|`pre-uninstall ${EXECUTABLE_NAME}`|This hook is called before uninstalling a package. If it fails, the whole uninstallation process fails|
+|`post-uninstall ${EXECUTABLE_NAME}`|This hook is called after a package is uninstalled. If it fails, the uninstallation process fails, but the package is not uninstalled|
 
 ### Whalebrew images
 
