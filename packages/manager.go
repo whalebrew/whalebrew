@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // PackageManager manages packages at a given path
@@ -164,4 +164,3 @@ func IsPackage(path string) (bool, error) {
 
 	return false, nil
 }
-
