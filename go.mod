@@ -5,9 +5,9 @@ go 1.17
 require (
 	github.com/Songmu/prompter v0.5.0
 	github.com/blang/semver/v4 v4.0.0
-	github.com/containerd/containerd v1.5.9
+	github.com/containerd/containerd v1.6.0
 	github.com/docker/cli v20.10.12+incompatible
-	github.com/docker/docker v0.7.3-0.20190409075915-9d850cbfa5e9
+	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/google/go-cmp v0.5.7
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
@@ -18,8 +18,7 @@ require (
 )
 
 require (
-	github.com/Microsoft/go-winio v0.4.17 // indirect
-	github.com/containerd/continuity v0.1.0 // indirect
+	github.com/Microsoft/go-winio v0.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.6.3 // indirect
@@ -35,10 +34,8 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/moby/locker v1.0.1 // indirect
-	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.2 // indirect
-	github.com/opencontainers/runc v1.0.2 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -47,10 +44,10 @@ require (
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
-	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect
+	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20211210111614-af8b64212486 // indirect
-	golang.org/x/term v0.0.0-20210317153231-de623e64d2a6 // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
