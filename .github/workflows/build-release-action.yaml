@@ -1,0 +1,18 @@
+name: action-ci
+on: 
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+      with:
+        # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+        # fetch all tags
+        fetch-depth: 0
+    - name: build docker image
+      run: docker build ./actions/release

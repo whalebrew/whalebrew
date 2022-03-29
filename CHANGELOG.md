@@ -1,10 +1,11 @@
 # Change log
 
-## 0.4.0 - 2022-03-29
+## 0.4.0 - 2022-03-30
 
 ### Fixed
 
 * Formatting and spelling in the README (#152)
+* The release script pushing binaries to the github release (#172)
 
 ### Added
 
