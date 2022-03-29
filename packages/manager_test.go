@@ -121,6 +121,66 @@ func TestPackageManagerList(t *testing.T) {
 	assert.Equal(t, packages["whalesay"].Image, "whalebrew/whalesay")
 }
 
+func TestPackageManagerFindByNameOrImage(t *testing.T) {
+	installPath, err := ioutil.TempDir("", "whalebrewtest")
+	assert.Nil(t, err)
+
+	pm := NewPackageManager(installPath)
+	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	assert.Nil(t, err)
+	pkg.Name = "some-whalesay"
+	err = pm.Install(pkg)
+	assert.Nil(t, err)
+
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	assert.Nil(t, err)
+	pkg.Name = "some-other-whalesay"
+	err = pm.Install(pkg)
+	assert.Nil(t, err)
+
+	t.Run("when no package matches", func(t *testing.T) {
+		candidates, err := pm.FindByNameOrImage("whalesay")
+		assert.Nil(t, err)
+		assert.Empty(t, candidates)
+	})
+
+	t.Run("when searching with matching image name", func(t *testing.T) {
+		candidates, err := pm.FindByNameOrImage("whalebrew/whalesay")
+		assert.Nil(t, err)
+		assert.Len(t, candidates, 2)
+		assert.Contains(t, candidates, MatchingPackage{
+			Package: Package{
+				Image:      "whalebrew/whalesay",
+				WorkingDir: DefaultWorkingDir,
+				Name:       "some-whalesay",
+			},
+			Reason: MatchReasonPackageImageMatches,
+		})
+		assert.Contains(t, candidates, MatchingPackage{
+			Package: Package{
+				Image:      "whalebrew/whalesay",
+				WorkingDir: DefaultWorkingDir,
+				Name:       "some-other-whalesay",
+			},
+			Reason: MatchReasonPackageImageMatches,
+		})
+	})
+
+	t.Run("when searching with matching package name", func(t *testing.T) {
+		candidates, err := pm.FindByNameOrImage("some-whalesay")
+		assert.Nil(t, err)
+		assert.Len(t, candidates, 1)
+		assert.Contains(t, candidates, MatchingPackage{
+			Package: Package{
+				Image:      "whalebrew/whalesay",
+				WorkingDir: DefaultWorkingDir,
+				Name:       "some-whalesay",
+			},
+			Reason: MatchReasonPackageNameMatches,
+		})
+	})
+}
+
 func TestPackageManagerUninstall(t *testing.T) {
 	installPath, err := ioutil.TempDir("", "whalebrewtest")
 	assert.Nil(t, err)

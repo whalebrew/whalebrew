@@ -43,7 +43,6 @@ type Package struct {
 	RequiredVersion     string   `yaml:"required_version,omitempty" labels:"required_version"`
 	PathArguments       []string `yaml:"path_arguments,omitempty" labels:"config.volumes_from_args"`
 }
-
 type StrictError interface {
 	Strict() bool
 }

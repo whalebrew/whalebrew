@@ -17,6 +17,18 @@ type PackageManager struct {
 	InstallPath string
 }
 
+type MatchReason string
+
+const (
+	MatchReasonPackageNameMatches  MatchReason = "package name matches"
+	MatchReasonPackageImageMatches MatchReason = "package image matches"
+)
+
+type MatchingPackage struct {
+	Package
+	Reason MatchReason
+}
+
 // NewPackageManager creates a new PackageManager
 func NewPackageManager(path string) *PackageManager {
 	return &PackageManager{InstallPath: path}
@@ -163,4 +175,30 @@ func IsPackage(path string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func (pm *PackageManager) FindByNameOrImage(packageNameOrImage string) ([]MatchingPackage, error) {
+	packages, err := pm.List()
+	if err != nil {
+		return nil, fmt.Errorf("unable to list packages: %v", err)
+	}
+
+	matchingPackages := []MatchingPackage{}
+	for _, pkg := range packages {
+		if pkg == nil {
+			continue
+		}
+		if pkg.Name == packageNameOrImage {
+			matchingPackages = append(matchingPackages, MatchingPackage{
+				Package: *pkg,
+				Reason:  MatchReasonPackageNameMatches,
+			})
+		} else if pkg.Image == packageNameOrImage {
+			matchingPackages = append(matchingPackages, MatchingPackage{
+				Package: *pkg,
+				Reason:  MatchReasonPackageImageMatches,
+			})
+		}
+	}
+	return matchingPackages, nil
 }
