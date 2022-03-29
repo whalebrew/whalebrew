@@ -1,5 +1,16 @@
 # Change log
 
+## 0.4.0 - 2022-03-29
+
+### Fixed
+
+* Formatting and spelling in the README (#152)
+
+### Added
+
+* Whalebrew binay is now also delivered for macos arm64 architecture (#155)
+* `uninstall` now support detecting either a package (i.e. command) or image name (#164)
+* Support for automatic dependencies update with all dependencies updates
 
 ## 0.3.1 - 2021-05-27
 
