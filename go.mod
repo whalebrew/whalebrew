@@ -8,7 +8,7 @@ require (
 	github.com/containerd/containerd v1.6.2
 	github.com/docker/cli v20.10.14+incompatible
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
-	github.com/google/go-cmp v0.5.7
+	github.com/google/go-cmp v0.5.8
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
