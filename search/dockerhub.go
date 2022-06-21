@@ -13,8 +13,8 @@ type DockerHub struct {
 }
 
 type imageResult struct {
-	User string `json:"user"`
-	Name string `json:"name"`
+	Namespace string `json:"namespace"`
+	Name      string `json:"name"`
 }
 type searchAnswer struct {
 	Results []imageResult `json:"results"`
@@ -52,7 +52,7 @@ func (dh *DockerHub) Search(term string, handleError ErrorHandler) <-chan string
 			}
 		}
 		for _, image := range answer.Results {
-			out <- fmt.Sprintf("%s/%s", image.User, image.Name)
+			out <- fmt.Sprintf("%s/%s", image.Namespace, image.Name)
 		}
 		close(out)
 	}()
