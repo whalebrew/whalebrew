@@ -29,7 +29,7 @@ func NewClient() (*Client, error) {
 	}, nil
 }
 
-func(c *Client) ImageInspect(ctx context.Context, imageName string) (*types.ImageInspect, error) {
+func (c *Client) ImageInspect(ctx context.Context, imageName string) (*types.ImageInspect, error) {
 	imageInspect, _, err := c.ImageInspectWithRaw(ctx, imageName)
 	if err == nil {
 		return &imageInspect, nil
