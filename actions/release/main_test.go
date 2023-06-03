@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 
@@ -26,9 +26,9 @@ func TestUploadAssetSucceeds(t *testing.T) {
 		"hello-world.sha1":   "4e1243bd22c66e76c2ba9eddc1f91394e57f9f83",
 		"hello-world.sha256": "f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2",
 	}
-	openedFiles := []*os.File{}
+	var openedFiles []*os.File
 	uploadReleaseAsset = func(name, label string, release *github.RepositoryRelease, fd *os.File) error {
-		b, err := ioutil.ReadAll(fd)
+		b, err := io.ReadAll(fd)
 		assert.NoError(t, err)
 		assert.Equal(t, contents[name], string(b))
 		delete(contents, name)

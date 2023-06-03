@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"io/ioutil"
 	"mime"
 	"os"
 	"path/filepath"
@@ -83,7 +82,7 @@ func uploadAsset(name string, release *github.RepositoryRelease, path string) er
 		if err != nil {
 			return err
 		}
-		tmpfile, err := ioutil.TempFile("", "checksum*"+ext)
+		tmpfile, err := os.CreateTemp("", "checksum*"+ext)
 		if err != nil {
 			return err
 		}

@@ -12,8 +12,6 @@ import (
 	"github.com/whalebrew/whalebrew/packages"
 )
 
-var forceUninstall bool
-
 func init() {
 	uninstallCommand.Flags().BoolVarP(&assumeYes, "assume-yes", "y", false, "Assume 'yes' as answer to all prompts and run non-interactively. Defaults to false.")
 
@@ -40,7 +38,7 @@ var uninstallCommand = &cobra.Command{
 			return cmd.Help()
 		}
 		if len(args) > 1 {
-			return fmt.Errorf("Only one image can be uninstalled at a time")
+			return fmt.Errorf("only one image can be uninstalled at a time")
 		}
 
 		pm := packages.NewPackageManager(viper.GetString("install_path"))
@@ -54,7 +52,7 @@ var uninstallCommand = &cobra.Command{
 			return fmt.Errorf("unable to list packages: %v", err)
 		}
 
-		candidates := []deletionCandidate{}
+		var candidates []deletionCandidate
 		for _, pkg := range packages {
 			if pkg.Name == packageNameOrImage {
 				candidates = append(candidates, deletionCandidate{

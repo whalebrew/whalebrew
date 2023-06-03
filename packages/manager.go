@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -34,7 +33,7 @@ func NewPackageManager(path string) *PackageManager {
 	return &PackageManager{InstallPath: path}
 }
 
-// Looks at installation path for existing installation of pkgName
+// HasInstallation Looks at installation path for existing installation of pkgName
 func (pm *PackageManager) HasInstallation(pkgName string) bool {
 	packagePath := path.Join(pm.InstallPath, pkgName)
 
@@ -59,7 +58,7 @@ func (pm *PackageManager) Install(pkg *Package) error {
 	}
 
 	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
-	return ioutil.WriteFile(packagePath, d, 0755)
+	return os.WriteFile(packagePath, d, 0755)
 }
 
 // ForceInstall installs a package
@@ -72,13 +71,13 @@ func (pm *PackageManager) ForceInstall(pkg *Package) error {
 	packagePath := path.Join(pm.InstallPath, pkg.Name)
 
 	d = append([]byte("#!/usr/bin/env whalebrew\n"), d...)
-	return ioutil.WriteFile(packagePath, d, 0755)
+	return os.WriteFile(packagePath, d, 0755)
 }
 
 // List lists installed packages
 func (pm *PackageManager) List() (map[string]*Package, error) {
 	packages := make(map[string]*Package)
-	files, err := ioutil.ReadDir(pm.InstallPath)
+	files, err := os.ReadDir(pm.InstallPath)
 	if err != nil {
 		return packages, err
 	}
@@ -183,7 +182,7 @@ func (pm *PackageManager) FindByNameOrImage(packageNameOrImage string) ([]Matchi
 		return nil, fmt.Errorf("unable to list packages: %v", err)
 	}
 
-	matchingPackages := []MatchingPackage{}
+	var matchingPackages []MatchingPackage
 	for _, pkg := range packages {
 		if pkg == nil {
 			continue

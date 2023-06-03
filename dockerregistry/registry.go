@@ -85,7 +85,7 @@ func (r *Registry) Get(path string, out interface{}) error {
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Unexpected status %d, expecting %d", resp.StatusCode, http.StatusOK)
+		return fmt.Errorf("unexpected status %d, expecting %d", resp.StatusCode, http.StatusOK)
 	}
 	if out != nil {
 		return json.NewDecoder(resp.Body).Decode(out)

@@ -30,13 +30,13 @@ func NewDocker() (*Docker, error) {
 // Run runs a given package until completion
 func (d *Docker) Run(p *packages.Package, e *Execution) error {
 	if p == nil {
-		return fmt.Errorf("No package provided")
+		return fmt.Errorf("no package provided")
 	}
 	if p.Image == "" {
-		return fmt.Errorf("Provided package does not contain any image")
+		return fmt.Errorf("provided package does not contain any image")
 	}
 	if e == nil {
-		return fmt.Errorf("No execution provided")
+		return fmt.Errorf("no execution provided")
 	}
 	dockerArgs := []string{
 		d.Path,
@@ -84,7 +84,7 @@ func (d *Docker) Run(p *packages.Package, e *Execution) error {
 	dockerArgs = append(dockerArgs, p.Image)
 	dockerArgs = append(dockerArgs, args...)
 	if d.Exec == nil {
-		return fmt.Errorf("No docker executable provided")
+		return fmt.Errorf("no docker executable provided")
 	}
 	return d.Exec(d.Path, dockerArgs, os.Environ())
 }

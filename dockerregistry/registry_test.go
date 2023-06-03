@@ -1,7 +1,7 @@
 package dockerregistry
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -91,19 +91,19 @@ func TestRegistryCatalogWithoutAuthentication(t *testing.T) {
 					StatusCode: http.StatusUnauthorized,
 					Header:     h,
 					Request:    req,
-					Body:       ioutil.NopCloser(strings.NewReader("")),
+					Body:       io.NopCloser(strings.NewReader("")),
 				}, nil
 			case "/auth":
 				return &http.Response{
 					StatusCode: http.StatusOK,
 					Request:    req,
-					Body:       ioutil.NopCloser(strings.NewReader(`{"token":"token","access_token":"my-access-token","expires_in":300}`)),
+					Body:       io.NopCloser(strings.NewReader(`{"token":"token","access_token":"my-access-token","expires_in":300}`)),
 				}, nil
 			default:
 				return &http.Response{
 					StatusCode: http.StatusBadRequest,
 					Request:    req,
-					Body:       ioutil.NopCloser(strings.NewReader("unexpected call to path " + req.URL.Path)),
+					Body:       io.NopCloser(strings.NewReader("unexpected call to path " + req.URL.Path)),
 				}, nil
 			}
 		})
