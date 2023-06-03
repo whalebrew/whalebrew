@@ -212,12 +212,12 @@ Those hooks must be executable files located in `${WHALEBREW_CONFIG_DIR}/hooks`.
 
 Whalebrew supports the following hooks:
 
-|command & arguments|description|
-|-|-|
-|`pre-install ${DOCKER_IMAGE} ${EXECUTABLE_NAME}`|This hook is called before installing a package. If it fails, the whole installation process fails|
-|`post-install ${EXECUTABLE_NAME}`|This hook is called after a package is installed. If it fails, the installation process fails, but the package is not uninstalled|
-|`pre-uninstall ${EXECUTABLE_NAME}`|This hook is called before uninstalling a package. If it fails, the whole uninstallation process fails|
-|`post-uninstall ${EXECUTABLE_NAME}`|This hook is called after a package is uninstalled. If it fails, the uninstallation process fails, but the package is not uninstalled|
+| command & arguments                              | description                                                                                                                           |
+|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `pre-install ${DOCKER_IMAGE} ${EXECUTABLE_NAME}` | This hook is called before installing a package. If it fails, the whole installation process fails                                    |
+| `post-install ${EXECUTABLE_NAME}`                | This hook is called after a package is installed. If it fails, the installation process fails, but the package is not uninstalled     |
+| `pre-uninstall ${EXECUTABLE_NAME}`               | This hook is called before uninstalling a package. If it fails, the whole uninstallation process fails                                |
+| `post-uninstall ${EXECUTABLE_NAME}`              | This hook is called after a package is uninstalled. If it fails, the uninstallation process fails, but the package is not uninstalled |
 
 ### Whalebrew images
 
