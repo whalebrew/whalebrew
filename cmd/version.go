@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/whalebrew/whalebrew/version"
 	"github.com/spf13/cobra"
+	"github.com/whalebrew/whalebrew/version"
 )
 
 func init() {

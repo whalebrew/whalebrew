@@ -1,6 +1,6 @@
 module github.com/whalebrew/whalebrew/actions/release
 
-go 1.17
+go 1.20
 
 require (
 	github.com/actions-go/toolkit v0.0.0-20220207230919-2c5a93c4f459

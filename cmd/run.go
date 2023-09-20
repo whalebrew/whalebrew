@@ -37,15 +37,15 @@ func getVolumes(pkg *packages.Package) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	volumes := []string{}
+	var volumes []string
 	for _, volume := range append(pkg.Volumes, fmt.Sprintf("%s:%s", cwd, pkg.WorkingDir)) {
 		// special case expanding home directory
 		if strings.HasPrefix(volume, "~/") {
-			user, err := user.Current()
+			currentUser, err := user.Current()
 			if err != nil {
 				return nil, err
 			}
-			volume = user.HomeDir + volume[1:]
+			volume = currentUser.HomeDir + volume[1:]
 		}
 		volume = os.ExpandEnv(volume)
 		b, err := shouldBind(strings.Split(volume, ":")[0], pkg)
@@ -60,13 +60,13 @@ func getVolumes(pkg *packages.Package) ([]string, error) {
 }
 
 func parseRuntimeVolumes(args []string, pkg *packages.Package) []string {
-	volumes := []string{}
+	var volumes []string
 	if pkg == nil || pkg.PathArguments == nil {
 		return volumes
 	}
 	flags := pflag.NewFlagSet("volume-binder", pflag.ContinueOnError)
 	flags.ParseErrorsWhitelist.UnknownFlags = true
-	volumesArgs := []*[]string{}
+	var volumesArgs []*[]string
 	for _, name := range pkg.PathArguments {
 		if len(name) == 1 {
 			// Allow shorthand grouping like -cf
@@ -96,7 +96,7 @@ func parseRuntimeVolumes(args []string, pkg *packages.Package) []string {
 }
 
 func expandEnvVars(vars []string) []string {
-	r := []string{}
+	var r []string
 	for _, v := range vars {
 		r = append(r, os.ExpandEnv(v))
 	}
@@ -120,7 +120,7 @@ func Run(loader packages.Loader, runner run.Runner, args []string) error {
 	}
 	args = args[2:]
 
-	user, err := user.Current()
+	currentUser, err := user.Current()
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func Run(loader packages.Loader, runner run.Runner, args []string) error {
 	}
 	return runner.Run(pkg, &run.Execution{
 		WorkingDir:  os.ExpandEnv(pkg.WorkingDir),
-		User:        user,
+		User:        currentUser,
 		IsTTYOpened: terminal.IsTerminal(int(os.Stdin.Fd())) && terminal.IsTerminal(int(os.Stdout.Fd())),
 		Args:        args,
 		Environment: expandEnvVars(pkg.Environment),

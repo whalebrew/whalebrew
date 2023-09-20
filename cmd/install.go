@@ -47,7 +47,7 @@ var installCommand = &cobra.Command{
 			return cmd.Help()
 		}
 		if len(args) > 1 {
-			return fmt.Errorf("Only one image can be installed at a time")
+			return fmt.Errorf("only one image can be installed at a time")
 		}
 
 		imageName := args[0]
@@ -114,7 +114,7 @@ var installCommand = &cobra.Command{
 					fmt.Println(diff)
 
 					if !prompter.YN("Are you sure you would like to overwrite these changes?", false) {
-						return fmt.Errorf("Not installing package")
+						return fmt.Errorf("not installing package")
 					}
 				} else if pkg.Image == installed.Image {
 					fmt.Printf("%s would generate the same package, nothing to do\n", pkg.Image)
@@ -122,7 +122,7 @@ var installCommand = &cobra.Command{
 				}
 
 				if pkg.Image != installed.Image && !prompter.YN(fmt.Sprintf("Would you like to change %s to %s?", installed.Image, pkg.Image), true) {
-					return fmt.Errorf("Not installing package")
+					return fmt.Errorf("not installing package")
 				}
 			}
 			forceInstall = true
@@ -133,7 +133,7 @@ var installCommand = &cobra.Command{
 			fmt.Println(preinstallMessage)
 			if !assumeYes {
 				if !prompter.YN("Is this okay?", true) {
-					return fmt.Errorf("Not installing package")
+					return fmt.Errorf("not installing package")
 				}
 			}
 		}

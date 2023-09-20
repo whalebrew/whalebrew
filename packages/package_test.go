@@ -31,7 +31,7 @@ func mustNewTestPackageFromImage(t *testing.T, imageName string) *Package {
 }
 
 func TestLoadImageLabelDecodesYamlList(t *testing.T) {
-	value := []string{}
+	var value []string
 	assert.NoError(
 		t,
 		loadImageLabel(
@@ -258,7 +258,7 @@ func TestLoadImageLabelDecodesPlainString(t *testing.T) {
 }
 
 func TestLoadImageLabelPrefersContainerConfig(t *testing.T) {
-	value := []string{}
+	var value []string
 	assert.NoError(
 		t,
 		loadImageLabel(
@@ -278,7 +278,7 @@ func TestLoadImageLabelPrefersContainerConfig(t *testing.T) {
 }
 
 func TestLoadImageLabelFallsBackToConfig(t *testing.T) {
-	value := []string{}
+	var value []string
 	assert.NoError(
 		t,
 		loadImageLabel(

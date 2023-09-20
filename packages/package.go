@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -235,7 +235,7 @@ type YamlLoader struct{}
 
 // LoadPackageFromPath reads a package from the given path
 func (y YamlLoader) LoadPackageFromPath(path string) (*Package, error) {
-	d, err := ioutil.ReadFile(path)
+	d, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

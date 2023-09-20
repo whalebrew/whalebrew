@@ -1,5 +1,5 @@
 name: Go CI
-on: 
+on:
   push:
     branches:
     - "**"
@@ -12,38 +12,35 @@ jobs:
   build:
     strategy:
       matrix:
-        os: 
+        os:
         - ubuntu-latest
         arch:
         - amd64
         - arm
         - arm64
-        go-version: [1.17.5]
+        go-version: [ '1.20' ]
         include:
         - os: macos-latest
           arch: amd64
-          go-version: 1.17.5
+          go-version: '1.20'
         - os: macos-latest
           arch: arm64
-          go-version: 1.17.5
+          go-version: '1.20'
     name: Build
     runs-on: ${{ matrix.os }}
     steps:
-    - name: hello world
-      run: echo hello world
-
     - name: Set up Go ${{ matrix.go-version }}
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.go-version }}
       id: go
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
         # fetch all tags
-        fetch-depth: 0    
+        fetch-depth: 0
 
     - name: Map binary name
       id: binary
@@ -62,12 +59,12 @@ jobs:
       run: |
         GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o ${{ steps.binary.outputs.binary_name }} .
 
-    
+
     - name: Ensure binary works
       run: ./${{ steps.binary.outputs.binary_name }} version
       if: ${{ !startsWith(matrix.arch, 'arm') }}
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.binary.outputs.binary_name }}
         path: whalebrew-*
@@ -75,10 +72,10 @@ jobs:
     - name: run tests
       run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
-    - uses: codecov/codecov-action@v1
+    - uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }} #required
-    
+
   release:
     name: release
     runs-on: ubuntu-latest
@@ -87,9 +84,9 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
-    
+
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
         # fetch all tags
@@ -97,7 +94,7 @@ jobs:
 
     - name: Download assets
       id: download
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         path: release/artifacts
 
