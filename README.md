@@ -38,7 +38,9 @@ Whalebrew can run almost any CLI tool, but it isn't for everything (e.g. where c
 
 ## Install
 
-First, [install Docker](https://docs.docker.com/engine/installation/). The easiest way to do this on macOS is by installing [Docker for Mac](https://docs.docker.com/docker-for-mac/).
+First, [install Docker](https://docs.docker.com/engine/installation/). The easiest way to do this on macOS is by installing [Docker for Mac](https://docs.docker.com/docker-for-mac/). You can install Docker for Mac via Homebrew:
+
+    brew install --cask docker
 
 Next, you can install whalebrew via Homebrew on macOS and Linux:
 
