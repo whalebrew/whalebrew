@@ -1,5 +1,21 @@
 # Change log
 
+## 0.4.1 - 2023-09-20
+
+### Fixed
+
+* A breaking change on Docker Hub breaking whalebrew search
+
+### Updates
+
+* Updated all golang dependencies. remarkably:
+
+|Module|Previous version|New version|
+|-|-|
+|github.com/containerd/containerd|v1.6.6|v1.7.6|
+|github.com/docker/cli|v20.10.17+incompatible|v24.0.6+incompatible|
+|github.com/docker/docker|v1.4.2-0.20190924003213-a8608b5b67c7|v24.0.6+incompatible|
+
 ## 0.4.0 - 2022-03-30
 
 ### Fixed

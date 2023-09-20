@@ -48,7 +48,7 @@ Next, you can install whalebrew via Homebrew on macOS and Linux:
 
 If you're not using Homebrew, you can download a binary and use that:
 
-    curl -L "https://github.com/whalebrew/whalebrew/releases/download/0.4.0/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
+    curl -L "https://github.com/whalebrew/whalebrew/releases/download/0.4.1/whalebrew-$(uname -s)-$(uname -m)" -o /usr/local/bin/whalebrew; chmod +x /usr/local/bin/whalebrew
 
 Windows support is theoretically possible, but not implemented yet.
 
