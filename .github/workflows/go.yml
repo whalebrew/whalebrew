@@ -34,7 +34,7 @@ jobs:
       run: echo hello world
 
     - name: Set up Go ${{ matrix.go-version }}
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.go-version }}
       id: go
