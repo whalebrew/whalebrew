@@ -12,10 +12,10 @@ import (
 	"github.com/whalebrew/whalebrew/run"
 )
 
-type testRunner func(p *packages.Package, e *run.Execution) error
+type testRunner func(e *run.Execution) error
 
-func (tr testRunner) Run(p *packages.Package, e *run.Execution) error {
-	return tr(p, e)
+func (tr testRunner) Run(e *run.Execution) error {
+	return tr(e)
 }
 
 type testLoader func(path string) (*packages.Package, error)
@@ -39,18 +39,18 @@ func TestIsShellbang(t *testing.T) {
 }
 
 func TestRun(t *testing.T) {
-	f := func(p *packages.Package, e *run.Execution) error {
+	f := func(e *run.Execution) error {
 		return errors.New("test error")
 	}
 	assert.Error(t, cmd.Run(packages.DefaultLoader, testRunner(f), []string{"whalebrew", "../packages/resources/aws"}))
 	os.Setenv("TEST_ENVIRONMENT_VARIABLE", "SOME-VALUE")
-	f = func(p *packages.Package, e *run.Execution) error {
+	f = func(e *run.Execution) error {
 		assert.Contains(t, e.Environment, "TEST_ENV=SOME-VALUE")
 		assert.Equal(t, 2, len(e.Volumes))
 		return nil
 	}
 	assert.NoError(t, cmd.Run(packages.DefaultLoader, testRunner(f), []string{"whalebrew", "../packages/resources/aws"}))
-	f = func(p *packages.Package, e *run.Execution) error {
+	f = func(e *run.Execution) error {
 		return nil
 	}
 	assert.Error(t, cmd.Run(packages.DefaultLoader, testRunner(f), []string{"whalebrew", "./this-package-does-not-exist", "arg1"}))
@@ -64,7 +64,7 @@ func TestRunWorkdirIsExpanded(t *testing.T) {
 			testLoader(func(string) (*packages.Package, error) {
 				return &packages.Package{WorkingDir: "$HOME"}, nil
 			}),
-			testRunner(func(p *packages.Package, e *run.Execution) error {
+			testRunner(func(e *run.Execution) error {
 				assert.Equal(t, "/homes/test-user", e.WorkingDir)
 				return nil
 			}),
@@ -84,7 +84,7 @@ func TestRunVolumesIsExpanded(t *testing.T) {
 					WorkingDir: "/workdir",
 				}, nil
 			}),
-			testRunner(func(p *packages.Package, e *run.Execution) error {
+			testRunner(func(e *run.Execution) error {
 				assert.Equal(t, []string{"./resources:/resources"}, e.Volumes[:len(e.Volumes)-1])
 				v := strings.SplitN(e.Volumes[len(e.Volumes)-1], ":", 2)
 				assert.Equal(t, "/workdir", v[1])
@@ -107,7 +107,7 @@ func TestRunCLIVolumesIsConsidered(t *testing.T) {
 					PathArguments: []string{"c", "change-dir"},
 				}, nil
 			}),
-			testRunner(func(p *packages.Package, e *run.Execution) error {
+			testRunner(func(e *run.Execution) error {
 				assert.Equal(t, []string{"/bla:/bla", wd + "/hello-world:" + wd + "/hello-world"}, e.Volumes[1:])
 				return nil
 			}),
@@ -126,7 +126,7 @@ func TestRunEnvironmentIsExpanded(t *testing.T) {
 					Environment: []string{"HOME=${HOME}"},
 				}, nil
 			}),
-			testRunner(func(p *packages.Package, e *run.Execution) error {
+			testRunner(func(e *run.Execution) error {
 				assert.Equal(t, []string{"HOME=./resources"}, e.Environment)
 				return nil
 			}),

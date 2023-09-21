@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/docker/docker/api/types"
+	imagev1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +16,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
 
-	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err := NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	err = pm.Install(pkg)
 	assert.Nil(t, err)
@@ -29,7 +29,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	assert.Equal(t, int(fi.Mode()), 0755)
 
 	// custom install path
-	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	pkg.Name = "whalesay2"
 	err = pm.Install(pkg)
@@ -42,7 +42,7 @@ func TestPackageManagerInstall(t *testing.T) {
 	// file already exists
 	err = ioutil.WriteFile(path.Join(installPath, "alreadyexists"), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
-	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	pkg.Name = "alreadyexists"
 	err = pm.Install(pkg)
@@ -55,7 +55,7 @@ func TestPackageManagerForceInstall(t *testing.T) {
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
 
-	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err := NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	err = pm.ForceInstall(pkg)
 	assert.Nil(t, err)
@@ -68,7 +68,7 @@ func TestPackageManagerForceInstall(t *testing.T) {
 	assert.Equal(t, int(fi.Mode()), 0755)
 
 	// custom install path
-	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	pkg.Name = "whalesay2"
 	err = pm.ForceInstall(pkg)
@@ -81,7 +81,7 @@ func TestPackageManagerForceInstall(t *testing.T) {
 	// file already exists
 	err = ioutil.WriteFile(path.Join(installPath, "alreadyexists"), []byte("not a whalebrew package"), 0755)
 	assert.Nil(t, err)
-	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	pkg.Name = "alreadyexists"
 	err = pm.ForceInstall(pkg)
@@ -111,7 +111,7 @@ func TestPackageManagerList(t *testing.T) {
 	assert.Nil(t, err)
 
 	pm := NewPackageManager(installPath)
-	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err := NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	err = pm.Install(pkg)
 	assert.Nil(t, err)
@@ -126,13 +126,13 @@ func TestPackageManagerFindByNameOrImage(t *testing.T) {
 	assert.Nil(t, err)
 
 	pm := NewPackageManager(installPath)
-	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err := NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	pkg.Name = "some-whalesay"
 	err = pm.Install(pkg)
 	assert.Nil(t, err)
 
-	pkg, err = NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err = NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	pkg.Name = "some-other-whalesay"
 	err = pm.Install(pkg)
@@ -186,7 +186,7 @@ func TestPackageManagerUninstall(t *testing.T) {
 	assert.Nil(t, err)
 	pm := NewPackageManager(installPath)
 
-	pkg, err := NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{})
+	pkg, err := NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{})
 	assert.Nil(t, err)
 	err = pm.Install(pkg)
 	assert.Nil(t, err)

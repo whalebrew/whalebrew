@@ -105,7 +105,7 @@ func expandEnvVars(vars []string) []string {
 
 // DockerCLIRun runs the package using docker CLI forwarding the command line arguments
 func DockerCLIRun(args []string) error {
-	docker, err := run.NewDocker()
+	docker, err := run.NewDockerLikeRunner()
 	if err != nil {
 		return err
 	}
@@ -128,13 +128,18 @@ func Run(loader packages.Loader, runner run.Runner, args []string) error {
 	if err != nil {
 		return err
 	}
-	return runner.Run(pkg, &run.Execution{
-		WorkingDir:  os.ExpandEnv(pkg.WorkingDir),
-		User:        user,
-		IsTTYOpened: terminal.IsTerminal(int(os.Stdin.Fd())) && terminal.IsTerminal(int(os.Stdout.Fd())),
-		Args:        args,
-		Environment: expandEnvVars(pkg.Environment),
-		Volumes:     append(volumes, parseRuntimeVolumes(args, pkg)...),
+	return runner.Run(&run.Execution{
+		Image:             pkg.Image,
+		Entrypoint:        pkg.Entrypoint,
+		Ports:             pkg.Ports,
+		Networks:          pkg.Networks,
+		KeepContainerUser: pkg.KeepContainerUser,
+		WorkingDir:        os.ExpandEnv(pkg.WorkingDir),
+		User:              user,
+		IsTTYOpened:       terminal.IsTerminal(int(os.Stdin.Fd())) && terminal.IsTerminal(int(os.Stdout.Fd())),
+		Args:              args,
+		Environment:       expandEnvVars(pkg.Environment),
+		Volumes:           append(volumes, parseRuntimeVolumes(args, pkg)...),
 	})
 }
 

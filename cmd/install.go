@@ -8,9 +8,9 @@ import (
 	"github.com/Songmu/prompter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/whalebrew/whalebrew/client"
 	"github.com/whalebrew/whalebrew/hooks"
 	"github.com/whalebrew/whalebrew/packages"
+	"github.com/whalebrew/whalebrew/run"
 )
 
 var customPackageName string
@@ -43,6 +43,7 @@ var installCommand = &cobra.Command{
 	Use:   "install IMAGENAME",
 	Short: "Install a package",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := context.Background()
 		if len(args) < 1 {
 			return cmd.Help()
 		}
@@ -52,20 +53,18 @@ var installCommand = &cobra.Command{
 
 		imageName := args[0]
 
-		cli, err := client.NewClient()
+		docker, err := run.NewDockerLikeRunner()
 		if err != nil {
 			return err
 		}
 
-		ctx := context.Background()
-
-		imageInspect, err := cli.ImageInspect(ctx, imageName)
+		imageInspect, err := docker.ImageInspect(imageName)
 		if err != nil {
 			return err
 		}
 
 		var errors multipleErrors
-		packages.LintImage(*imageInspect, func(e error) {
+		packages.LintImage(imageInspect, func(e error) {
 			switch e.(type) {
 			case packages.NoEntrypointError:
 				// Exception is done for entrypoint, install offers the ability to customise its value
@@ -81,7 +80,7 @@ var installCommand = &cobra.Command{
 			return errors
 		}
 
-		pkg, err := packages.NewPackageFromImage(imageName, *imageInspect)
+		pkg, err := packages.NewPackageFromImage(imageName, imageInspect)
 		if err != nil {
 			return err
 		}
@@ -107,7 +106,7 @@ var installCommand = &cobra.Command{
 			fmt.Printf("Looks like you already have %s installed as %s.\n", installed.Image, path.Join(installPath, pkg.Name))
 
 			if !assumeYes {
-				if changed, diff, err := installed.HasChanges(ctx, cli); err != nil {
+				if changed, diff, err := installed.HasChanges(ctx, docker); err != nil {
 					return err
 				} else if changed {
 					fmt.Println("There are differences between the installed version of the package and the image:")
