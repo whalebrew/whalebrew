@@ -39,7 +39,7 @@ jobs:
       id: go
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
         # fetch all tags
@@ -90,7 +90,7 @@ jobs:
     steps:
     
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
         # fetch all tags
