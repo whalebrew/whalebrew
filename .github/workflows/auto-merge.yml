@@ -1,0 +1,60 @@
+name: Auto merge approved
+on:
+  pull_request_review:
+    types:
+    - submitted
+
+
+jobs:
+  test-mutation:
+    runs-on: ubuntu-latest
+    name: mutation
+    steps:
+    - uses: octokit/graphql-action@v2.x
+      id: get_id
+      with:
+        query: |
+          query MyPr($owner: String!, $repo: String!, $number: Int!) {
+            repository(owner: $owner, name: $repo) {
+              id
+              owner {
+                id
+                login
+              }
+              name
+              pullRequest(number: $number){
+                id
+                title
+              }
+            }
+          }
+        variables: |
+          owner: ${{ github.event.repository.owner.login }}
+          repo: ${{ github.event.repository.name }}
+          number: ${{ github.event.number }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: octokit/graphql-action@v2.x
+      if: ${{ github.event.review.state == 'approved' }}
+
+      with:
+        query: |
+          mutation setAutoMerge($input: EnablePullRequestAutoMergeInput!) {
+            enablePullRequestAutoMerge(input:$input) {
+              clientMutationId
+              actor {
+                login
+              }
+              pullRequest {
+                id
+                number
+                title
+              }
+            }
+          }
+        variables: |
+          input: {
+             "pullRequestId": ${{ fromJSON(steps.get_id.outputs.data).repository.pullRequest.id }}
+          }
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
