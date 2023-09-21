@@ -1,0 +1,13 @@
+name: Auto approve trusted
+on:
+  pull_request_target:
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+    name: approve
+    steps:
+    - uses: hmarr/auto-approve-action@v3
+      if: github.actor == 'tjamet'
+    - uses: hmarr/auto-approve-action@v3
+      if: github.actor == 'dependabot[bot]'
