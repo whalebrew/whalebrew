@@ -3,14 +3,13 @@ package packages
 import (
 	"testing"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
+	imagev1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/stretchr/testify/assert"
 )
 
 func newTestPkg(label, value string) (*Package, error) {
-	return NewPackageFromImage("whalebrew/whalesay", types.ImageInspect{
-		ContainerConfig: &container.Config{
+	return NewPackageFromImage("whalebrew/whalesay", &imagev1.Image{
+		Config: imagev1.ImageConfig{
 			Labels: map[string]string{label: value},
 		},
 	})
@@ -23,8 +22,8 @@ func mustNewTestPkg(t *testing.T, label, value string) *Package {
 }
 
 func mustNewTestPackageFromImage(t *testing.T, imageName string) *Package {
-	pkg, err := NewPackageFromImage(imageName, types.ImageInspect{
-		ContainerConfig: &container.Config{},
+	pkg, err := NewPackageFromImage(imageName, &imagev1.Image{
+		Config: imagev1.ImageConfig{},
 	})
 	assert.NoErrorf(t, err, "creating a package for image '%s' should not raise an error", imageName)
 	return pkg
@@ -35,8 +34,8 @@ func TestLoadImageLabelDecodesYamlList(t *testing.T) {
 	assert.NoError(
 		t,
 		loadImageLabel(
-			types.ImageInspect{
-				ContainerConfig: &container.Config{
+			&imagev1.Image{
+				Config: imagev1.ImageConfig{
 					Labels: map[string]string{"io.whalebrew.some.key": "- some\n- other"},
 				},
 			},
@@ -50,7 +49,7 @@ func TestLoadImageLabelDecodesYamlList(t *testing.T) {
 func TestLintImageErrorsWhenMissingVolumesStrategyIsUnknown(t *testing.T) {
 	errored := false
 	LintImage(
-		types.ImageInspect{},
+		&imagev1.Image{},
 		func(e error) {
 			errored = true
 			assert.Equal(t, NoEntrypointError{}, e)
@@ -62,11 +61,9 @@ func TestLintImageErrorsWhenMissingVolumesStrategyIsUnknown(t *testing.T) {
 func TestLintImageErrorsWhenImageConfigIsNil(t *testing.T) {
 	errored := false
 	LintImage(
-		types.ImageInspect{
-			ContainerConfig: &container.Config{
-				Labels: map[string]string{"io.whalebrew.config.missing_volumes": "other"},
-			},
-			Config: &container.Config{
+		&imagev1.Image{
+			Config: imagev1.ImageConfig{
+				Labels:     map[string]string{"io.whalebrew.config.missing_volumes": "other"},
 				Entrypoint: []string{"/entrypoint"},
 			},
 		},
@@ -83,11 +80,9 @@ func TestLintImageSucceedsWithSupportedMissingVolumeStrategy(t *testing.T) {
 		t.Run("with strategy "+strategy, func(t *testing.T) {
 			errored := false
 			LintImage(
-				types.ImageInspect{
-					ContainerConfig: &container.Config{
-						Labels: map[string]string{"io.whalebrew.config.missing_volumes": strategy},
-					},
-					Config: &container.Config{
+				&imagev1.Image{
+					Config: imagev1.ImageConfig{
+						Labels:     map[string]string{"io.whalebrew.config.missing_volumes": strategy},
 						Entrypoint: []string{"/entrypoint"},
 					},
 				},
@@ -104,8 +99,8 @@ func TestLintImageSucceedsWithSupportedMissingVolumeStrategy(t *testing.T) {
 func TestLintImageErrorsWhenEntrypointIsMissing(t *testing.T) {
 	errored := false
 	LintImage(
-		types.ImageInspect{
-			Config: &container.Config{},
+		&imagev1.Image{
+			Config: imagev1.ImageConfig{},
 		},
 		func(e error) {
 			errored = true
@@ -118,11 +113,9 @@ func TestLintImageErrorsWhenEntrypointIsMissing(t *testing.T) {
 func TestLintImageErrorsWhenLabelDoesNotExitsFromContainerConfig(t *testing.T) {
 	errored := false
 	LintImage(
-		types.ImageInspect{
-			ContainerConfig: &container.Config{
-				Labels: map[string]string{"io.whalebrew.some.key": "- some\n- other"},
-			},
-			Config: &container.Config{
+		&imagev1.Image{
+			Config: imagev1.ImageConfig{
+				Labels:     map[string]string{"io.whalebrew.some.key": "- some\n- other"},
 				Entrypoint: []string{"/entrypoint"},
 			},
 		},
@@ -137,8 +130,8 @@ func TestLintImageErrorsWhenLabelDoesNotExitsFromContainerConfig(t *testing.T) {
 func TestLintImageErrorsWhenLabelDoesNotExitsFromImageConfig(t *testing.T) {
 	errored := false
 	LintImage(
-		types.ImageInspect{
-			Config: &container.Config{
+		&imagev1.Image{
+			Config: imagev1.ImageConfig{
 				Labels:     map[string]string{"io.whalebrew.some.key": "- some\n- other"},
 				Entrypoint: []string{"/entrypoint"},
 			},
@@ -154,11 +147,9 @@ func TestLintImageErrorsWhenLabelDoesNotExitsFromImageConfig(t *testing.T) {
 func TestLintImageErrorsWhenLabelCantBeDecodedFromContainerConfig(t *testing.T) {
 	errored := false
 	LintImage(
-		types.ImageInspect{
-			ContainerConfig: &container.Config{
-				Labels: map[string]string{"io.whalebrew.config.environment": "content of label"},
-			},
-			Config: &container.Config{
+		&imagev1.Image{
+			Config: imagev1.ImageConfig{
+				Labels:     map[string]string{"io.whalebrew.config.environment": "content of label"},
 				Entrypoint: []string{"/entrypoint"},
 			},
 		},
@@ -176,8 +167,8 @@ func TestLintImageErrorsWhenLabelCantBeDecodedFromContainerConfig(t *testing.T) 
 func TestLintImageErrorsWhenLabelCantBeDecodedFromImageConfig(t *testing.T) {
 	errored := false
 	LintImage(
-		types.ImageInspect{
-			Config: &container.Config{
+		&imagev1.Image{
+			Config: imagev1.ImageConfig{
 				Labels:     map[string]string{"io.whalebrew.config.environment": "content of label"},
 				Entrypoint: []string{"/entrypoint"},
 			},
@@ -195,11 +186,9 @@ func TestLintImageErrorsWhenLabelCantBeDecodedFromImageConfig(t *testing.T) {
 
 func TestLintImageSucceedsFromContainerConfig(t *testing.T) {
 	LintImage(
-		types.ImageInspect{
-			ContainerConfig: &container.Config{
-				Labels: map[string]string{"io.whalebrew.config.environment": "[NAME]"},
-			},
-			Config: &container.Config{
+		&imagev1.Image{
+			Config: imagev1.ImageConfig{
+				Labels:     map[string]string{"io.whalebrew.config.environment": "[NAME]"},
 				Entrypoint: []string{"/entrypoint"},
 			},
 		},
@@ -211,8 +200,8 @@ func TestLintImageSucceedsFromContainerConfig(t *testing.T) {
 
 func TestLintImageSucceedsFromImageConfig(t *testing.T) {
 	LintImage(
-		types.ImageInspect{
-			Config: &container.Config{
+		&imagev1.Image{
+			Config: imagev1.ImageConfig{
 				Labels:     map[string]string{"io.whalebrew.config.environment": "[NAME]"},
 				Entrypoint: []string{"/entrypoint"},
 			},
@@ -228,8 +217,8 @@ func TestLoadImageLabelDecodesYamlString(t *testing.T) {
 	assert.NoError(
 		t,
 		loadImageLabel(
-			types.ImageInspect{
-				ContainerConfig: &container.Config{
+			&imagev1.Image{
+				Config: imagev1.ImageConfig{
 					Labels: map[string]string{"io.whalebrew.some.key": `"some value"`},
 				},
 			},
@@ -245,8 +234,8 @@ func TestLoadImageLabelDecodesPlainString(t *testing.T) {
 	assert.NoError(
 		t,
 		loadImageLabel(
-			types.ImageInspect{
-				ContainerConfig: &container.Config{
+			&imagev1.Image{
+				Config: imagev1.ImageConfig{
 					Labels: map[string]string{"io.whalebrew.some.key": "some: value"},
 				},
 			},
@@ -257,46 +246,9 @@ func TestLoadImageLabelDecodesPlainString(t *testing.T) {
 	assert.Equal(t, "some: value", value)
 }
 
-func TestLoadImageLabelPrefersContainerConfig(t *testing.T) {
-	value := []string{}
-	assert.NoError(
-		t,
-		loadImageLabel(
-			types.ImageInspect{
-				ContainerConfig: &container.Config{
-					Labels: map[string]string{"io.whalebrew.config.environment": `["SOME_CONFIG_OPTION"]`},
-				},
-				Config: &container.Config{
-					Labels: map[string]string{"io.whalebrew.config.environment": `["OTHER_CONFIG_OPTION"]`},
-				},
-			},
-			"config.environment",
-			&value,
-		),
-	)
-	assert.Equal(t, []string{"SOME_CONFIG_OPTION"}, value)
-}
-
-func TestLoadImageLabelFallsBackToConfig(t *testing.T) {
-	value := []string{}
-	assert.NoError(
-		t,
-		loadImageLabel(
-			types.ImageInspect{
-				Config: &container.Config{
-					Labels: map[string]string{"io.whalebrew.config.environment": `["OTHER_CONFIG_OPTION"]`},
-				},
-			},
-			"config.environment",
-			&value,
-		),
-	)
-	assert.Equal(t, []string{"OTHER_CONFIG_OPTION"}, value)
-}
-
 func TestNewPackageFromImage(t *testing.T) {
 	// with tag
-	pkg, err := NewPackageFromImage("whalebrew/foo:bar", types.ImageInspect{})
+	pkg, err := NewPackageFromImage("whalebrew/foo:bar", &imagev1.Image{})
 	assert.Nil(t, err)
 	assert.Equal(t, pkg.Name, "foo")
 	assert.Equal(t, pkg.Image, "whalebrew/foo:bar")

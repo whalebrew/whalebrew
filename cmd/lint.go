@@ -1,12 +1,11 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/whalebrew/whalebrew/client"
 	"github.com/whalebrew/whalebrew/packages"
+	"github.com/whalebrew/whalebrew/run"
 )
 
 func init() {
@@ -29,21 +28,19 @@ var lintCommand = &cobra.Command{
 		if len(args) < 1 {
 			return cmd.Help()
 		}
-		cli, err := client.NewClient()
+		docker, err := run.NewDockerLikeRunner()
 		if err != nil {
 			return err
 		}
 
 		var errors multipleErrors
 		for _, imageName := range args {
-			ctx := context.Background()
-
-			imageInspect, err := cli.ImageInspect(ctx, imageName)
+			imageInspect, err := docker.ImageInspect(imageName)
 			if err != nil {
 				errors = append(errors, ErrorWithImage{Image: imageName, Err: err})
 				return err
 			}
-			packages.LintImage(*imageInspect, func(e error) {
+			packages.LintImage(imageInspect, func(e error) {
 				if s, ok := e.(packages.StrictError); strict == true || !ok || s.Strict() {
 					errors = append(errors, ErrorWithImage{Image: imageName, Err: e})
 				}

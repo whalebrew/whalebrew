@@ -10,11 +10,10 @@ import (
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/whalebrew/whalebrew/client"
+	"github.com/whalebrew/whalebrew/run"
 	"github.com/whalebrew/whalebrew/version"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
+	imagev1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"gopkg.in/yaml.v3"
 )
 
@@ -127,15 +126,15 @@ func decodeLabel(value string, dest interface{}) error {
 	return nil
 }
 
-func loadImageLabel(imageInspect types.ImageInspect, label string, dest interface{}) error {
+func loadImageLabel(imageInspect *imagev1.Image, label string, dest interface{}) error {
 	label = labelPrefix + label
 	// In the previous behaviour we were reading from ContainerConfig only.
 	// When building images with buildkit, it seems that those fields are not set any longer.
 	// Make the transition smoother by using a fallback to the Config field when not found in ContainerConfig.
 	// We should make a deeper analysis of the meaning of those 3 fields, the consequences to go for only one,
 	// eventually notice about the deprecation and finally rmove it.
-	for _, config := range []*container.Config{imageInspect.ContainerConfig, imageInspect.Config} {
-		if config != nil && config.Labels != nil {
+	for _, config := range []imagev1.ImageConfig{imageInspect.Config} {
+		if config.Labels != nil {
 			if val, ok := config.Labels[label]; ok {
 				return decodeLabel(val, dest)
 			}
@@ -144,12 +143,12 @@ func loadImageLabel(imageInspect types.ImageInspect, label string, dest interfac
 	return nil
 }
 
-func LintImage(imageInspect types.ImageInspect, reportError func(error)) {
-	if imageInspect.Config == nil || len(imageInspect.Config.Entrypoint) == 0 {
+func LintImage(imageInspect *imagev1.Image, reportError func(error)) {
+	if imageInspect == nil || len(imageInspect.Config.Entrypoint) == 0 {
 		reportError(NoEntrypointError{})
 	}
-	for _, config := range []*container.Config{imageInspect.ContainerConfig, imageInspect.Config} {
-		if config != nil && config.Labels != nil {
+	for _, config := range []imagev1.ImageConfig{imageInspect.Config} {
+		if config.Labels != nil {
 			for originalLabel, value := range config.Labels {
 				if strings.HasPrefix(originalLabel, labelPrefix) {
 					label := strings.TrimPrefix(originalLabel, labelPrefix)
@@ -184,7 +183,7 @@ func LintImage(imageInspect types.ImageInspect, reportError func(error)) {
 
 // NewPackageFromImage creates a package from a given image name,
 // inspecting the image to fetch the package configuration
-func NewPackageFromImage(image string, imageInspect types.ImageInspect) (*Package, error) {
+func NewPackageFromImage(image string, imageInspect *imagev1.Image) (*Package, error) {
 	name := image
 	splittedName := strings.Split(name, "/")
 	name = splittedName[len(splittedName)-1]
@@ -276,13 +275,13 @@ func (pkg *Package) PreinstallMessage(prevInstall *Package) string {
 	return permissionReporter.String()
 }
 
-func (pkg *Package) HasChanges(ctx context.Context, cli *client.Client) (bool, string, error) {
-	imageInspect, err := cli.ImageInspect(ctx, pkg.Image)
+func (pkg *Package) HasChanges(ctx context.Context, inspecter run.ImageInspecter) (bool, string, error) {
+	imageInspect, err := inspecter.ImageInspect(pkg.Image)
 	if err != nil {
 		return false, "", err
 	}
 
-	newPkg, err := NewPackageFromImage(pkg.Image, *imageInspect)
+	newPkg, err := NewPackageFromImage(pkg.Image, imageInspect)
 	if err != nil {
 		return false, "", err
 	}
