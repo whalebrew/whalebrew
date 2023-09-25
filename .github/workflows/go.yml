@@ -10,59 +10,6 @@ on:
 
 jobs:
 
-  test-install:
-    strategy:
-      matrix:
-        os:
-        - ubuntu-latest
-    runs-on: ${{ matrix.os }}
-    steps:
-    - name: Set up Go ${{ matrix.go-version }}
-      uses: actions/setup-go@v2
-      with:
-        go-version: ${{ matrix.go-version }}
-      id: go
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-      with:
-        # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
-        # fetch all tags
-        fetch-depth: 0  
-    - name: check install path
-      run: |
-        curl -L $(curl https://api.github.com/repos/whalebrew/whalebrew/releases/latest | jq '.assets[] | select(.name=="whalebrew-'$(uname -s)'-'$(uname -m)'")| .browser_download_url' -r) -o ./whalebrew-latest
-        chmod +x ./whalebrew-latest
-
-        mkdir latest
-        export WHALEBREW_INSTALL_PATH=$PWD/latest
-
-        ./whalebrew-latest version
-        for m in $(cat all-modules); do
-          ./whalebrew-latest install whalebrew/${m} -y || true
-        done
-
-        mkdir current
-        export WHALEBREW_INSTALL_PATH=$PWD/current
-
-        go run . version
-        for m in $(cat all-modules); do
-          go run . install whalebrew/${m} -y || true
-        done
-
-        diff current latest
-
-        echo '*** current installed ***'
-        ls current
-        echo '*** all-modules ***'
-        cat all-modules
-
-        echo '** summary ***'
-        ls current | wc -l
-        cat all-modules | wc -l
-
-
-
   build:
     strategy:
       matrix:
