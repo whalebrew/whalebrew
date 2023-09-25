@@ -1,5 +1,20 @@
 # Change log
 
+## Unreleased
+
+### Added
+
+* Support for podman (#235)
+
+### Updates
+
+* Increased traceability of the build version (#234)
+* Add dependabot for remaining dependencies (#236)  
+* Updated all build github actions (#237, #242, #241, #240, #239, #238, #246, #247)
+* Updated the CI workflow so we can better protect the master branch and add some automation (#244)
+* Add auto-approval for bumps and main contributor (#243)
+* Enable auto merge and merge groups (#245)
+
 ## 0.4.1 - 2023-09-20
 
 ### Fixed
