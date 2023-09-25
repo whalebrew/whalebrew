@@ -7,7 +7,7 @@ import (
 )
 
 // Version is the current Whalebrew version
-var Version = "0.3.0"
+var Version = "0.5.0-dev+from.sources"
 
 var parsedVersion = semver.MustParse(Version)
 
