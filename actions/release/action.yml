@@ -7,10 +7,13 @@ inputs:
 outputs:
   release_tag:
     description: 'The exact git tag released'
+    value: ${{ steps.release.outputs.release_tag }}
   release_sha:
     description: 'The exact git sha tagged for the release. It includes all the relevant documentation and version bumps'
+    value: ${{ steps.release.outputs.release_sha }}
   dev_sha:
     description: 'The git sha where the new development version was opened.'
+    value: ${{ steps.release.outputs.dev_sha }}
 runs:
   using: 'composite'
   steps:
@@ -23,4 +26,5 @@ runs:
       git config --global user.name "Whalebrew release bot"
       export INPUT_VERSION=${{ inputs.version }}
       actions/release/release
+    id: release
     shell: bash
