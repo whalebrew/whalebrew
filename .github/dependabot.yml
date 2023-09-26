@@ -10,7 +10,7 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "gomod" # See documentation for possible values
-    directory: "/actions/release" # Location of package manifests
+    directory: "/actions/release-assets" # Location of package manifests
     schedule:
       interval: "daily"
   - package-ecosystem: "docker"

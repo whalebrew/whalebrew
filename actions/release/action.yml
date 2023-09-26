@@ -1,0 +1,16 @@
+name: 'Create new release'
+description: 'Creates or update a release for a given tag. All the artifacts are renewed in this release process.'
+inputs:
+  version:
+    description: 'The name of the version'
+    required: true
+outputs:
+  release_tag:
+    description: 'The exact git tag released'
+  release_sha:
+    description: 'The exact git sha tagged for the release. It includes all the relevant documentation and version bumps'
+  dev_sha:
+    description: 'The git sha where the new development version was opened.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
