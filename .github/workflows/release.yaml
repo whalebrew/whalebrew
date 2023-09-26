@@ -37,18 +37,22 @@ jobs:
           "${{ steps.release-tree.outputs.dev_sha }}:refs/heads/dev/${{ steps.release-tree.outputs.dev_version }}" \
           "${{ steps.release-tree.outputs.release_tag }}:refs/hidden-tag/${{ steps.release-tree.outputs.release_tag }}"
   test-new-release:
+    name: Build and test next release branch ${{ needs.create-release-commits.outputs.version_ref }}
     needs:
     - create-release-commits
-    uses: ./.github/workflows/test.yaml
+    uses: ./.github/workflows/build-test.yaml
     with:
       git_ref: "${{ needs.create-release-commits.outputs.version_ref }}"
       test-release-action-integration: false
+      publish-artifacts: false
   test-next-dev:
+    name: Build and test next developer branch ${{ needs.create-release-commits.outputs.dev_ref }}
     needs:
     - create-release-commits
-    uses: ./.github/workflows/test.yaml
+    uses: ./.github/workflows/build-test.yaml
     with:
       git_ref: "${{ needs.create-release-commits.outputs.dev_ref }}"
+      publish-artifacts: false
 
   push-release:
     needs:
@@ -76,10 +80,16 @@ jobs:
           ":refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}" \
           ":${{ needs.create-release-commits.outputs.dev_ref }}" \
           ":${{ needs.create-release-commits.outputs.version_ref }}"
-  test-tag:
+  build-test-release:
+    name: Build and test release ${{ inputs.version }}
     needs:
     - push-release
-    uses: ./.github/workflows/test.yaml
+    uses: ./.github/workflows/build-test.yaml
+    with:
+      git_ref: "refs/tags/${{ inputs.version }}"
+  release:
+    needs: build-test-release
+    uses: ./.github/workflows/publish-release-artifacts.yaml
     with:
       git_ref: "refs/tags/${{ inputs.version }}"
 
