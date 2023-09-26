@@ -76,7 +76,7 @@ jobs:
         git log --graph --pretty=tformat:'%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%an %ar)%Creset'
 
         git push origin --follow-tags \
-          ${{ github.ref }} \
+          HEAD:${{ github.ref }} \
           ":refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}" \
           ":${{ needs.create-release-commits.outputs.dev_ref }}" \
           ":${{ needs.create-release-commits.outputs.version_ref }}"
