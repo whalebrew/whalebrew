@@ -49,3 +49,22 @@ jobs:
     uses: ./.github/workflows/test.yaml
     with:
       git_ref: "${{ needs.create-release-commits.outputs.dev_ref }}"
+  push-release:
+    needs:
+    - test-release
+    - test-next-dev
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4
+      with:
+        # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+        # fetch all tags
+        fetch-depth: 0
+    - run: |
+        echo "${{ toJSON(steps.release-tree.outputs) }}"
+        # Push all the built references but hide the tag until 
+        git fetch origin \
+          "refs/hidden-tag/${{ steps.release-tree.outputs.release_tag }}:refs/heads/${{ steps.release-tree.outputs.release_tag }}" \
+          "refs/heads/dev/${{ steps.release-tree.outputs.dev_version }}:${{ github.ref }}
+
