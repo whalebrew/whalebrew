@@ -133,11 +133,11 @@ func main() {
 		exit(1)
 	}
 
-	releaseMessage, err := bump.ExtractReleaseMessage(fs)
-	if err != nil {
-		envHandler.Errorf("Failed to extract release message: %v", err)
-		exit(1)
-	}
+	// releaseMessage, err := bump.ExtractReleaseMessage(fs)
+	// if err != nil {
+	// 	envHandler.Errorf("Failed to extract release message: %v", err)
+	// 	exit(1)
+	// }
 
 	// Generate the relevant version update
 	err = bump.BumpInTreeVersion(fs, inTree.String())
@@ -174,12 +174,12 @@ func main() {
 	}
 	envHandler.SetOutput("release_sha", sha)
 
-	err = git("tag", "-a", v.String(), "-m", versionWithDate, "-m", releaseMessage)
-	if err != nil {
-		envHandler.Errorf("unable to tag new release")
-		exit(1)
-	}
-	envHandler.SetOutput("release_tag", v.String())
+	// err = git("tag", "-a", v.String(), "-m", versionWithDate, "-m", releaseMessage)
+	// if err != nil {
+	// 	envHandler.Errorf("unable to tag new release")
+	// 	exit(1)
+	// }
+	// envHandler.SetOutput("release_tag", v.String())
 
 	if v.Prerelease() == "" {
 		*v = v.IncPatch()
