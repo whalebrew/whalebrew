@@ -32,7 +32,7 @@ jobs:
     - run: |
         echo "${{ toJSON(steps.release-tree.outputs) }}"
         # Push all the built references but hide the tag until 
-        git push origin \
+        git push -f origin \
           "${{ steps.release-tree.outputs.release_sha }}:refs/heads/release/${{ inputs.version }}" \
           "${{ steps.release-tree.outputs.dev_sha }}:refs/heads/dev/${{ steps.release-tree.outputs.dev_version }}" \
           "${{ steps.release-tree.outputs.release_tag }}:refs/hidden-tag/${{ steps.release-tree.outputs.release_tag }}"
