@@ -78,6 +78,7 @@ jobs:
           ":${{ needs.create-release-commits.outputs.version_ref }}"
 
   test-release:
+    runs-on: ubuntu-latest
     needs:
     - push-release
     uses: ./.github/workflows/test.yaml
