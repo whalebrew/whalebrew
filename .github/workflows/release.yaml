@@ -35,7 +35,7 @@ jobs:
         git push origin \
           "${{ steps.release-tree.outputs.release_sha }}:refs/heads/release/${{ inputs.version }}" \
           "${{ steps.release-tree.outputs.dev_sha }}:refs/heads/dev/${{ steps.release-tree.outputs.dev_version }}" \
-          "${{ steps.release-tree.outputs.release_tag }}:refs/hidden-tag/${{ steps.release-tree.outputs.release_tag }}" \
+          "${{ steps.release-tree.outputs.release_tag }}:refs/heads/next-tag/${{ steps.release-tree.outputs.release_tag }}" \
   test-release:
     needs:
     - create-release-commits
@@ -53,4 +53,4 @@ jobs:
     - create-release-commits
     uses: ./.github/workflows/test.yaml
     with:
-      git_ref: "refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}"
+      git_ref: "refs/heads/next-tag/${{ needs.create-release-commits.outputs.tag }}"
