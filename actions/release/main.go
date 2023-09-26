@@ -106,6 +106,7 @@ func headSha() (string, error) {
 }
 
 func main() {
+	defer envHandler.Done()
 
 	version, ok := envHandler.GetInput("version")
 	if !ok {
