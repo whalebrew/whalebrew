@@ -1,4 +1,4 @@
-name: Go CI
+name: Push & PR
 on: 
   workflow_dispatch:
   # push:

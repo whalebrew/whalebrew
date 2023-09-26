@@ -67,7 +67,7 @@ jobs:
         # Push all the built references but hide the tag until 
         git fetch origin \
           "refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}:refs/heads/${{ needs.create-release-commits.outputs.tag }}" \
-          "${{ needs.create-release-commits.outputs.dev_ref }}:${{ github.ref }}""
+          "${{ needs.create-release-commits.outputs.dev_ref }}:${{ github.ref }}"
 
         git log --graph --pretty=tformat:'%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%an %ar)%Creset'
 
