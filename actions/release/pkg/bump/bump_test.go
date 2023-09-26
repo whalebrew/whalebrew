@@ -121,6 +121,10 @@ func TestReleaseChangeLog(t *testing.T) {
 }
 
 func TestActualReleaseChangeLog(t *testing.T) {
+	if os.Getenv("TEST_RELEASE_ACTION_INTEGRATION") == "false" {
+		t.Skip("disabled release action integration test")
+		return
+	}
 	testActualVersionBump(t, bump.ReleaseChangeLog, "CHANGELOG.md")
 }
 
