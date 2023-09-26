@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/actions-go/toolkit/core"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -87,7 +88,9 @@ func TestReleaseAction(t *testing.T) {
 	t.Cleanup(func() {
 		now = time.Now
 		envHandler = newHandler()
+		core.StartCommands("TestReleaseAction-stop-command")
 	})
+	core.StopCommands("TestReleaseAction-stop-command")
 	t.Setenv("GITHUB_ACTIONS", "true")
 	envHandler = newHandler()
 	now = func() time.Time {
