@@ -42,6 +42,7 @@ jobs:
     uses: ./.github/workflows/test.yaml
     with:
       git_ref: "${{ needs.create-release-commits.outputs.version_ref }}"
+      test-release-action-integration: false
   test-next-dev:
     needs:
     - create-release-commits
