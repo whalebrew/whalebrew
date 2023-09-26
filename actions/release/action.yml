@@ -19,6 +19,8 @@ runs:
       go build -o release .
     shell: bash
   - run: |
+      git config --global user.email "bot@whalebrew.gha"
+      git config --global user.name "Whalebrew release bot"
       export INPUT_VERSION=${{ inputs.version }}
       actions/release/release
     shell: bash
