@@ -6,6 +6,12 @@ on:
       git_ref:
         type: string
         description: The git reference to build
+      test-release-action-integration:
+        type: boolean
+        default: true
+        description: |
+          Whether to test the release action with the current project structure or not.
+          It should only disabled when building the exact release of a given version.
 
 jobs:
   build:
@@ -111,6 +117,8 @@ jobs:
           cd actions/${{ matrix.action }}
           go test -v  -race -coverprofile=coverage.txt -covermode=atomic ./...
         )
+      env:
+        TEST_RELEASE_ACTION_INTEGRATION: ${{ inputs.test-release-action-integration }}
     - uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }} #required

@@ -52,6 +52,10 @@ func assertFileNotContains(t *testing.T, fs afero.Fs, path string, contains stri
 
 func testVersionBump(t *testing.T, testName, version string, check func(t *testing.T, fs afero.Fs)) {
 	t.Helper()
+	if os.Getenv("TEST_RELEASE_ACTION_INTEGRATION") == "false" {
+		t.Skip("disabled release action integration test")
+		return
+	}
 	t.Run(testName, func(t *testing.T) {
 		t.Cleanup(func() {
 			os.RemoveAll(".fs")
