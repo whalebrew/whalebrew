@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  create-release-commits:
     runs-on: ubuntu-latest
     steps:
     - name: Check out code into the Go module directory
@@ -27,4 +27,12 @@ jobs:
         version: ${{ inputs.version }}
     - run: |
         echo "${{ toJSON(steps.release-tree.outputs) }}"
-        git push origin "${{ steps.release-tree.outputs.release_sha }}:refs/heads/release/${{ inputs.version }}"
+        git push origin \
+          "${{ steps.release-tree.outputs.release_sha }}:refs/heads/release/${{ inputs.version }}" \
+          "${{ steps.release-tree.outputs.dev_sha }}:refs/heads/dev/${{ steps.release-tree.outputs.dev_version }}"
+  test:
+    needs:
+    - create-release-commits
+    uses: ./.github/workflows/test.yaml
+    with:
+      git_ref: ${{ github.ref }}

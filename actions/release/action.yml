@@ -14,6 +14,9 @@ outputs:
   dev_sha:
     description: 'The git sha where the new development version was opened.'
     value: ${{ steps.release.outputs.dev_sha }}
+  dev_version:
+    description: 'The semver reference of the next developped version.'
+    value: ${{ steps.release.outputs.dev_version }}
 runs:
   using: 'composite'
   steps:

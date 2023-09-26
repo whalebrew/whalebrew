@@ -185,6 +185,7 @@ func main() {
 		*v = v.IncPatch()
 		fmt.Println(v.String())
 	}
+	devVersion := v
 	*v, err = v.SetPrerelease("dev")
 	if err != nil {
 		envHandler.Errorf("unable to set pre-release for the new version")
@@ -218,4 +219,5 @@ func main() {
 		exit(1)
 	}
 	envHandler.SetOutput("dev_sha", sha)
+	envHandler.SetOutput("dev_version", devVersion.String())
 }
