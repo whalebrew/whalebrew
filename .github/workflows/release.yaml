@@ -21,4 +21,6 @@ jobs:
       id: release-tree
       uses: ./actions/release
       with:
-        version: inputs.version
+        version: ${{ inputs.version }}
+    - run: |
+        echo "${{ toJSON(steps.release-tree.outputs) }}"
