@@ -2,7 +2,7 @@ name: Release
 
 on:
   workflow_dispatch:
-    input:
+    inputs:
       version:
         type: string
         required: true
@@ -17,7 +17,8 @@ jobs:
         # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
         # fetch all tags
         fetch-depth: 0
-    - name: "Bump in-tree versions"
+    - name: "Build "
+      id: 
       uses: ./actions/release-assets
       with:
         version: inputs.version
