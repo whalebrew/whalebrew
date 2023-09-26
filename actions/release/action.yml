@@ -12,7 +12,8 @@ outputs:
   dev_sha:
     description: 'The git sha where the new development version was opened.'
 runs:
-  using: 'composite'steps:
+  using: 'composite'
+  steps:
   - run: |
       cd actions/release
       go build -o release .
