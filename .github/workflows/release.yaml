@@ -70,13 +70,15 @@ jobs:
     - run: |
         # Push all the built references but hide the tag until 
         git fetch origin \
-          "refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}:refs/heads/${{ needs.create-release-commits.outputs.tag }}" \
-          "${{ needs.create-release-commits.outputs.dev_ref }}:${{ github.ref }}"
+          "refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}:refs/tags/${{ needs.create-release-commits.outputs.tag }}" \
+          "${{ needs.create-release-commits.outputs.dev_ref }}:refs/heads/next"
+
+        git reset --hard next
 
         git log --graph --pretty=tformat:'%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%an %ar)%Creset'
 
         git push origin --follow-tags \
-          HEAD:${{ github.ref }} \
+          ${{ github.ref_name }} \
           ":refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}" \
           ":${{ needs.create-release-commits.outputs.dev_ref }}" \
           ":${{ needs.create-release-commits.outputs.version_ref }}"
