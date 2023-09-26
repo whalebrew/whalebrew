@@ -1,12 +1,13 @@
 name: Go CI
 on: 
-  push:
-    branches:
-    - "**"
-    tags:
-    - "**"
-  pull_request:
-  merge_group:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #   - "**"
+  #   tags:
+  #   - "**"
+  # pull_request:
+  # merge_group:
 
 jobs:
 
