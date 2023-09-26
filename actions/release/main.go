@@ -47,6 +47,7 @@ func (ghaHandler) Errorf(format string, args ...interface{}) {
 	core.Errorf(format, args...)
 }
 func (ghaHandler) SetOutput(name, value string) {
+	fmt.Println("set output", name, value)
 	core.SetOutput(name, value)
 }
 
