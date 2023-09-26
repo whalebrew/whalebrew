@@ -1,4 +1,4 @@
-name: Push & PR
+name: Publish workflow artifacts
 on:
   workflow_call:
     inputs:
