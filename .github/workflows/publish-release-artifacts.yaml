@@ -9,31 +9,29 @@ jobs:
   publish-release-artifacts:
     name: Publish release artifacts
     runs-on: ubuntu-latest
-    needs: build-test
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
-    - run: echo hello world
     
-    # - name: Check out code into the Go module directory
-    #   uses: actions/checkout@v4
-    #   with:
-    #     # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
-    #     # fetch all tags
-    #     fetch-depth: 0
-    #     ref: ${{ inputs.git_ref }}
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4
+      with:
+        # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+        # fetch all tags
+        fetch-depth: 0
+        ref: ${{ inputs.git_ref }}
 
-    # - name: Download assets
-    #   id: download
-    #   uses: actions/download-artifact@v3
-    #   with:
-    #     path: release/artifacts
+    - name: Download assets
+      id: download
+      uses: actions/download-artifact@v3
+      with:
+        path: release/artifacts
 
-    # - name: Create Release
-    #   id: create_release
-    #   uses: ./actions/release-assets
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-    #   with:
-    #     folder: ${{steps.download.outputs.download-path}}
-    #     tag_name: ${{ inputs.git_ref }}
+    - name: Create Release
+      id: create_release
+      uses: ./actions/release-assets
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        folder: ${{steps.download.outputs.download-path}}
+        tag_name: ${{ inputs.git_ref }}
