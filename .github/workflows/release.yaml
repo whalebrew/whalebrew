@@ -76,5 +76,11 @@ jobs:
           ":refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}" \
           ":${{ needs.create-release-commits.outputs.dev_ref }}" \
           ":${{ needs.create-release-commits.outputs.version_ref }}"
+  test-release:
+    needs:
+    - push-release
+    uses: ./.github/workflows/test.yaml
+    with:
+      git_ref: "refs/tags/${{ inputs.version }}"
 
 
