@@ -59,7 +59,6 @@ jobs:
 
     - name: Map binary name
       id: binary
-      if: ${{ inputs.publish-artifacts }}
       run: |
         os=$(uname -s)
         case ${{ matrix.arch }} in
