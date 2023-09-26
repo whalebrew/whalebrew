@@ -17,8 +17,8 @@ jobs:
         # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
         # fetch all tags
         fetch-depth: 0
-    - name: "Build "
-      id: 
-      uses: ./actions/release-assets
+    - name: "Release tree"
+      id: release-tree
+      uses: ./actions/release
       with:
         version: inputs.version
