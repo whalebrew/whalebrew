@@ -12,5 +12,12 @@ outputs:
   dev_sha:
     description: 'The git sha where the new development version was opened.'
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'composite'steps:
+  - run: |
+      cd actions/release
+      go build -o release .
+    shell: bash
+  - run: |
+      export INPUT_VERSION=${{ inputs.version }}
+      actions/release/release
+    shell: bash
