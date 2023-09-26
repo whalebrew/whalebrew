@@ -62,7 +62,8 @@ jobs:
       id: build
       run: |
         now=$(date +'%Y-%m-%d')
-        GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)+${now}.${{ github.sha }}" -o ${{ steps.binary.outputs.binary_name }} .
+        version = 0.0.0
+        GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=${version}" -o ${{ steps.binary.outputs.binary_name }} .
 
     
     - name: Ensure binary works
