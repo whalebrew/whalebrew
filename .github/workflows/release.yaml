@@ -49,6 +49,7 @@ jobs:
     uses: ./.github/workflows/test.yaml
     with:
       git_ref: "${{ needs.create-release-commits.outputs.dev_ref }}"
+
   push-release:
     needs:
     - test-release
@@ -62,9 +63,16 @@ jobs:
         # fetch all tags
         fetch-depth: 0
     - run: |
-        echo "${{ toJSON(steps.release-tree.outputs) }}"
         # Push all the built references but hide the tag until 
         git fetch origin \
-          "refs/hidden-tag/${{ steps.release-tree.outputs.release_tag }}:refs/heads/${{ steps.release-tree.outputs.release_tag }}" \
-          "refs/heads/dev/${{ steps.release-tree.outputs.dev_version }}:${{ github.ref }}
+          "refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}:refs/heads/${{ needs.create-release-commits.outputs.tag }}" \
+          "${{ needs.create-release-commits.outputs.dev_ref }}:${{ github.ref }}
+
+        git log --graph --pretty=tformat:'%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%an %ar)%Creset'
+
+        git push origin --follow-tags \
+          ${{ github.ref }} \
+          ":refs/hidden-tag/${{ needs.create-release-commits.outputs.tag }}" \
+          ":${{ needs.create-release-commits.outputs.dev_ref }}" \
+          ":${{ needs.create-release-commits.outputs.version_ref }}"
 
