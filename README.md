@@ -110,7 +110,7 @@ The configuration file must be named `config.yaml`.
 
 On a general basis, any configuration configured through environment variable will be prioritary compared to values from config files.
 
-For example, if you have a whalebrew config of `install_path: $HOME/.whalebrew/bin` and an environment variable of `$HOME/.local/bin`, all whalebrew programs will be installed in `$HOME/.local/bin`.
+For example, if you have a whalebrew config of `install_path: $HOME/.whalebrew/bin` and an environment variable of `WHALEBREW_INSTALL_PATH=$HOME/.local/bin`, all whalebrew programs will be installed in `$HOME/.local/bin`.
 
 ### Configuration path lookup
 
