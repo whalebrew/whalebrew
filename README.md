@@ -104,7 +104,7 @@ The configuration file location can be specified using the `WHALEBREW_CONFIG_DIR
 The configuration file must be named `config.yaml`.
 
 |Description|Default (if not specified anywhere)|Format in config files|Format in environment variables|
-|-|-|-|
+|-|-|-|-|
 |The folder containing `config.yaml`|`~/.whalebrew`|N/A|`WHALEBREW_CONFIG_DIR=$HOME/my-config`|
 |The directory to install packages in.|`/usr/local/bin`|`install_path: $HOME/.whalebrew/bin`|`WHALEBREW_INSTALL_PATH=$HOME/.whalebrew/bin`|
 
