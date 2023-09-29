@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/config"
 )
 
 type stater interface {
@@ -72,5 +72,5 @@ func run(s stater, r runner, wdChanger dirGetChanger, configDir, installPath str
 }
 
 func Run(hook string, args ...string) error {
-	return run(osStater{}, execRunner{}, osDirGetChanger{}, viper.GetString("config_dir"), viper.GetString("install_path"), hook, args...)
+	return run(osStater{}, execRunner{}, osDirGetChanger{}, config.ConfigDir(), config.GetConfig().InstallPath, hook, args...)
 }

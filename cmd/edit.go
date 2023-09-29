@@ -6,9 +6,9 @@ import (
 	"path"
 	"syscall"
 
-	"github.com/whalebrew/whalebrew/packages"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/config"
+	"github.com/whalebrew/whalebrew/packages"
 )
 
 func init() {
@@ -16,16 +16,16 @@ func init() {
 }
 
 var editCommand = &cobra.Command{
-	Use:                "edit PACKAGENAME",
-	Short:              "Edit a package file",
-	Long:               "Edit a package file using your default editor ($EDITOR).",
+	Use:   "edit PACKAGENAME",
+	Short: "Edit a package file",
+	Long:  "Edit a package file using your default editor ($EDITOR).",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return cmd.Help()
 		}
 
 		pkgName := args[0]
-		pm := packages.NewPackageManager(viper.GetString("install_path"))
+		pm := packages.NewPackageManager(config.GetConfig().InstallPath)
 		_, err := pm.Load(pkgName)
 		if err != nil {
 			return err

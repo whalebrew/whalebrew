@@ -7,7 +7,7 @@ import (
 
 	"github.com/Songmu/prompter"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/config"
 	"github.com/whalebrew/whalebrew/hooks"
 	"github.com/whalebrew/whalebrew/packages"
 )
@@ -43,7 +43,7 @@ var uninstallCommand = &cobra.Command{
 			return fmt.Errorf("Only one image can be uninstalled at a time")
 		}
 
-		pm := packages.NewPackageManager(viper.GetString("install_path"))
+		pm := packages.NewPackageManager(config.GetConfig().InstallPath)
 		packageNameOrImage := args[0]
 
 		if err := hooks.Run("pre-uninstall", packageNameOrImage); err != nil {
