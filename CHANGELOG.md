@@ -10,6 +10,7 @@
 
 * Support for podman (#235)
 * Support for file-based configuration
+* Warn when the installed command is not available (pointing to another file or not in PATH)
 
 ### Updates
 

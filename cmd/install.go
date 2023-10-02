@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"os/user"
 	"path"
+	"path/filepath"
 	"strconv"
 	"syscall"
 
@@ -96,11 +98,11 @@ var installCommand = &cobra.Command{
 			pkg.Entrypoint = []string{customEntrypoint}
 		}
 
-		installPath := config.GetConfig().InstallPath
+		installDir := config.GetConfig().InstallPath
 		// we have introduced a breaking change when releasing whalebrew 0.5.0
 		// Possibly, previous installations on darwin arm64 were using /usr/local/bin.
 		// Emmit a gentle warning to our users.
-		if config.GetConfig().IsDefaultInstallPath() && installPath == "/opt/whalebrew/bin" {
+		if config.GetConfig().IsDefaultInstallPath() && installDir == "/opt/whalebrew/bin" {
 			info, err := os.Stat("/usr/local/bin")
 			if err == nil {
 				if stat, ok := info.Sys().(*syscall.Stat_t); ok {
@@ -115,7 +117,7 @@ var installCommand = &cobra.Command{
 				}
 			}
 		}
-		pm := packages.NewPackageManager(installPath)
+		pm := packages.NewPackageManager(installDir)
 
 		var installed *packages.Package
 		hasInstall := pm.HasInstallation(pkg.Name)
@@ -125,7 +127,7 @@ var installCommand = &cobra.Command{
 				return fmt.Errorf("there's already an installation of %s, but there was an error loading the package, err: %s", pkg.Name, err.Error())
 			}
 
-			fmt.Printf("Looks like you already have %s installed as %s.\n", installed.Image, path.Join(installPath, pkg.Name))
+			fmt.Printf("Looks like you already have %s installed as %s.\n", installed.Image, path.Join(installDir, pkg.Name))
 
 			if !assumeYes {
 				if changed, diff, err := installed.HasChanges(ctx, docker); err != nil {
@@ -176,10 +178,18 @@ var installCommand = &cobra.Command{
 			return fmt.Errorf("post install script failed: %s", err.Error())
 		}
 
+		installPath := filepath.Clean(path.Join(pm.InstallPath, pkg.Name))
 		if hasInstall {
-			fmt.Printf("🐳  Modified %s to use %s\n", path.Join(pm.InstallPath, pkg.Name), imageName)
+			fmt.Printf("🐳  Modified %s to use %s\n", installPath, imageName)
 		} else {
-			fmt.Printf("🐳  Installed %s to %s\n", imageName, path.Join(pm.InstallPath, pkg.Name))
+			fmt.Printf("🐳  Installed %s to %s\n", imageName, installPath)
+		}
+
+		cmdPath, err := exec.LookPath(pkg.Name)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "❗️  Installed command %s does not seem to be available after install. Ensure you add %v to your $PATH to be able to use it\n", pkg.Name, pm.InstallPath)
+		} else if cmdPath != installPath {
+			fmt.Fprintf(os.Stderr, "❗️  Installed command %s does not point to installed path %s but to %s. Ensure %v is in the relevant poistion of your $PATH to be able to use it\n", pkg.Name, installPath, cmdPath, pm.InstallPath)
 		}
 		return nil
 	},
