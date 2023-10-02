@@ -6,6 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func DefaultInstallDir() string {
+	return defaultInstallDir()
+}
+
 func TestXDGPaths(t *testing.T) {
 	t.Run("With no specific environment variable", func(t *testing.T) {
 		t.Setenv("XDG_CONFIG_HOME", "")
