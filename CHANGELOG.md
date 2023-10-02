@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking changes
+
+* Changed the default installation path on Darwin arm64 to /opt/whalebrew/bin
+
 ### Added
 
 * Support for podman (#235)

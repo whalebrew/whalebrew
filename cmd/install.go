@@ -3,7 +3,11 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/user"
 	"path"
+	"strconv"
+	"syscall"
 
 	"github.com/Songmu/prompter"
 	"github.com/spf13/cobra"
@@ -93,6 +97,24 @@ var installCommand = &cobra.Command{
 		}
 
 		installPath := config.GetConfig().InstallPath
+		// we have introduced a breaking change when releasing whalebrew 0.5.0
+		// Possibly, previous installations on darwin arm64 were using /usr/local/bin.
+		// Emmit a gentle warning to our users.
+		if config.GetConfig().IsDefaultInstallPath() && installPath == "/opt/whalebrew/bin" {
+			info, err := os.Stat("/usr/local/bin")
+			if err == nil {
+				if stat, ok := info.Sys().(*syscall.Stat_t); ok {
+					currentUser, err := user.Current()
+					if err == nil {
+						if strconv.FormatUint(uint64(stat.Uid), 10) == currentUser.Uid {
+							fmt.Println("📌  Default whalebrew installation path on darwin arm64 was changed from /usr/local/bin to /opt/whalebrew/bin")
+							fmt.Println(`To keep using /usr/local/bin, set the environment variable 'WHALEBREW_INSTALL_PATH=/usr/local/bin' or add install_path: "/usr/local/bin" to your config path`, config.ConfigPath())
+							fmt.Println(`This message will be removed in whalebrew 0.6.0`)
+						}
+					}
+				}
+			}
+		}
 		pm := packages.NewPackageManager(installPath)
 
 		var installed *packages.Package

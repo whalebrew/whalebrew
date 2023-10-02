@@ -90,7 +90,7 @@ func TestGetConfig(t *testing.T) {
 		t.Run("When the config file does not exist", func(t *testing.T) {
 			config.Reset()
 			require.NoError(t, os.RemoveAll(".test-resources"))
-			assert.Equal(t, "/usr/local/bin", config.GetConfig().InstallPath)
+			assert.Equal(t, config.DefaultInstallDir(), config.GetConfig().InstallPath)
 		})
 
 		t.Run("When the config file exists", func(t *testing.T) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -35,12 +36,13 @@ type Registry struct {
 }
 
 type Config struct {
-	InstallPath string     `yaml:"install_path" env:"install_path" mapstructure:"install_path"`
-	Registries  []Registry `yaml:"registries"`
+	InstallPath          string     `yaml:"install_path" env:"install_path" mapstructure:"install_path"`
+	Registries           []Registry `yaml:"registries"`
+	isDefaultInstallPath bool
 }
 
-func parseYaml(path, name string, out interface{}) error {
-	fd, err := os.Open(filepath.Join(path, name+".yaml"))
+func parseYaml(path string, out interface{}) error {
+	fd, err := os.Open(path)
 	if err != nil {
 		return err
 	}
@@ -71,9 +73,24 @@ func ConfigDir() string {
 	return filepath.Join(Home(), ".whalebrew")
 }
 
+func defaultInstallDir() string {
+	if runtime.GOOS == "darwin" && runtime.GOARCH == "arm64" {
+		return "/opt/whalebrew/bin"
+	}
+	return "/usr/local/bin"
+}
+
+func (c Config) IsDefaultInstallPath() bool {
+	return c.isDefaultInstallPath
+}
+
+func ConfigPath() string {
+	return filepath.Join(ConfigDir(), "config.yaml")
+}
+
 func GetConfig() Config {
 	once.Do(func() {
-		err := parseYaml(ConfigDir(), "config", &config)
+		err := parseYaml(ConfigPath(), &config)
 		if err != nil && !os.IsNotExist(err) {
 			fmt.Printf("Invalid whalebrew configuration in %s: %v\n", filepath.Join(ConfigDir(), "config.yaml"), err)
 			os.Exit(1)
@@ -82,7 +99,8 @@ func GetConfig() Config {
 			config.InstallPath = os.Getenv("WHALEBREW_INSTALL_PATH")
 		}
 		if config.InstallPath == "" {
-			config.InstallPath = "/usr/local/bin"
+			config.InstallPath = defaultInstallDir()
+			config.isDefaultInstallPath = true
 		}
 	})
 	return config
