@@ -4,14 +4,14 @@
 
 ### Breaking changes
 
-* Changed the default installation path on Darwin arm64 to /opt/whalebrew/bin
+* Changed the default installation path on Darwin arm64 to /opt/whalebrew/bin (#252)
 
 ### Added
 
 * Support for podman (#235)
-* Support for file-based configuration
-* Warn when the installed command is not available (pointing to another file or not in PATH)
-* Automatically try to create installation path if it does not exist
+* Support for file-based configuration (#251)
+* Warn when the installed command is not available (pointing to another file or not in PATH) (#253)
+* Automatically try to create installation path if it does not exist (#254)
 
 ### Updates
 
