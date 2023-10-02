@@ -98,10 +98,25 @@ To upgrade a single package, just pull its image:
 
 ## Configuration
 
-Whalebrew is configured with environment variables, which you can either provide at runtime or put in your `~/.bashrc` file (or whatever shell you use).
+Whalebrew reads configuration from either configuration files or environment variables.
 
- - `WHALEBREW_INSTALL_PATH`: The directory to install packages in. (default: `/usr/local/bin`)
- - `WHALEBREW_CONFIG_DIR`: The directory to store configuration in. (default: `~/.whalebrew`)
+The configuration file location can be specified using the `WHALEBREW_CONFIG_DIR` environment variable and defaults to `~/.whalebrew`.
+The configuration file must be named `config.yaml`.
+
+|Description|Default (if not specified anywhere)|Format in config files|Format in environment variables|
+|-|-|-|-|
+|The folder containing `config.yaml`|`~/.whalebrew`|N/A|`WHALEBREW_CONFIG_DIR=$HOME/my-config`|
+|The directory to install packages in.|`/usr/local/bin`|`install_path: $HOME/.whalebrew/bin`|`WHALEBREW_INSTALL_PATH=$HOME/.whalebrew/bin`|
+
+On a general basis, any configuration configured through environment variable will be prioritary compared to values from config files.
+
+For example, if you have a whalebrew config of `install_path: $HOME/.whalebrew/bin` and an environment variable of `WHALEBREW_INSTALL_PATH=$HOME/.local/bin`, all whalebrew programs will be installed in `$HOME/.local/bin`.
+
+### Configuration path lookup
+
+Environment variables have precedence on any other value.
+As soon as the `WHALEBREW_CONFIG_DIR` it defines the whalebrew installation directory.
+When not set, whalebrew considers the first existing file between `~/.whalebrew/config.yaml`, `$XDG_CONFIG_HOME/whalebrew/config.yaml`, and for each `path` in `$XDG_DATA_DIRS`, whether `$path/whalebrew/config.yaml` exists
 
 ### Using custom registries
 
@@ -111,7 +126,7 @@ Whalebrew now supports using several registries when searching for packages.
 
 Each repository will be searched sequentially and matches on whalebrew packages will be shown, one per line.
 
-To enable this feature, ensure you have a configuration file in `${WHALEBREW_CONFIG_DIR:-~/.whalebrew}/config.yaml`.
+To enable this feature, ensure you have a configuration file configured as defined [above](#configuration).
 
 You can make one by running:
 

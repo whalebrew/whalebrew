@@ -7,7 +7,7 @@ import (
 
 	"github.com/Songmu/prompter"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/config"
 	"github.com/whalebrew/whalebrew/hooks"
 	"github.com/whalebrew/whalebrew/packages"
 	"github.com/whalebrew/whalebrew/run"
@@ -92,7 +92,7 @@ var installCommand = &cobra.Command{
 			pkg.Entrypoint = []string{customEntrypoint}
 		}
 
-		installPath := viper.GetString("install_path")
+		installPath := config.GetConfig().InstallPath
 		pm := packages.NewPackageManager(installPath)
 
 		var installed *packages.Package

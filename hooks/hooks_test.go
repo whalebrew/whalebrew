@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/whalebrew/whalebrew/config"
 )
 
 type testRunner struct {
@@ -174,8 +174,9 @@ func TestRun(t *testing.T) {
 		)
 	})
 	t.Run("When the webhook does not exist", func(t *testing.T) {
-		viper.Set("install_path", ".")
-		viper.Set("config_dir", ".")
+		config.Reset()
+		os.Setenv("WHALEBREW_INSTALL_PATH", ".")
+		os.Setenv("WHALEBREW_CONFIG_DIR", ".")
 		fmt.Println(Run(
 			"post-install",
 			"an-argument"))

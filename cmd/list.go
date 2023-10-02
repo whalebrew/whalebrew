@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"github.com/whalebrew/whalebrew/config"
 	"github.com/whalebrew/whalebrew/packages"
 )
 
@@ -23,7 +23,7 @@ var listCommand = &cobra.Command{
 	Use:   "list",
 	Short: "List installed packages",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		pm := packages.NewPackageManager(viper.GetString("install_path"))
+		pm := packages.NewPackageManager(config.GetConfig().InstallPath)
 		packages, err := pm.List()
 		if err != nil {
 			return err

@@ -5,6 +5,7 @@
 ### Added
 
 * Support for podman (#235)
+* Support for file-based configuration
 
 ### Updates
 
