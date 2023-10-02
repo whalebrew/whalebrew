@@ -11,6 +11,7 @@
 * Support for podman (#235)
 * Support for file-based configuration
 * Warn when the installed command is not available (pointing to another file or not in PATH)
+* Automatically try to create installation path if it does not exist
 
 ### Updates
 

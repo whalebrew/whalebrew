@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/Songmu/prompter"
@@ -118,6 +119,33 @@ var installCommand = &cobra.Command{
 			}
 		}
 		pm := packages.NewPackageManager(installDir)
+
+		_, err = os.Stat(installDir)
+		if err != nil && os.IsNotExist(err) {
+			err := os.MkdirAll(installDir, 0755)
+			if err != nil {
+				fmt.Println("ℹ️   Install directory", installDir, "is missing and requires elevated privileges to be created. Creating it with sudo")
+				c := exec.Command("sudo", "mkdir", "-m", "0755", "-p", installDir)
+				c.Stdout = os.Stdout
+				c.Stderr = os.Stderr
+				err = c.Run()
+				if err != nil {
+					return fmt.Errorf("failed to create non-existing installation directory: %v", err)
+				}
+				currentUser, err := user.Current()
+				if err != nil {
+					return fmt.Errorf("failed to change ownership of install directory to current user: %v", err)
+				}
+
+				c = exec.Command("sudo", "chown", "-R", currentUser.Username+":"+currentUser.Gid, strings.TrimSuffix(installDir, "/bin"))
+				c.Stdout = os.Stdout
+				c.Stderr = os.Stderr
+				err = c.Run()
+				if err != nil {
+					return fmt.Errorf("failed to create non-existing installation directory: %v", err)
+				}
+			}
+		}
 
 		var installed *packages.Package
 		hasInstall := pm.HasInstallation(pkg.Name)
