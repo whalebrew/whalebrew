@@ -28,3 +28,9 @@ jobs:
         # fetch all tags
         fetch-depth: 0 
         token: ${{ steps.app-token.outputs.token }}
+    - name: Configure git
+      run: |
+        date >> now.txt
+        git add now.txt
+        git commit -m 'now'
+        git push origin HEAD:refs/heads/test
