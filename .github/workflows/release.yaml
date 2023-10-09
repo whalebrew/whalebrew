@@ -1,11 +1,14 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        type: string
-        required: true
+  # workflow_dispatch:
+  #   inputs:
+  #     version:
+  #       type: string
+  #       required: true
+  push:
+    branches:
+    - automate-release
 
 jobs:
 
