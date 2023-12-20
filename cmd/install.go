@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"os/user"
@@ -70,7 +72,7 @@ var installCommand = &cobra.Command{
 			return err
 		}
 
-		var errors multipleErrors
+		var errorList multipleErrors
 		packages.LintImage(imageInspect, func(e error) {
 			switch e.(type) {
 			case packages.NoEntrypointError:
@@ -80,11 +82,11 @@ var installCommand = &cobra.Command{
 				}
 			}
 			if s, ok := e.(packages.StrictError); strict == true || !ok || s.Strict() {
-				errors = append(errors, e)
+				errorList = append(errorList, e)
 			}
 		})
-		if errors != nil {
-			return errors
+		if errorList != nil {
+			return errorList
 		}
 
 		pkg, err := packages.NewPackageFromImage(imageName, imageInspect)
@@ -199,6 +201,10 @@ var installCommand = &cobra.Command{
 			err = pm.Install(pkg)
 		}
 		if err != nil {
+			var patherr *fs.PathError
+			if errors.As(err, &patherr) {
+				return fmt.Errorf("Installation path is not writable: %s\n\nSet WHALEBREW_INSTALL_PATH environment variable to writable location.\nOr set 'install_path` option in '~/.whalebrew/config.yaml`. Make sure\nthe location is added to PATH. For details, see\nhttps://github.com/whalebrew/whalebrew#configuration\n", installDir)
+			}
 			return err
 		}
 
