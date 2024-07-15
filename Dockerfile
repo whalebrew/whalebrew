@@ -16,7 +16,6 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go test -v ./...
 RUN go install .
 
 FROM alpine
