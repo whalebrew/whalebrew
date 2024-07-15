@@ -14,6 +14,19 @@ on:
 
 jobs:
 
+  test-creds:
+    name: Test credentials
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/create-github-app-token@v1
+      id: app-token
+      with:
+        app-id: ${{ vars.WHALEBREW_RELEASE_APP_ID }}
+        private-key: ${{ secrets.WHALEBREW_RELEASE_SIGNING_KEY }}
+    - run: |
+        curl -u whalebrew:${{ steps.app-token.outputs.token }} https://api.github.com/user
+
   build:
     strategy:
       matrix:
