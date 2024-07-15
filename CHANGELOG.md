@@ -21,6 +21,8 @@
 * Updated the CI workflow so we can better protect the master branch and add some automation (#244)
 * Add auto-approval for bumps and main contributor (#243)
 * Enable auto merge and merge groups (#245)
+* Bump dependencies (#256, #257, #258, #278)
+* Updated Docker Desktop namings and links in ReadMe (#281)
 
 ## 0.4.1 - 2023-09-20
 
