@@ -59,3 +59,12 @@ func TestMultipleAssetsCanBeUploaded(t *testing.T) {
 	assert.NoError(t, uploadAsset("main", release, "./main.go"))
 	assert.NoError(t, uploadAsset("main_test", release, "./main_test.go"))
 }
+
+func TestGetReleaseChangeLog(t *testing.T) {
+	assert.Equal(t, `### Fixed
+* Whalebrew search would panic when called without arguments (#120)
+* Whalebrew install was not finding labels for images built using buildkit (#121)
+
+### Added
+* Support for arm and arm64 on linux (#117)`, getReleaseChangeLog("../../CHANGELOG.md", "0.3.0"))
+}
