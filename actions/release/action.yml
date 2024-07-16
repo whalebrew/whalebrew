@@ -4,8 +4,12 @@ inputs:
   tag_name:
     description: 'The name of the git tag generating the version'
     required: true
-  body:
-    description: 'The body of the release. This body will be used as a description of the release in the release page'
+  target_commitish:
+    description: 'The target commit to release'
+  draft:
+    description: 'Whether the realease is a draft'
+  pre_release:
+    description: 'Whether the realease is a pre release'
   folder:
     description: 'The folder containing all the files to recursively upload'
 outputs:
@@ -15,6 +19,8 @@ outputs:
     description: 'The URL of the generated release'
   release_upload_url:
     description: 'The URL where to upload assets'
+  release_htmlurl:
+    description: 'The user friendly URL of the generated release'
 runs:
   using: 'docker'
   image: 'Dockerfile'

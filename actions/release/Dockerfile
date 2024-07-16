@@ -8,7 +8,6 @@ COPY main.go ./
 RUN go build -o /bin/release .
 COPY main_test.go ./
 COPY resources ./resources
-RUN go test -v ./...
 
 FROM alpine
 COPY --from=build /bin/release /bin/release

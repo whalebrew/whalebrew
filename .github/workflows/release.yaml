@@ -1,0 +1,81 @@
+name: Release
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build'
+        required: true
+      draft:
+        description: 'This is a draft release'
+        required: true
+        type: boolean
+
+jobs:
+    build:
+        if: ${{ github.event.inputs.tag }}
+        uses: ./.github/workflows/go.yml
+        with:
+            tag: ${{ github.event.inputs.tag }}
+
+    create-release:
+        needs: build
+        if: ${{ github.event.inputs.tag }}
+        name: Create release
+        runs-on: ubuntu-latest
+        outputs:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+        steps:
+        
+        - uses: actions/create-github-app-token@v1
+          id: app-token
+          with:
+            app-id: ${{ vars.WHALEBREW_RELEASE_APP_ID }}
+            private-key: ${{ secrets.WHALEBREW_RELEASE_SIGNING_KEY }}
+        
+        - name: Check out code into the Go module directory
+          uses: actions/checkout@v4
+          with:
+            # https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+            # fetch all tags
+            fetch-depth: 0
+            token: ${{ steps.app-token.outputs.token }}
+        
+        - name: Download assets
+          id: download
+          uses: actions/download-artifact@v3
+          with:
+            path: release/artifacts
+        
+        - name: Commit changelog
+          run: |
+            find ${{ steps.download.outputs.download-path }}
+            cp ${{ steps.download.outputs.download-path }}/CHANGELOG.md/CHANGELOG.md CHANGELOG.md
+            sed -i.old 's,https://github.com/whalebrew/whalebrew/releases/download/[^/]*/whalebrew,https://github.com/whalebrew/whalebrew/releases/download/${{ github.event.inputs.tag }}/whalebrew,' README.md
+            rm README.md.old
+            git config --local user.email "whalebrew@users.noreply.github.com"
+            git config --local user.name "whalebrew release bot"
+            git add CHANGELOG.md README.md
+            git commit -m "Release ${{ github.event.inputs.tag }}"
+
+        - name: Push the release branch
+          if: ${{ github.event.inputs.draft }}
+          run: |
+            git push origin HEAD:refs/heads/release/${{ github.event.inputs.tag }}
+
+        - name: Create the Release
+          id: create_release
+          uses: ./actions/release
+          env:
+            GITHUB_TOKEN: ${{ steps.app-token.outputs.token }} # This token is provided by Actions, you do not need to create your own token
+          with:
+            tag_name: ${{ github.event.inputs.tag }}
+            target_commitish: ${{ github.event.inputs.draft && format('refs/heads/release/{0}', github.event.inputs.tag) || github.sha }}
+            folder: ${{ steps.download.outputs.download-path }}
+            draft: ${{ github.event.inputs.draft }}
+            pre_release: false
+        - name: Push updated release
+          if: ${{ !github.event.inputs.draft }}
+          run: |
+            git push origin HEAD:${{ github.ref }}
