@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/actions-go/toolkit v0.0.0-20231022202615-3973644be7a1
 	github.com/google/go-github/v42 v42.0.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 )
 
 require (
