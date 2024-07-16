@@ -6,7 +6,7 @@ require (
 	github.com/Songmu/prompter v0.5.1
 	github.com/blang/semver/v4 v4.0.0
 	github.com/containerd/containerd v1.7.19
-	github.com/docker/cli v25.0.1+incompatible
+	github.com/docker/cli v27.0.3+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/opencontainers/image-spec v1.1.0
 	github.com/spf13/cobra v1.8.1
@@ -22,7 +22,6 @@ require (
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/platforms v0.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/docker/docker v24.0.6+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
