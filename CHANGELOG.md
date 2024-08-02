@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.5.0 - 2024-08-02
+
 ### Breaking changes
 
 * Changed the default installation path on Darwin arm64 to /opt/whalebrew/bin (#252)
