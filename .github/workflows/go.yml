@@ -80,12 +80,12 @@ jobs:
       run: ./${{ steps.binary.outputs.binary_name }} version
       if: ${{ !startsWith(matrix.arch, 'arm') }}
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.binary.outputs.binary_name }}
         path: whalebrew-*
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: ${{ matrix.os }} == 'ubuntu-latest' && ${{ matrix.arch }} == 'amd64'
       with:
         name: CHANGELOG.md
