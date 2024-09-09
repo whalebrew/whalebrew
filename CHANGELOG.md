@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+* Installation with homebrew (#299)
+
 ### Breaking changes
 
 * Changed the default installation path on Darwin arm64 to /opt/whalebrew/bin (#252)
