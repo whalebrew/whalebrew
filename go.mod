@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/Songmu/prompter v0.5.1
 	github.com/blang/semver/v4 v4.0.0
-	github.com/containerd/containerd v1.7.20
+	github.com/containerd/containerd v1.7.22
 	github.com/docker/cli v27.1.1+incompatible
 	github.com/google/go-cmp v0.6.0
 	github.com/opencontainers/image-spec v1.1.0
@@ -41,7 +41,7 @@ require (
 	go.opentelemetry.io/otel v1.21.0 // indirect
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/term v0.24.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0 // indirect
